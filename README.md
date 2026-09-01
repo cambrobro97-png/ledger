@@ -99,6 +99,38 @@ which is what lets the lines interpolate smoothly instead of rescaling on every 
 
 ## Deploying
 
-`./deploy.sh` builds a static export and publishes it to S3 behind CloudFront. Copy
-`.env.deploy.example` to `.env.deploy` and fill in your bucket and distribution ID
+Pushing to a branch deploys it:
+
+| Branch | Site |
+| --- | --- |
+| `dev` | <https://dev.ledger-1.com> |
+| `main` | <https://ledger-1.com> (`www` redirects here) |
+
+`.github/workflows/deploy.yml` builds the export, syncs it to that environment's S3
+bucket, and invalidates CloudFront. It authenticates with a short-lived OIDC token
+rather than stored keys, and the role it assumes is pinned to a single branch, so a
+run on `dev` cannot touch production.
+
+Because the export bakes its own origin in at build time (`NEXT_PUBLIC_SITE_URL`),
+each branch builds its own artifact. A build made for dev can't be promoted to
+production &mdash; it would carry dev URLs in its metadata.
+
+### The infrastructure
+
+`cdk/` defines both environments: a private bucket, a CloudFront distribution, an ACM
+certificate, and the deploy role. Deploy one with
+
+```bash
+cd cdk
+npx cdk deploy --all --context stage=dev    # or stage=prod
+```
+
+`ledger-1.com` is registered at Squarespace but its DNS is hosted in Route 53, in a
+zone deployed separately (`--context stage=dns`) so that neither environment owns a
+resource the other depends on.
+
+### By hand
+
+`./deploy.sh` does the same build-and-sync from a laptop, for when CI isn't an option.
+Copy `.env.deploy.example` to `.env.deploy` and fill in the bucket and distribution ID
 (`.env.deploy` is gitignored), or pass them as environment variables.

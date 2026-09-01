@@ -6,3 +6,7 @@ next-env.d.ts
 .DS_Store
 .env*.local
 .env.deploy
+
+# CDK build output. cdk.context.json is deliberately NOT ignored: it pins the
+# hosted zone lookup so CI synthesizes the same template every time.
+cdk/cdk.out/

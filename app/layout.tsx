@@ -7,10 +7,12 @@ const SITE_DESCRIPTION =
 
 /**
  * The deployed origin, needed to turn the relative icon and Open Graph paths
- * into the absolute URLs those tags require. Deploys are static, so the URL is
- * a constant rather than something read from the environment at request time.
+ * into the absolute URLs those tags require. The build is a static export, so
+ * this is baked in by `next build` rather than read at request time — which is
+ * why production and dev are separate builds with different values, and why
+ * the variable must be written out in full for Next to inline it.
  */
-const SITE_URL = "https://d3pi3fnl3m6mh.cloudfront.net";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

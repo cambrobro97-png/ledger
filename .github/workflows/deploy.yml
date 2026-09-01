@@ -1,0 +1,72 @@
+name: Deploy
+
+# `dev` publishes to dev.ledger-1.com, `main` to ledger-1.com. The site is a
+# static export whose origin is baked in at build time, so each branch builds
+# its own artifact rather than promoting one between environments.
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+concurrency:
+  # Two runs syncing the same bucket would race over `--delete`. Queue them.
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  # Required to mint the OIDC token the AWS role is assumed with. Without it
+  # the credentials step fails to authenticate.
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+    env:
+      BUCKET: ${{ github.ref == 'refs/heads/main' && vars.PROD_BUCKET || vars.DEV_BUCKET }}
+      DISTRIBUTION: ${{ github.ref == 'refs/heads/main' && vars.PROD_DISTRIBUTION_ID || vars.DEV_DISTRIBUTION_ID }}
+      ROLE_ARN: ${{ github.ref == 'refs/heads/main' && vars.PROD_DEPLOY_ROLE_ARN || vars.DEV_DEPLOY_ROLE_ARN }}
+      NEXT_PUBLIC_SITE_URL: ${{ github.ref == 'refs/heads/main' && 'https://ledger-1.com' || 'https://dev.ledger-1.com' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build the static export
+        run: npm run build
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_ARN }}
+          aws-region: us-east-1
+
+      # Everything except the content-hashed bundles must revalidate, or a
+      # redeploy would keep serving the old HTML until the cache expired.
+      - name: Upload pages
+        run: |
+          aws s3 sync out/ "s3://$BUCKET/" --delete \
+            --exclude "_next/static/*" \
+            --cache-control "public,max-age=0,must-revalidate"
+
+      # Filenames under _next/static are content-hashed, so a given URL never
+      # changes meaning and can be cached in the browser for a year.
+      - name: Upload hashed assets
+        run: |
+          aws s3 sync out/_next/static/ "s3://$BUCKET/_next/static/" --delete \
+            --cache-control "public,max-age=31536000,immutable"
+
+      # Only the HTML needs flushing; the hashed assets arrive under fresh
+      # names. `/*` already covers `/`, so one path is enough.
+      - name: Invalidate the cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$DISTRIBUTION" \
+            --paths "/*" \
+            --query 'Invalidation.Status' --output text
