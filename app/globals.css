@@ -17,7 +17,11 @@
   --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
-  --pad: clamp(16px, 2.2vw, 40px);
+  /* Gutter on the page wrappers. The site header keeps the narrower
+     --pad-bar so the bar still spans the full width; the margin below
+     widens it for the content on desktop screens. */
+  --pad-bar: clamp(16px, 2.2vw, 40px);
+  --pad: var(--pad-bar);
   --radius: 14px;
   --tween: 700ms;
   --ease: cubic-bezier(0.22, 0.75, 0.25, 1);
@@ -61,6 +65,13 @@ kbd {
   border: 1px solid var(--rule);
   border-radius: 5px;
   padding: 2px 6px;
+}
+
+/* Desktop screens get breathing room on either side of the page content. */
+@media (min-width: 1100px) {
+  :root {
+    --pad: clamp(48px, 6vw, 120px);
+  }
 }
 
 @media (min-width: 1500px) {
