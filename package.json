@@ -1,8 +1,9 @@
 {
-  "name": "mortgage-payoff",
+  "name": "ledger",
   "version": "1.0.0",
   "private": true,
-  "description": "Interactive presentation for comparing extra-principal payoff scenarios on a mortgage.",
+  "license": "MIT",
+  "description": "A small set of tools for thinking about money — mortgage payoff, income, expenses, and retirement, worked out in the browser.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

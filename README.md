@@ -1,7 +1,8 @@
-# Paying it down early
+# Ledger
 
-An interactive presentation for comparing extra-principal payoff scenarios on a mortgage.
-Saved scenarios, animated transitions between them, and a presentation mode that locks editing.
+A small set of tools for thinking about money — mortgage payoff, income, expenses, and
+retirement — all worked out in the browser. Nothing is sent anywhere; every figure you
+enter stays in `localStorage`.
 
 ## Running it
 
@@ -12,14 +13,19 @@ npm run dev
 
 Then open http://localhost:3000.
 
-For the version you actually present from:
+For a production build:
 
 ```bash
 npm run build
 npm start
 ```
 
-## Using it
+## The tools
+
+### Mortgage payoff
+
+Compares extra-principal payoff scenarios against the scheduled payment. Saved scenarios,
+animated transitions between them, and a presentation mode that locks editing.
 
 - **The loan panel** sets balance, rate, payment, and the month the balance is accurate as of.
   Those terms apply to every scenario, and the remaining term is derived from them.
@@ -30,40 +36,55 @@ npm start
 - **Present** hides every input and disables editing. **Edit** brings them back.
 - **Keyboard:** `P` toggles presentation, `Esc` leaves it, `<-` and `->` move between scenarios.
 
-Everything is stored in `localStorage` under `mortgage-payoff:v1`. Nothing leaves the browser.
+### Annual income
+
+Every payday of the year on one line, and what each month adds up to.
+
+### Retirement
+
+Contributions, growth, and how long the balance lasts across accounts and outlooks.
+
+### Monthly expenses
+
+Not built yet — the route and tab exist so the shell is in place, but the calculator
+still needs writing.
+
+## Storage
+
+Each tool persists to its own `localStorage` key: `mortgage-payoff:v1`, `income:v1`, and
+`retirement:v1`. Nothing leaves the browser, and the seed values are placeholders meant to
+be replaced with your own.
 
 ## Layout
 
 ```
 app/
-  layout.tsx            Document shell and web fonts
-  page.tsx              Composes the whole view, owns presentation mode
+  layout.tsx            Document shell, web fonts, site metadata
   globals.css           Design tokens: colour, type, spacing
+  (tools)/              One route per tool, sharing the tab bar
 lib/
   types.ts              Loan, Scenario, Amortization, Comparison
   amortization.ts       The simulation, the baseline comparison, series padding
-  dates.ts              YYYY-MM parsing and calendar-month arithmetic
+  income.ts             Pay schedules expanded into dated occurrences
+  retirement.ts         Contribution and drawdown projection
+  dates.ts / days.ts    YYYY-MM parsing and calendar arithmetic
   format.ts             Currency, percentage, and duration formatting
   describe.ts           Plain-language summary of a scenario's contributions
-  defaults.ts           Seed loan and starting scenarios
+  defaults.ts           Seed data and storage keys
+  tools.ts              The tool registry the tab bar reads
 hooks/
-  useMortgageModel.ts   All state plus every derived projection
+  useMortgageModel.ts   Mortgage state plus every derived projection
+  useIncomeModel.ts     Income state and the year's occurrences
+  useRetirementModel.ts Retirement state and its projections
   usePersistedState.ts  localStorage-backed state, hydration-safe
+  useClockDefaults.ts   Applies the real clock after mount
   useTween.ts           Eases numbers and series toward new targets
   useReducedMotion.ts   Honours the OS motion setting
   useKeyboardControls.ts
 components/
-  TopBar, LoanPanel, ScenarioTabs, Hero, TermRibbon
-  MetricStrip, MetricCard
-  ScenarioEditor, ScenarioCard, OneTimeRow
-  charts/
-    geometry.ts         Plot boxes, scales, SVG path builders
-    ChartFrame.tsx      Gridlines, axis labels, payoff marker
-    ChartCard.tsx       Heading, hover readout, legend
-    useChartHover.ts    Pointer position to series index
-    BalanceChart, InterestChart, YearSplitChart
-  ui/
-    Field, Button, Panel
+  Shared chrome, the mortgage view, and income/ and retirement/ subtrees
+  charts/               Plot geometry, frames, hover, and each chart
+  ui/                   Field, Button, Panel
 ```
 
 ## Where the numbers come from
@@ -75,3 +96,9 @@ capped so a lump sum can never overshoot the payoff. Scenarios are always measur
 
 Charts pin their x-axis to the baseline term and pad shorter scenarios out to that length,
 which is what lets the lines interpolate smoothly instead of rescaling on every switch.
+
+## Deploying
+
+`./deploy.sh` builds a static export and publishes it to S3 behind CloudFront. Copy
+`.env.deploy.example` to `.env.deploy` and fill in your bucket and distribution ID
+(`.env.deploy` is gitignored), or pass them as environment variables.
