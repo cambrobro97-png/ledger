@@ -1,0 +1,187 @@
+.wrap {
+  margin-top: clamp(16px, 1.8vw, 26px);
+  padding-top: clamp(14px, 1.5vw, 22px);
+  border-top: 1px solid var(--rule);
+  /* The panel opens rather than appearing, so the month detail reads as the
+     timeline expanding into it. */
+  animation: open var(--tween) var(--ease) both;
+}
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.72vw, 12px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.total {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(24px, 2.4vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-top: 6px;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: var(--ash);
+}
+
+.stat strong {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--bone);
+}
+
+.over strong {
+  color: var(--crimson);
+}
+
+.under strong {
+  color: var(--jade);
+}
+
+/* Lines --------------------------------------------------------------- */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1.6fr) minmax(60px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  transition:
+    background var(--tween) var(--ease),
+    opacity var(--tween) var(--ease);
+}
+
+.line:hover {
+  background: var(--panel-2);
+}
+
+.lineDim {
+  opacity: 0.35;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent, var(--ash));
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name {
+  font-size: clamp(13px, 1vw, 15px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font-size: clamp(10.5px, 0.78vw, 12.5px);
+  color: var(--ash);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+
+.line:hover .bar {
+  background: rgba(134, 152, 174, 0.18);
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent, var(--ash));
+  transition: width var(--tween) var(--ease);
+}
+
+.amount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(12px, 0.95vw, 15px);
+}
+
+.share {
+  min-width: 4ch;
+  text-align: right;
+  font-size: clamp(10px, 0.75vw, 12px);
+  color: var(--ash);
+}
+
+.empty {
+  margin: 0;
+  color: var(--ash);
+  font-size: clamp(13px, 1vw, 15px);
+}
+
+@keyframes open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 760px) {
+  /* The share bar is the first thing to go: the amount and its percentage
+     already carry the comparison. */
+  .line {
+    grid-template-columns: 10px minmax(0, 1fr) auto;
+  }
+
+  .bar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrap {
+    animation: none;
+  }
+}

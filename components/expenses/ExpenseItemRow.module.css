@@ -1,0 +1,97 @@
+.row {
+  background: var(--panel-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent, var(--ash));
+  border-radius: 12px;
+  padding: 14px;
+  transition:
+    border-color var(--tween) var(--ease),
+    background var(--tween) var(--ease);
+}
+
+.rowHovered {
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel-2));
+  border-color: var(--accent, var(--rule));
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  grid-template-columns:
+    minmax(110px, 1.3fr) minmax(80px, 0.75fr) minmax(110px, 0.95fr)
+    minmax(110px, 0.95fr) minmax(125px, 1fr) minmax(125px, 1fr) auto;
+}
+
+/* Holds the end-date column open for a one-off, so the remove button doesn't
+   slide left as the cadence changes. */
+.spacer {
+  display: block;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.note {
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: var(--ash);
+}
+
+.totals {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.annual {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(10.5px, 0.78vw, 12px);
+  color: var(--ash);
+}
+
+.total {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: var(--accent, var(--bone));
+}
+
+@media (max-width: 1100px) {
+  /* Name spans the top with the remove button beside it; the five remaining
+     fields then pair off down the rows without any of them stranded. */
+  .grid {
+    grid-template-columns: 1fr 1fr auto;
+  }
+
+  /* Name, then the button, on the first row. */
+  .grid > *:nth-child(1) {
+    grid-column: 1 / 3;
+  }
+
+  .grid > *:nth-child(7) {
+    grid-column: 3 / 4;
+    grid-row: 1;
+  }
+
+  /* Amount and category, then cadence and start, then the end date. */
+  .grid > *:nth-child(2),
+  .grid > *:nth-child(4) {
+    grid-column: 1 / 2;
+  }
+
+  .grid > *:nth-child(3),
+  .grid > *:nth-child(5) {
+    grid-column: 2 / 4;
+  }
+
+  .grid > *:nth-child(6) {
+    grid-column: 1 / 4;
+  }
+}

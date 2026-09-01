@@ -116,7 +116,7 @@ export interface CalendarDay {
   day: number;
 }
 
-/** How often an income item repeats. */
+/** How often a scheduled item repeats. */
 export type Cadence =
   | "once"
   | "weekly"
@@ -127,25 +127,101 @@ export type Cadence =
   | "semiannual"
   | "annual";
 
-/** One source of income: a salary, a side contract, a yearly bonus. */
-export interface IncomeItem {
+/**
+ * Anything that puts money on the calendar on a rhythm. Income and expenses
+ * differ in what they mean and what they're measured against, but the dates
+ * themselves are generated the same way — so `lib/schedule.ts` works in terms
+ * of this, and both lists get the same treatment of a short February or a
+ * three-payday month.
+ */
+export interface ScheduledItem {
   id: string;
   name: string;
-  /** Gross amount per occurrence, before any tax or deduction. */
+  /** Amount per occurrence. */
   amount: number;
   cadence: Cadence;
   /** `YYYY-MM-DD`. The first payment; repeats are generated from here. */
   anchor: string;
-  /** `YYYY-MM-DD` the income stops, for a raise or a job change. Empty means it runs on. */
+  /** `YYYY-MM-DD` the item stops. Empty means it runs on. */
   until: string;
-  /** Index into `ACCENTS`, so a source keeps its colour everywhere it appears. */
+  /** Index into `ACCENTS`, so an item keeps its colour everywhere it appears. */
   accent: number;
+}
+
+/** One source of income: a salary, a side contract, a yearly bonus. */
+export interface IncomeItem extends ScheduledItem {
+  /** Gross amount per occurrence, before any tax or deduction. */
+  amount: number;
 }
 
 export interface IncomeState {
   /** The calendar year on screen. */
   year: number;
   items: IncomeItem[];
+}
+
+/**
+ * What kind of spending a line is. The split is the point of the tool: fixed
+ * costs are what a lean month can't go below, and the rest is what there is
+ * actually a decision to make about.
+ */
+export type ExpenseKind = "fixed" | "variable";
+
+/** Where an expense goes. Groups the spending into something readable. */
+export type ExpenseCategory =
+  | "housing"
+  | "utilities"
+  | "food"
+  | "transport"
+  | "health"
+  | "debt"
+  | "insurance"
+  | "subscriptions"
+  | "lifestyle"
+  | "other";
+
+/** One outgoing: rent, a utility bill, a subscription, a yearly premium. */
+export interface ExpenseItem extends ScheduledItem {
+  category: ExpenseCategory;
+  kind: ExpenseKind;
+}
+
+export interface ExpenseState {
+  /** The calendar year on screen. */
+  year: number;
+  items: ExpenseItem[];
+}
+
+/** Everything the expense timeline draws, derived in one pass. */
+export interface ExpenseYear {
+  occurrences: Occurrence[];
+  /** Spending landing in each calendar month, January first. */
+  byMonth: number[];
+  total: number;
+  /** Per-item totals, ordered as the items are. */
+  byItem: { itemId: string; total: number }[];
+  /** Yearly total per category, only for categories that actually spend. */
+  byCategory: { category: ExpenseCategory; total: number }[];
+  /** Index of the most expensive month, or -1 when nothing lands all year. */
+  peakMonth: number;
+  /** Index of the cheapest month, or -1 when nothing lands all year. */
+  leanMonth: number;
+  /** The largest single payment, for scaling the marks. */
+  largest: number;
+  /** The largest total landing on any one day, which is what a stacked bar reaches. */
+  largestDay: number;
+  /** Yearly total of the `fixed` lines — the floor under every month. */
+  fixedTotal: number;
+  /** Yearly total of the `variable` lines. */
+  variableTotal: number;
+  /**
+   * Spending that recurs, annualised — what a year costs if every repeating
+   * line runs its full rhythm. One-offs are excluded, so this is the part of
+   * the bill that turns up again next year whether or not it's budgeted for.
+   */
+  recurringAnnual: number;
+  /** The single largest line by yearly total, or null when the list is empty. */
+  heaviest: { itemId: string; total: number } | null;
 }
 
 /** One payment landing on one date, materialised from an item's cadence. */

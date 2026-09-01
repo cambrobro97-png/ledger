@@ -170,6 +170,7 @@ export function SelectField({
 export function TextSelectField<T extends string>({
   id,
   label,
+  ariaLabel,
   value,
   onChange,
   options,
@@ -177,6 +178,8 @@ export function TextSelectField<T extends string>({
 }: {
   id?: string;
   label?: ReactNode;
+  /** Names an unlabelled select. Defaults to "Cadence", the first use of one. */
+  ariaLabel?: string;
   value: T;
   onChange: (value: T) => void;
   options: { value: T; label: string }[];
@@ -189,7 +192,7 @@ export function TextSelectField<T extends string>({
         className={styles.select}
         value={value}
         disabled={disabled}
-        aria-label={label ? undefined : "Cadence"}
+        aria-label={label ? undefined : (ariaLabel ?? "Cadence")}
         onChange={(event) => onChange(event.target.value as T)}
       >
         {options.map((option) => (
