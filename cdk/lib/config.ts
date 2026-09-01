@@ -15,6 +15,18 @@ export const GITHUB_OWNER = "cambrobro97-png";
 export const GITHUB_REPO = "ledger";
 
 /**
+ * The prefix every OIDC token's `sub` claim carries, which the deploy roles
+ * match on. Repositories created after 15 July 2026 identify themselves by
+ * numeric owner and repository id as well as by name, so that a subject can
+ * never be forged by deleting a repo and recreating it under the same name.
+ * Read it back with:
+ *
+ *   gh api repos/OWNER/REPO/actions/oidc/customization/sub
+ */
+export const GITHUB_SUB_PREFIX =
+  "repo:cambrobro97-png@323599967/ledger@1353558439";
+
+/**
  * The account already has a GitHub Actions OIDC provider, created for an
  * earlier project. IAM allows only one provider per URL, so this is imported
  * by ARN rather than declared — creating a second one would fail the deploy.

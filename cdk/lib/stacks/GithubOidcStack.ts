@@ -6,8 +6,7 @@ import { Construct } from "constructs";
 import {
   CONFIG,
   GITHUB_OIDC_PROVIDER_ARN,
-  GITHUB_OWNER,
-  GITHUB_REPO,
+  GITHUB_SUB_PREFIX,
   Stage,
 } from "../config";
 
@@ -45,15 +44,19 @@ export class GithubOidcStack extends cdk.Stack {
         provider.openIdConnectProviderArn,
         {
           // Both conditions carry weight. Without the audience check any
-          // OIDC token could be presented; without a `sub` pinned to one
-          // branch ref, a pull request — including one from a fork — could
-          // assume the role and deploy. Together they mean only a push to
-          // this stage's branch can reach this stage's resources.
+          // OIDC token could be presented; without a pinned `sub`, any
+          // workflow in the repository — including one running from a fork's
+          // pull request — could assume the role and deploy.
+          //
+          // The workflow names a job environment, so the subject ends in
+          // `:environment:<name>` rather than the branch ref. That is the
+          // stronger pin of the two: an environment can carry protection
+          // rules and its own branch policy, whereas a ref is only whoever
+          // managed to push. The branch that reaches each environment is
+          // settled in the workflow and by that environment's own rules.
           StringEquals: {
             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          },
-          StringLike: {
-            "token.actions.githubusercontent.com:sub": `repo:${GITHUB_OWNER}/${GITHUB_REPO}:ref:refs/heads/${config.branch}`,
+            "token.actions.githubusercontent.com:sub": `${GITHUB_SUB_PREFIX}:environment:${stage}`,
           },
         },
       ),
