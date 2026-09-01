@@ -2,6 +2,8 @@ import { addMonths, parseMonth } from "./dates";
 import type {
   Account,
   AppState,
+  ExpenseItem,
+  ExpenseState,
   IncomeItem,
   IncomeState,
   OneTimePayment,
@@ -14,6 +16,7 @@ import type {
 
 export const STORAGE_KEY = "mortgage-payoff:v1";
 export const INCOME_STORAGE_KEY = "income:v1";
+export const EXPENSE_STORAGE_KEY = "expenses:v1";
 export const RETIREMENT_STORAGE_KEY = "retirement:v1";
 
 /**
@@ -162,6 +165,125 @@ export function createDefaultIncomeState(): IncomeState {
       cadence: "annual",
       anchor: `${year}-03-13`,
       accent: 1,
+    }),
+  ];
+
+  return { year, items };
+}
+
+export function createExpenseItem(
+  year: number,
+  overrides: Partial<ExpenseItem> = {},
+): ExpenseItem {
+  return {
+    id: createId(),
+    name: "New expense",
+    amount: 100,
+    cadence: "monthly",
+    // Anchored off the viewed year rather than the clock, so nothing about a
+    // new row depends on when the page happened to render.
+    anchor: `${year}-01-01`,
+    until: "",
+    category: "other",
+    kind: "fixed",
+    accent: 0,
+    ...overrides,
+  };
+}
+
+/**
+ * Placeholder spending. Replace it with your own below the timeline; the
+ * timeline and totals recalculate from whatever is in the list.
+ *
+ * Deliberately a mixed bag — monthly bills, a quarterly one, two annual
+ * premiums and a one-off — so the timeline opens on a year that actually has
+ * a shape to it rather than twelve identical columns.
+ */
+export function createDefaultExpenseState(): ExpenseState {
+  const year = currentYear();
+
+  // Fixed ids, so the markup the server renders matches the client's first pass.
+  const items: ExpenseItem[] = [
+    createExpenseItem(year, {
+      id: "rent",
+      name: "Rent",
+      amount: 1875,
+      cadence: "monthly",
+      anchor: `${year}-01-01`,
+      category: "housing",
+      kind: "fixed",
+    }),
+    createExpenseItem(year, {
+      id: "utilities",
+      name: "Power & water",
+      amount: 210,
+      cadence: "monthly",
+      anchor: `${year}-01-12`,
+      category: "utilities",
+      kind: "variable",
+    }),
+    createExpenseItem(year, {
+      id: "groceries",
+      name: "Groceries",
+      amount: 260,
+      cadence: "weekly",
+      anchor: `${year}-01-04`,
+      category: "food",
+      kind: "variable",
+    }),
+    createExpenseItem(year, {
+      id: "car-payment",
+      name: "Car payment",
+      amount: 410,
+      cadence: "monthly",
+      anchor: `${year}-01-18`,
+      category: "transport",
+      kind: "fixed",
+    }),
+    createExpenseItem(year, {
+      id: "car-insurance",
+      name: "Car insurance",
+      amount: 720,
+      cadence: "semiannual",
+      anchor: `${year}-02-05`,
+      category: "insurance",
+      kind: "fixed",
+    }),
+    createExpenseItem(year, {
+      id: "streaming",
+      name: "Streaming",
+      amount: 46,
+      cadence: "monthly",
+      anchor: `${year}-01-08`,
+      category: "subscriptions",
+      kind: "variable",
+    }),
+    createExpenseItem(year, {
+      id: "gym",
+      name: "Gym",
+      amount: 39,
+      cadence: "monthly",
+      anchor: `${year}-01-03`,
+      category: "health",
+      kind: "variable",
+    }),
+    createExpenseItem(year, {
+      id: "property-tax",
+      name: "Property tax",
+      amount: 2400,
+      cadence: "quarterly",
+      anchor: `${year}-01-31`,
+      category: "housing",
+      kind: "fixed",
+    }),
+    createExpenseItem(year, {
+      id: "holidays",
+      name: "Holiday spending",
+      amount: 1400,
+      cadence: "once",
+      anchor: `${year}-12-05`,
+      category: "lifestyle",
+      kind: "variable",
     }),
   ];
 

@@ -16,12 +16,12 @@ export const TOOLS: Tool[] = [
   },
   {
     href: "/expenses",
-    name: "Monthly expenses",
-    blurb: "Where the money goes each month, and what changing one line does to the rest.",
+    name: "Expenses",
+    blurb: "Every bill of the year on one line, and what each month really costs.",
   },
   {
     href: "/income",
-    name: "Annual income",
+    name: "Income",
     blurb: "Every payday of the year on one line, and what each month adds up to.",
   },
   {
