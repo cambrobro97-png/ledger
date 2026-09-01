@@ -4,7 +4,7 @@
   justify-content: space-between;
   gap: clamp(16px, 3vw, 48px);
   flex-wrap: wrap;
-  padding: 14px var(--pad);
+  padding: 14px var(--pad-bar);
   border-bottom: 1px solid var(--rule);
   background: rgba(15, 22, 32, 0.72);
   backdrop-filter: blur(10px);
