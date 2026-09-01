@@ -21,7 +21,7 @@ export const TOOLS: Tool[] = [
   },
   {
     href: "/income",
-    name: "Annual income",
+    name: "Income",
     blurb: "Every payday of the year on one line, and what each month adds up to.",
   },
   {

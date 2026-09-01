@@ -36,7 +36,18 @@ animated transitions between them, and a presentation mode that locks editing.
 - **Present** hides every input and disables editing. **Edit** brings them back.
 - **Keyboard:** `P` toggles presentation, `Esc` leaves it, `<-` and `->` move between scenarios.
 
-### Annual income
+### Expenses
+
+Every bill of the year on one line, and what each month really costs. Click a month to open
+it and see the bills that make it up, grouped by line rather than listed per payment.
+
+- **Recurring or one-time.** A repeating bill generates its own dates from a first payment;
+  a one-off lands once. The editor keeps the two apart.
+- **Fixed or variable** marks what a lean month can't go below, which is what the headline
+  figures and the lighter timeline bars are measured against.
+- **Categories** colour the timeline and drive the split of where the money goes.
+
+### Income
 
 Every payday of the year on one line, and what each month adds up to.
 
@@ -44,16 +55,11 @@ Every payday of the year on one line, and what each month adds up to.
 
 Contributions, growth, and how long the balance lasts across accounts and outlooks.
 
-### Monthly expenses
-
-Not built yet — the route and tab exist so the shell is in place, but the calculator
-still needs writing.
-
 ## Storage
 
-Each tool persists to its own `localStorage` key: `mortgage-payoff:v1`, `income:v1`, and
-`retirement:v1`. Nothing leaves the browser, and the seed values are placeholders meant to
-be replaced with your own.
+Each tool persists to its own `localStorage` key: `mortgage-payoff:v1`, `expenses:v1`,
+`income:v1`, and `retirement:v1`. Nothing leaves the browser, and the seed values are
+placeholders meant to be replaced with your own.
 
 ## Layout
 
@@ -65,7 +71,9 @@ app/
 lib/
   types.ts              Loan, Scenario, Amortization, Comparison
   amortization.ts       The simulation, the baseline comparison, series padding
-  income.ts             Pay schedules expanded into dated occurrences
+  schedule.ts           Cadences expanded into dated occurrences, shared by the two lists
+  income.ts             The income year derived from those occurrences
+  expenses.ts           The expense year, plus categories and the fixed/variable split
   retirement.ts         Contribution and drawdown projection
   dates.ts / days.ts    YYYY-MM parsing and calendar arithmetic
   format.ts             Currency, percentage, and duration formatting
@@ -75,6 +83,7 @@ lib/
 hooks/
   useMortgageModel.ts   Mortgage state plus every derived projection
   useIncomeModel.ts     Income state and the year's occurrences
+  useExpenseModel.ts    Expense state and the year's occurrences
   useRetirementModel.ts Retirement state and its projections
   usePersistedState.ts  localStorage-backed state, hydration-safe
   useClockDefaults.ts   Applies the real clock after mount
@@ -82,7 +91,7 @@ hooks/
   useReducedMotion.ts   Honours the OS motion setting
   useKeyboardControls.ts
 components/
-  Shared chrome, the mortgage view, and income/ and retirement/ subtrees
+  Shared chrome, the mortgage view, and expenses/, income/, retirement/ subtrees
   charts/               Plot geometry, frames, hover, and each chart
   ui/                   Field, Button, Panel
 ```
