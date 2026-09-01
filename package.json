@@ -1,0 +1,23 @@
+{
+  "name": "mortgage-payoff",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive presentation for comparing extra-principal payoff scenarios on a mortgage.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^16.3.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.7",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "typescript": "5.7.3"
+  }
+}

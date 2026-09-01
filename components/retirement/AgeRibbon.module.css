@@ -1,0 +1,87 @@
+.ribbon {
+  margin-top: clamp(26px, 3vw, 42px);
+}
+
+.track {
+  position: relative;
+  height: clamp(46px, 4.2vw, 74px);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+}
+
+/* Years still earning: solid, filling from the left. */
+.working {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(62, 207, 160, 0.3), rgba(62, 207, 160, 0.13));
+  border-right: 2px solid var(--jade);
+  transition: width var(--tween) var(--ease);
+}
+
+/* Years living off the balance: hatched, so it reads as drawdown not growth. */
+.retired {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    115deg,
+    rgba(232, 177, 76, 0.3) 0 8px,
+    rgba(232, 177, 76, 0.1) 8px 16px
+  );
+  border-left: 2px solid var(--brass);
+  transition: width var(--tween) var(--ease);
+}
+
+.scale {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.scale i {
+  flex: 1;
+  border-right: 1px solid rgba(134, 152, 174, 0.16);
+}
+
+.scale i:last-child {
+  border-right: 0;
+}
+
+.cap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.85vw, 15px);
+  color: var(--bone);
+}
+
+.capRight {
+  right: 0;
+  color: var(--brass);
+  justify-content: flex-end;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.8vw, 14px);
+  color: var(--ash);
+}
+
+.middle {
+  color: var(--brass);
+  text-align: center;
+}

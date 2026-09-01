@@ -1,0 +1,44 @@
+/* Top padding is tighter than the sides: the site tab bar already sits above. */
+.wrap {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: clamp(14px, 1.6vw, 28px) var(--pad) 64px;
+}
+
+.wrapPresenting {
+  padding-top: clamp(20px, 2vw, 36px);
+}
+
+.charts {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.chartsWide {
+  grid-column: 1 / -1;
+}
+
+.warning {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: rgba(228, 82, 95, 0.12);
+  border: 1px solid rgba(228, 82, 95, 0.45);
+  color: #ffc9cd;
+  font-size: 14px;
+}
+
+.footnote {
+  margin-top: 34px;
+  color: var(--ash);
+  font-size: 12.5px;
+  max-width: 80ch;
+}
+
+@media (max-width: 900px) {
+  .charts {
+    grid-template-columns: 1fr;
+  }
+}

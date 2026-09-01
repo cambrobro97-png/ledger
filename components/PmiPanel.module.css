@@ -1,0 +1,31 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+
+.fields {
+  display: grid;
+  gap: 14px 28px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ash);
+}
+
+/* Mono figures set tight against proportional text, so they get a little air
+   of their own rather than butting up against the words either side. */
+.note strong {
+  color: var(--bone);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  margin: 0 1px;
+}

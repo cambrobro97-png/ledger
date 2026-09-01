@@ -1,0 +1,33 @@
+.button {
+  font: 500 13px/1 var(--sans);
+  color: var(--bone);
+  background: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 9px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.button:hover:not(:disabled) {
+  border-color: var(--ash);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ghost {
+  background: none;
+}
+
+.danger:hover:not(:disabled) {
+  border-color: var(--crimson);
+  color: var(--crimson);
+}
+
+.icon {
+  padding: 9px 12px;
+  font-family: var(--mono);
+}

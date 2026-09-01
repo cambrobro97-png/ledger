@@ -1,0 +1,100 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 3vw, 48px);
+  flex-wrap: wrap;
+  padding: 14px var(--pad);
+  border-bottom: 1px solid var(--rule);
+  background: rgba(15, 22, 32, 0.72);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--bone);
+  flex: 0 0 auto;
+}
+
+.mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--brass);
+  transform: rotate(45deg);
+}
+
+.wordmark {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(16px, 1.2vw, 20px);
+  letter-spacing: -0.01em;
+}
+
+/* Tabs scroll rather than wrap, so the bar stays one line on narrow screens. */
+.tabs {
+  display: flex;
+  gap: clamp(4px, 0.8vw, 14px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-left: auto;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: 0 0 auto;
+  position: relative;
+  text-decoration: none;
+  color: var(--ash);
+  font: 500 clamp(13px, 0.92vw, 15px) / 1 var(--sans);
+  padding: 10px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.tab:hover {
+  color: var(--bone);
+  background: var(--panel);
+}
+
+.tab[aria-current="page"] {
+  color: var(--bone);
+}
+
+/* The active marker sits on the bar's own border line. */
+.tab[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -15px;
+  height: 2px;
+  background: var(--brass);
+  border-radius: 2px;
+}
+
+@media (max-width: 620px) {
+  .bar {
+    padding-bottom: 10px;
+  }
+
+  .tabs {
+    margin-left: 0;
+    width: 100%;
+    order: 3;
+  }
+
+  .tab[aria-current="page"]::after {
+    bottom: -11px;
+  }
+}

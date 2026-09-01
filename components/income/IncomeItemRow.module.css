@@ -1,0 +1,96 @@
+.row {
+  background: var(--panel-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent, var(--ash));
+  border-radius: 12px;
+  padding: 14px;
+  transition:
+    border-color var(--tween) var(--ease),
+    background var(--tween) var(--ease);
+}
+
+.rowHovered {
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel-2));
+  border-color: var(--accent, var(--rule));
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  grid-template-columns: minmax(120px, 1.4fr) minmax(90px, 0.9fr) minmax(120px, 1.1fr) minmax(130px, 1fr) minmax(130px, 1fr) auto;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.note {
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: var(--ash);
+}
+
+.total {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: var(--accent, var(--bone));
+}
+
+.swatches {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.swatches:hover {
+  border-color: var(--rule);
+}
+
+.swatch,
+.swatchOn {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  opacity: 0.3;
+  transition: opacity var(--tween) var(--ease);
+}
+
+.swatchOn {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  /* The row folds to two columns; the remove button keeps its own narrow
+     cell at the end rather than stretching across one. */
+  .grid {
+    grid-template-columns: 1fr 1fr auto;
+  }
+
+  .grid > *:nth-child(1) {
+    grid-column: 1 / -1;
+  }
+
+  .grid > *:nth-child(2),
+  .grid > *:nth-child(3) {
+    grid-column: span 1;
+  }
+
+  .grid > *:nth-child(4) {
+    grid-column: 1 / 2;
+  }
+
+  .grid > *:nth-child(5) {
+    grid-column: 2 / 3;
+  }
+}

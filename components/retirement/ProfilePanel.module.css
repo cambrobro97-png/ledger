@@ -1,0 +1,54 @@
+.panel {
+  margin-top: 20px;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.72vw, 13px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+/* Six fields, so they wrap to two rows before they get cramped. */
+.fields {
+  display: grid;
+  gap: 14px 28px;
+  margin-top: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+}
+
+.chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chipKey {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.chipValue {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(16px, 1.35vw, 24px);
+  font-weight: 500;
+}

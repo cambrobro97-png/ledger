@@ -1,0 +1,176 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 12px;
+  color: var(--ash);
+  letter-spacing: 0.02em;
+}
+
+.shell {
+  display: flex;
+  align-items: center;
+  background: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 9px;
+  padding: 0 10px;
+  transition: border-color 0.15s ease;
+}
+
+.shell:focus-within {
+  border-color: var(--brass);
+}
+
+.affix {
+  color: var(--ash);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.input,
+.select {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  color: var(--bone);
+  font-size: clamp(14px, 1vw, 17px);
+  padding: 10px 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.input:focus,
+.input:focus-visible,
+.select:focus,
+.select:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.input:disabled,
+.select:disabled {
+  color: var(--ash);
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.select {
+  cursor: pointer;
+}
+
+.select option {
+  background: var(--panel);
+}
+
+/* Toggle ------------------------------------------------------------- */
+
+.toggleRow {
+  display: flex;
+  min-width: 0;
+}
+
+/* The real control, kept off-screen but focusable so the switch stays
+   keyboard-operable and screen readers still see a checkbox. */
+.toggleInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.track {
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--ink);
+  border: 1px solid var(--rule);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ash);
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease;
+}
+
+.toggleInput:checked + .toggle .track {
+  background: color-mix(in srgb, var(--jade) 28%, var(--ink));
+  border-color: var(--jade);
+}
+
+.toggleInput:checked + .toggle .thumb {
+  transform: translateX(18px);
+  background: var(--jade);
+}
+
+/* Focus lands on the hidden input, so the ring is drawn on the track. */
+.toggleInput:focus-visible + .toggle .track {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.toggleInput:disabled + .toggle {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.toggleText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toggleLabel {
+  font-size: 13px;
+  color: var(--bone);
+}
+
+.toggleHint {
+  font-size: 12px;
+  color: var(--ash);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .thumb {
+    transition: none;
+  }
+}

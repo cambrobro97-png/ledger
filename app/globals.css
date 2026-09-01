@@ -1,0 +1,79 @@
+/* Design tokens and the handful of element-level rules everything else builds on. */
+:root {
+  --ink: #0f1620;
+  --panel: #18212e;
+  --panel-2: #1e2937;
+  --rule: #273345;
+  --bone: #edf1f6;
+  --ash: #8698ae;
+
+  /* Semantic colours: interest is money lost, principal is money kept,
+     brass marks what a scenario claws back. */
+  --crimson: #e4525f;
+  --jade: #3ecfa0;
+  --brass: #e8b14c;
+
+  --display: "Fraunces", Georgia, serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --pad: clamp(16px, 2.2vw, 40px);
+  --radius: 14px;
+  --tween: 700ms;
+  --ease: cubic-bezier(0.22, 0.75, 0.25, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background:
+    radial-gradient(1200px 700px at 80% -10%, #1b2740 0%, transparent 60%),
+    radial-gradient(900px 600px at -10% 10%, #16232e 0%, transparent 55%),
+    var(--ink);
+  background-attachment: fixed;
+  color: var(--bone);
+  font-family: var(--sans);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--panel-2);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+
+@media (min-width: 1500px) {
+  body {
+    font-size: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}

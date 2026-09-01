@@ -1,0 +1,70 @@
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+}
+
+.axisLabel {
+  font-family: var(--mono);
+  font-size: 15px;
+  fill: var(--ash);
+}
+
+.gridLine {
+  stroke: var(--rule);
+}
+
+.markerLine {
+  stroke-dasharray: 3 5;
+  opacity: 0.85;
+}
+
+.markerLabel {
+  font-family: var(--mono);
+  font-size: 15px;
+}
+
+.readout {
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.82vw, 14px);
+  color: var(--ash);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  min-height: 1.4em;
+}
+
+.readout strong {
+  font-weight: 500;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: clamp(11px, 0.78vw, 13px);
+  color: var(--ash);
+  margin-top: 10px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.swatchLine {
+  width: 16px;
+  height: 0;
+  border-top: 2px dashed var(--ash);
+  border-radius: 0;
+}

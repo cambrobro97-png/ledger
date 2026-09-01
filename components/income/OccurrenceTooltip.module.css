@@ -1,0 +1,48 @@
+.tip {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  min-width: 150px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent, var(--ash));
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.name {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+.amount {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(18px, 1.5vw, 24px);
+  margin-top: 4px;
+  color: var(--accent, var(--bone));
+}
+
+.meta {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--ash);
+}
+
+/* Set apart from the payment's own figures, so the day's total is never
+   misread as this payment's amount. */
+.total {
+  margin-top: 7px;
+  padding-top: 6px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--ash);
+}

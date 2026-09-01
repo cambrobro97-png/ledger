@@ -1,0 +1,33 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.years {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.year {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(22px, 2vw, 32px);
+  letter-spacing: -0.01em;
+  min-width: 4ch;
+  text-align: center;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+}
+
+.hint {
+  font-size: clamp(12px, 0.9vw, 14px);
+  color: var(--ash);
+}
