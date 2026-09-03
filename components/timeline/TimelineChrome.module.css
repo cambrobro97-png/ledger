@@ -168,8 +168,26 @@
   }
 }
 
-/* The pinned card reserves its height so selecting a mark doesn't reflow the
-   chart and push it off-screen, which would break the no-scroll requirement. */
+/* No reserved space: the slot only exists while a payment is selected. It takes
+   its own content height and grows into place as the card rises, so the chart
+   above never reflows to a pre-reserved gap. Mirrors MonthDetail's open. */
 .cardSlot {
-  min-height: 96px;
+  animation: slot-open var(--tween) var(--ease) both;
+}
+
+@keyframes slot-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardSlot {
+    animation: none;
+  }
 }

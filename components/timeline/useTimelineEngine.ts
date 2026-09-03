@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { niceMax } from "@/components/charts/geometry";
 import { useTweenedViewport, type Viewport } from "@/hooks/useTween";
 import { daysInMonth, daysInYear, monthStartDays } from "@/lib/days";
@@ -75,6 +75,12 @@ export function useTimelineEngine({
   const [litMonth, setLitMonth] = useState<number | null>(null);
   const [hovered, setHovered] = useState<Occurrence | null>(null);
   const [selected, setSelected] = useState<Occurrence | null>(null);
+
+  // A payment is only selectable inside an open month (vertical/touch), so a
+  // selection can't outlive a zoom-out — drop it, and the highlight with it.
+  useEffect(() => {
+    if (zoomMonth === null && selected !== null) setSelected(null);
+  }, [zoomMonth, selected]);
 
   const starts = useMemo(() => monthStartDays(year), [year]);
   const yearLength = daysInYear(year);

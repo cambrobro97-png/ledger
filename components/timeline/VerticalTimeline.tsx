@@ -268,31 +268,36 @@ export function VerticalTimeline({
         {/* Hit targets in their own layer, painted after every visible mark so
             the later day wins where dense days overlap. Floored at a touchable
             size, but never wider than the day pitch when zoomed, or every target
-            would bury its neighbour. */}
-        <g>
-          {data.occurrences.map((occurrence) => {
-            const y = yFor(occurrence.dayOfYear + 0.5);
-            if (y < plot.top - 30 || y > plot.top + PLOT_HEIGHT + 30) return null;
-            const hit = Math.max(Math.max(4, Math.min(22, dayPitch * 0.62)), Math.min(TOUCH_TARGET, dayPitch));
-            return (
-              <rect
-                key={occurrence.id}
-                x={RAIL}
-                y={y - hit / 2}
-                width={PLOT_WIDTH}
-                height={hit}
-                fill="transparent"
-                style={{ cursor: "pointer" }}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  const selected = active?.id === occurrence.id;
-                  select(occurrence);
-                  onHoverItem(selected ? null : occurrence.itemId);
-                }}
-              />
-            );
-          })}
-        </g>
+            would bury its neighbour. Only offered inside an open month: across
+            the whole year the marks are a shape to read, and days are too dense
+            to aim at a single payment. */}
+        {zoomMonth !== null ? (
+          <g>
+            {data.occurrences.map((occurrence) => {
+              if (occurrence.day.month !== zoomMonth) return null;
+              const y = yFor(occurrence.dayOfYear + 0.5);
+              if (y < plot.top - 30 || y > plot.top + PLOT_HEIGHT + 30) return null;
+              const hit = Math.max(Math.max(4, Math.min(22, dayPitch * 0.62)), Math.min(TOUCH_TARGET, dayPitch));
+              return (
+                <rect
+                  key={occurrence.id}
+                  x={RAIL}
+                  y={y - hit / 2}
+                  width={PLOT_WIDTH}
+                  height={hit}
+                  fill="transparent"
+                  style={{ cursor: "pointer" }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    const selected = active?.id === occurrence.id;
+                    select(occurrence);
+                    onHoverItem(selected ? null : occurrence.itemId);
+                  }}
+                />
+              );
+            })}
+          </g>
+        ) : null}
 
         {data.occurrences.length === 0 ? (
           <text
@@ -306,8 +311,10 @@ export function VerticalTimeline({
         ) : null}
       </svg>
 
-      <div className={styles.cardSlot}>
-        {active ? (
+      {/* No reserved space: the slot only exists while a payment is selected,
+          and grows in as the card appears. */}
+      {active ? (
+        <div className={styles.cardSlot}>
           <OccurrenceCard
             occurrence={active}
             name={nameOf(active.itemId)}
@@ -317,8 +324,8 @@ export function VerticalTimeline({
             peerNoun={peerNoun}
             placement={{ kind: "pinned" }}
           />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </>
   );
 }
