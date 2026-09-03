@@ -17,7 +17,7 @@ export function SiteHeader() {
     <header className={styles.bar}>
       <Link href={TOOLS[0].href} className={styles.brand}>
         <span className={styles.mark} aria-hidden="true" />
-        <span className={styles.wordmark}>Ledger</span>
+        <span className={styles.wordmark}>Ledger 1</span>
       </Link>
 
       <nav className={styles.tabs} aria-label="Tools">

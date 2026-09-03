@@ -1,4 +1,4 @@
-# Ledger
+# Ledger 1
 
 A small set of tools for thinking about money — mortgage payoff, income, expenses, and
 retirement — all worked out in the browser. Nothing is sent anywhere; every figure you
