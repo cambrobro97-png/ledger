@@ -25,31 +25,6 @@
   letter-spacing: -0.01em;
 }
 
-.modes {
-  display: flex;
-  gap: 6px;
-  background: var(--panel);
-  padding: 5px;
-  border-radius: 999px;
-  border: 1px solid var(--rule);
-}
-
-.mode {
-  font: 500 13px/1 var(--sans);
-  color: var(--ash);
-  background: none;
-  border: 0;
-  padding: 10px 18px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease;
-}
-
-.mode[aria-pressed="true"] {
-  background: var(--bone);
-  color: var(--ink);
-}
-
 .exit {
   display: inline-flex;
   align-items: center;

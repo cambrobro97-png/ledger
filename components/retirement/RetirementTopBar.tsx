@@ -16,30 +16,13 @@ export function RetirementTopBar({ presenting, onModeChange }: RetirementTopBarP
         <h1 className={styles.title}>The year work becomes optional</h1>
       </div>
 
+      {/* The Edit / Present toggle is hidden while presentation mode is being
+          reworked; Esc still leaves a session started from the keyboard. */}
       {presenting ? (
         <Button variant="ghost" className={styles.exit} onClick={() => onModeChange(false)}>
           Exit presentation <kbd>Esc</kbd>
         </Button>
-      ) : (
-        <div className={styles.modes} role="group" aria-label="View mode">
-          <button
-            type="button"
-            className={styles.mode}
-            aria-pressed={!presenting}
-            onClick={() => onModeChange(false)}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            className={styles.mode}
-            aria-pressed={presenting}
-            onClick={() => onModeChange(true)}
-          >
-            Present
-          </button>
-        </div>
-      )}
+      ) : null}
     </header>
   );
 }

@@ -14,8 +14,8 @@ import { TWEEN_MS } from "@/hooks/useTween";
 import { MONTH_NAMES } from "@/lib/dates";
 import { CADENCE_LABELS, CATEGORY_LABELS, KIND_LABELS, categoryAccent } from "@/lib/expenses";
 import { formatMoney } from "@/lib/format";
-import { TOOLS } from "@/lib/tools";
 import monthStyles from "@/components/timeline/MonthDetail.module.css";
+import headStyles from "@/components/TopBar.module.css";
 import styles from "../tool-page.module.css";
 
 export default function Page() {
@@ -72,11 +72,11 @@ export default function Page() {
 
   return (
     <main className={styles.wrap}>
-      <header className={styles.head}>
-        <h1 className={styles.title}>{TOOLS[1].name}</h1>
-        <p className={styles.blurb}>
-          Every bill of the year on one line. Click a month to see what it&rsquo;s made of.
-        </p>
+      <header className={`${headStyles.bar} ${styles.head}`}>
+        <div>
+          <div className={headStyles.eyebrow}>Every bill &mdash; what the year really costs</div>
+          <h1 className={headStyles.title}>Where the money goes</h1>
+        </div>
       </header>
 
       <Panel>

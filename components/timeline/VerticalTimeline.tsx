@@ -175,7 +175,7 @@ export function VerticalTimeline({
                 />
                 {height > 18 ? (
                   <text
-                    x={6}
+                    x={RAIL_WIDTH / 2}
                     // Held inside the rail when a zoomed month overflows it, so
                     // an off-screen centre still shows its label.
                     y={
@@ -186,10 +186,10 @@ export function VerticalTimeline({
                           )
                         : top + height / 2 + 4
                     }
-                    textAnchor="start"
+                    textAnchor="middle"
                     className={`${styles.railLabel} ${lit ? styles.railLabelLit : ""}`}
                   >
-                    {height > 46 ? `${name} · ${formatMoneyCompact(data.byMonth[month])}` : name}
+                    {name}
                   </text>
                 ) : null}
               </g>

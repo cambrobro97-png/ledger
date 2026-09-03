@@ -14,8 +14,8 @@ import { TWEEN_MS } from "@/hooks/useTween";
 import { MONTH_NAMES } from "@/lib/dates";
 import { CADENCE_LABELS, accentFor } from "@/lib/income";
 import { formatMoney } from "@/lib/format";
-import { TOOLS } from "@/lib/tools";
 import monthStyles from "@/components/timeline/MonthDetail.module.css";
+import headStyles from "@/components/TopBar.module.css";
 import styles from "../tool-page.module.css";
 
 const BAND_SCALE: BandScale = { kind: "share" };
@@ -60,11 +60,11 @@ export default function Page() {
 
   return (
     <main className={styles.wrap}>
-      <header className={styles.head}>
-        <h1 className={styles.title}>{TOOLS[2].name}</h1>
-        <p className={styles.blurb}>
-          Every payday of the year on one line. Click a month to open it up.
-        </p>
+      <header className={`${headStyles.bar} ${styles.head}`}>
+        <div>
+          <div className={headStyles.eyebrow}>Every payday &mdash; where the year lands</div>
+          <h1 className={headStyles.title}>What the year pays</h1>
+        </div>
       </header>
 
       <Panel>
