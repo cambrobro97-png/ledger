@@ -6,6 +6,11 @@ import { verticalPlot } from "./geometry";
 
 /** Breathing room below the chart before the viewport's bottom edge. */
 const BOTTOM_GUTTER = 24;
+/**
+ * The detail card's reserved spot below the chart in month view, in CSS pixels.
+ * Kept in sync by hand with `.cardSlot { min-height }` in TimelineChrome.
+ */
+export const CARD_SLOT_HEIGHT = 108;
 /** Never draw the chart shorter than this — below it there's nothing legible. */
 const MIN_HEIGHT = 340;
 /** Nor taller: a very tall window doesn't need a full-screen chart. */
@@ -33,8 +38,12 @@ export interface VerticalPlotBox {
  * Measures the chart's box and turns it into a Plot whose viewBox is in real
  * CSS pixels. The height is chosen to fit the viewport (svh semantics) so the
  * whole year is visible without scrolling; the width fills the container.
+ *
+ * `reserve` is space kept below the chart, inside the same box — the detail
+ * card's fixed spot in month view — so the chart shrinks to leave room for it
+ * rather than pushing it past the viewport.
  */
-export function useVerticalPlot(enabled: boolean): VerticalPlotBox {
+export function useVerticalPlot(enabled: boolean, reserve = 0): VerticalPlotBox {
   const ref = useRef<HTMLDivElement | null>(null);
   const [plot, setPlot] = useState<Plot | null>(null);
   // The last viewport height we accepted, to reject URL-bar-only changes.
@@ -54,7 +63,7 @@ export function useVerticalPlot(enabled: boolean): VerticalPlotBox {
       const bounds = node.getBoundingClientRect();
       const width = bounds.width;
       if (width === 0) return;
-      const avail = viewportHeight() - bounds.top - BOTTOM_GUTTER;
+      const avail = viewportHeight() - bounds.top - BOTTOM_GUTTER - reserve;
       const height = Math.round(Math.max(MIN_HEIGHT, Math.min(avail, MAX_HEIGHT)));
       lastViewportRef.current = viewportHeight();
       setPlot((prev) =>
@@ -79,7 +88,7 @@ export function useVerticalPlot(enabled: boolean): VerticalPlotBox {
       observer.disconnect();
       window.visualViewport?.removeEventListener("resize", onViewportResize);
     };
-  }, [enabled]);
+  }, [enabled, reserve]);
 
   return { ref, plot };
 }

@@ -5,7 +5,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { HorizontalTimeline } from "./HorizontalTimeline";
 import { VerticalTimeline } from "./VerticalTimeline";
 import { useTimelineEngine } from "./useTimelineEngine";
-import { useVerticalPlot } from "./useVerticalPlot";
+import { CARD_SLOT_HEIGHT, useVerticalPlot } from "./useVerticalPlot";
 import { TIMELINE_VERTICAL_QUERY, type TimelineProps } from "./types";
 import styles from "./Timeline.module.css";
 
@@ -17,7 +17,12 @@ export function Timeline(props: TimelineProps) {
   // Starts false, so the static export renders horizontal and a phone swaps on
   // hydrate. Deliberate — a synchronous read here would be a hydration mismatch.
   const vertical = useMediaQuery(TIMELINE_VERTICAL_QUERY);
-  const { ref, plot } = useVerticalPlot(vertical);
+  // In month view the chart leaves room below for the card's fixed spot, so the
+  // month readout under the timeline never jumps as a payment is selected.
+  const { ref, plot } = useVerticalPlot(
+    vertical,
+    props.zoomMonth !== null ? CARD_SLOT_HEIGHT : 0,
+  );
 
   const engine = useTimelineEngine({
     year: props.year,

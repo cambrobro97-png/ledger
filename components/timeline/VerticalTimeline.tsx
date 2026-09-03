@@ -311,19 +311,22 @@ export function VerticalTimeline({
         ) : null}
       </svg>
 
-      {/* No reserved space: the slot only exists while a payment is selected,
-          and grows in as the card appears. */}
-      {active ? (
+      {/* In month view the slot holds a fixed spot for the card, so selecting or
+          clearing a payment never shifts the month readout below it. Across the
+          whole year, where nothing is selectable, it takes no space at all. */}
+      {zoomMonth !== null ? (
         <div className={styles.cardSlot}>
-          <OccurrenceCard
-            occurrence={active}
-            name={nameOf(active.itemId)}
-            accent={appearance(active.itemId).accent}
-            meta={describe(active.itemId)}
-            stack={stacks.get(active.id)}
-            peerNoun={peerNoun}
-            placement={{ kind: "pinned" }}
-          />
+          {active ? (
+            <OccurrenceCard
+              occurrence={active}
+              name={nameOf(active.itemId)}
+              accent={appearance(active.itemId).accent}
+              meta={describe(active.itemId)}
+              stack={stacks.get(active.id)}
+              peerNoun={peerNoun}
+              placement={{ kind: "pinned" }}
+            />
+          ) : null}
         </div>
       ) : null}
     </>

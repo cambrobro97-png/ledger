@@ -168,10 +168,16 @@
   }
 }
 
-/* No reserved space: the slot only exists while a payment is selected. It takes
-   its own content height and grows into place as the card rises, so the chart
-   above never reflows to a pre-reserved gap. Mirrors MonthDetail's open. */
+/* In month view the slot holds a fixed spot for the card, so selecting or
+   clearing a payment never shifts the month readout below it. The card grows
+   into that spot; the slot itself stays put. Sized to the pinned card's own
+   height (name + amount + two meta lines) plus its top gap. */
 .cardSlot {
+  min-height: 108px;
+}
+
+/* The card rises into its reserved spot, mirroring MonthDetail's open. */
+.cardSlot > * {
   animation: slot-open var(--tween) var(--ease) both;
 }
 
@@ -187,7 +193,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cardSlot {
+  .cardSlot > * {
     animation: none;
   }
 }
