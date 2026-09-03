@@ -1,18 +1,33 @@
 "use client";
 
-import { useCallback, useId, type MouseEvent, type PointerEvent } from "react";
+import { useCallback, useId, useMemo, type MouseEvent, type PointerEvent } from "react";
 import type { Plot } from "@/components/charts/geometry";
 import { innerHeight, innerWidth } from "@/components/charts/geometry";
 import { MONTH_NAMES } from "@/lib/dates";
 import { formatMoneyCompact } from "@/lib/format";
-import { RAIL_GAP, RAIL_WIDTH } from "./geometry";
-import { OccurrenceCard } from "./OccurrenceCard";
+import { RAIL_WIDTH } from "./geometry";
+import { OccurrenceCard, type CardPlacement } from "./OccurrenceCard";
 import type { TimelineEngine } from "./useTimelineEngine";
 import type { TimelineProps } from "./types";
 import styles from "./TimelineChrome.module.css";
 
 /** Apple's and Google's shared minimum touch target, in CSS pixels. */
 const TOUCH_TARGET = 44;
+/** Gap between the tapped mark and the card that describes it. */
+const CARD_GAP = 8;
+/** How far the card is indented from the plot's left edge, so the mark's own
+ *  bar stays visible to its left. */
+const CARD_INSET = 12;
+/** Matches `.tipAnchored { max-width }`; used only to keep the card's right
+ *  edge inside the plot. */
+const CARD_MAX_WIDTH = 280;
+/** Room a card needs below a mark before it's flipped above it. Sized to the
+ *  tallest the card gets — name, amount, date, the tool's meta line and a
+ *  shared-day total, ~132px — plus its gap, so the flip triggers early enough
+ *  that even that card clears the bottom edge. Under-sizing this is what clips
+ *  a card: the flip decides on a threshold, but the card paints at its real
+ *  height. */
+const CARD_CLEARANCE = 150;
 
 interface Props extends TimelineProps {
   engine: TimelineEngine;
@@ -51,6 +66,7 @@ export function VerticalTimeline({
     monthAtRatio,
     toggleMonth,
     bandOpacity,
+    inView,
     active,
     select,
     clear,
@@ -91,6 +107,30 @@ export function VerticalTimeline({
 
   // Day spacing along the time axis, for both tick decimation and hit sizing.
   const dayPitch = PLOT_HEIGHT / viewSpan;
+  // A mark's thickness across the time axis: a dense fringe across the whole
+  // year, separated bars once a month is open. Capped at 22 so it stays inside
+  // the plot's 12px top and bottom padding.
+  const markThickness = Math.max(4, Math.min(22, dayPitch * 0.62));
+
+  // Where the tooltip sits for the selected payment: just below its mark and
+  // indented from the rail, flipped above the mark when it would otherwise run
+  // past the bottom of the plot. Clamped on x so a wide card can't push past
+  // the right edge. Everything is in CSS pixels, which the vertical viewBox is
+  // 1:1 with, so a mark's own coordinates place the card directly.
+  const cardPlacement = useMemo<CardPlacement>(() => {
+    if (!active) return { kind: "anchored", left: 0, top: 0, flipped: false };
+    const y = yFor(active.dayOfYear + 0.5);
+    const bottom = plot.top + PLOT_HEIGHT;
+    // Flip once the mark is low enough that a card below it would be clipped.
+    const flipped = y + markThickness / 2 + CARD_CLEARANCE > bottom;
+    const top = flipped ? y - markThickness / 2 - CARD_GAP : y + markThickness / 2 + CARD_GAP;
+    return {
+      kind: "anchored",
+      left: Math.min(RAIL + CARD_INSET, Math.max(0, plot.width - CARD_MAX_WIDTH)),
+      top,
+      flipped,
+    };
+  }, [active, yFor, plot.top, plot.width, PLOT_HEIGHT, markThickness]);
 
   return (
     <>
@@ -211,6 +251,9 @@ export function VerticalTimeline({
 
         {/* The payments themselves, stacked into one bar per day. */}
         {data.occurrences.map((occurrence) => {
+          // Month view draws only that month's payments — see inView.
+          if (!inView(occurrence)) return null;
+
           const y = yFor(occurrence.dayOfYear + 0.5);
           if (y < plot.top - 30 || y > plot.top + PLOT_HEIGHT + 30) return null;
 
@@ -225,7 +268,7 @@ export function VerticalTimeline({
           const left = RAIL + scale(base);
           const right = RAIL + scale(base + occurrence.amount);
           const barLength = Math.max(2, right - left);
-          const thickness = Math.max(4, Math.min(22, dayPitch * 0.62));
+          const thickness = markThickness;
           const dimmed = hoveredItemId !== null && hoveredItemId !== occurrence.itemId;
           const selected = active?.id === occurrence.id;
 
@@ -274,10 +317,10 @@ export function VerticalTimeline({
         {zoomMonth !== null ? (
           <g>
             {data.occurrences.map((occurrence) => {
-              if (occurrence.day.month !== zoomMonth) return null;
+              if (!inView(occurrence)) return null;
               const y = yFor(occurrence.dayOfYear + 0.5);
               if (y < plot.top - 30 || y > plot.top + PLOT_HEIGHT + 30) return null;
-              const hit = Math.max(Math.max(4, Math.min(22, dayPitch * 0.62)), Math.min(TOUCH_TARGET, dayPitch));
+              const hit = Math.max(markThickness, Math.min(TOUCH_TARGET, dayPitch));
               return (
                 <rect
                   key={occurrence.id}
@@ -311,23 +354,17 @@ export function VerticalTimeline({
         ) : null}
       </svg>
 
-      {/* In month view the slot holds a fixed spot for the card, so selecting or
-          clearing a payment never shifts the month readout below it. Across the
-          whole year, where nothing is selectable, it takes no space at all. */}
-      {zoomMonth !== null ? (
-        <div className={styles.cardSlot}>
-          {active ? (
-            <OccurrenceCard
-              occurrence={active}
-              name={nameOf(active.itemId)}
-              accent={appearance(active.itemId).accent}
-              meta={describe(active.itemId)}
-              stack={stacks.get(active.id)}
-              peerNoun={peerNoun}
-              placement={{ kind: "pinned" }}
-            />
-          ) : null}
-        </div>
+      {/* The tapped payment names itself over the chart, beside its own mark. */}
+      {active ? (
+        <OccurrenceCard
+          occurrence={active}
+          name={nameOf(active.itemId)}
+          accent={appearance(active.itemId).accent}
+          meta={describe(active.itemId)}
+          stack={stacks.get(active.id)}
+          peerNoun={peerNoun}
+          placement={cardPlacement}
+        />
       ) : null}
     </>
   );

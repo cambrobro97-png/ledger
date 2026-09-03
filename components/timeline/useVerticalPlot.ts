@@ -6,11 +6,6 @@ import { verticalPlot } from "./geometry";
 
 /** Breathing room below the chart before the viewport's bottom edge. */
 const BOTTOM_GUTTER = 24;
-/**
- * The detail card's reserved spot below the chart in month view, in CSS pixels.
- * Kept in sync by hand with `.cardSlot { min-height }` in TimelineChrome.
- */
-export const CARD_SLOT_HEIGHT = 108;
 /** Never draw the chart shorter than this — below it there's nothing legible. */
 const MIN_HEIGHT = 340;
 /** Nor taller: a very tall window doesn't need a full-screen chart. */
@@ -30,28 +25,33 @@ function viewportHeight(): number {
 
 export interface VerticalPlotBox {
   ref: React.RefObject<HTMLDivElement | null>;
-  /** Null until the first measurement lands, so nothing renders at a guess. */
-  plot: Plot | null;
+  /**
+   * The whole box the timeline owns — chart plus the card's reserved spot —
+   * or null until the first measurement lands, so nothing renders at a guess.
+   */
+  box: { width: number; height: number } | null;
 }
 
 /**
- * Measures the chart's box and turns it into a Plot whose viewBox is in real
- * CSS pixels. The height is chosen to fit the viewport (svh semantics) so the
- * whole year is visible without scrolling; the width fills the container.
+ * Measures the chart's box and reports its size in real CSS pixels, so the
+ * viewBox can be emitted 1:1 and a `font-size: 11px` label renders at 11 actual
+ * pixels. The height is chosen to fit the viewport (svh semantics) so the whole
+ * year is visible without scrolling; the width fills the container.
  *
- * `reserve` is space kept below the chart, inside the same box — the detail
- * card's fixed spot in month view — so the chart shrinks to leave room for it
- * rather than pushing it past the viewport.
+ * The box is deliberately independent of zoom state: the card's spot is carved
+ * out of this height by the renderer, never added to it. Measuring per zoom
+ * state would resize the chart — and every panel below it — on every month
+ * you opened.
  */
-export function useVerticalPlot(enabled: boolean, reserve = 0): VerticalPlotBox {
+export function useVerticalPlot(enabled: boolean): VerticalPlotBox {
   const ref = useRef<HTMLDivElement | null>(null);
-  const [plot, setPlot] = useState<Plot | null>(null);
+  const [box, setBox] = useState<{ width: number; height: number } | null>(null);
   // The last viewport height we accepted, to reject URL-bar-only changes.
   const lastViewportRef = useRef(0);
 
   useEffect(() => {
     if (!enabled) {
-      setPlot(null);
+      setBox(null);
       return;
     }
     const node = ref.current;
@@ -63,12 +63,10 @@ export function useVerticalPlot(enabled: boolean, reserve = 0): VerticalPlotBox 
       const bounds = node.getBoundingClientRect();
       const width = bounds.width;
       if (width === 0) return;
-      const avail = viewportHeight() - bounds.top - BOTTOM_GUTTER - reserve;
+      const avail = viewportHeight() - bounds.top - BOTTOM_GUTTER;
       const height = Math.round(Math.max(MIN_HEIGHT, Math.min(avail, MAX_HEIGHT)));
       lastViewportRef.current = viewportHeight();
-      setPlot((prev) =>
-        prev && prev.width === width && prev.height === height ? prev : verticalPlot(width, height),
-      );
+      setBox((prev) => (prev && prev.width === width && prev.height === height ? prev : { width, height }));
     };
 
     measure();
@@ -88,7 +86,16 @@ export function useVerticalPlot(enabled: boolean, reserve = 0): VerticalPlotBox 
       observer.disconnect();
       window.visualViewport?.removeEventListener("resize", onViewportResize);
     };
-  }, [enabled, reserve]);
+  }, [enabled]);
 
-  return { ref, plot };
+  return { ref, box };
+}
+
+/**
+ * The chart's plot: the whole measured box. The card floats over the chart
+ * rather than sitting below it, so nothing is reserved and the chart's height
+ * never depends on the zoom or the selection.
+ */
+export function chartPlot(box: { width: number; height: number }): Plot {
+  return verticalPlot(box.width, box.height);
 }

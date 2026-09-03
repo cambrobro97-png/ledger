@@ -7,12 +7,17 @@ import type { Occurrence, StackedOccurrence } from "@/lib/types";
 import styles from "./OccurrenceCard.module.css";
 
 /**
- * Where the card sits: floating over the chart at a percentage across it (the
- * horizontal timeline, tracking the hovered column), or pinned below the chart
- * in normal flow (the vertical timeline, where a phone has nowhere to float a
- * card without covering the marks it describes).
+ * Where the card sits.
+ *
+ * `float` tracks the hovered column across the horizontal chart, positioned as
+ * a percentage of its width. `anchored` places the card in CSS pixels beside
+ * the tapped mark on the vertical chart, flipped above it when it would
+ * otherwise run past the bottom of the plot — so it never covers the mark it
+ * describes and never overflows the timeline's box.
  */
-export type CardPlacement = { kind: "float"; left: number } | { kind: "pinned" };
+export type CardPlacement =
+  | { kind: "float"; left: number }
+  | { kind: "anchored"; left: number; top: number; flipped: boolean };
 
 interface OccurrenceCardProps {
   occurrence: Occurrence;
@@ -40,16 +45,20 @@ export function OccurrenceCard({
   placement,
 }: OccurrenceCardProps) {
   const shared = stack !== undefined && stack.count > 1;
+  const anchored = placement.kind === "anchored";
   // Clamped away from both edges so a floating card never runs off the panel,
-  // the same edge-awareness the payoff marker's label uses.
+  // the same edge-awareness the payoff marker's label uses. Anchored, the
+  // caller has already clamped in pixels against the plot it knows the size of.
   const style =
     placement.kind === "float"
       ? { left: `${Math.max(9, Math.min(91, placement.left))}%`, ["--accent" as string]: accent }
-      : { ["--accent" as string]: accent };
+      : { left: `${placement.left}px`, top: `${placement.top}px`, ["--accent" as string]: accent };
 
   return (
     <div
-      className={`${styles.tip} ${placement.kind === "pinned" ? styles.tipPinned : ""}`}
+      className={`${styles.tip} ${
+        anchored ? `${styles.tipAnchored} ${placement.flipped ? styles.tipFlipped : ""}` : ""
+      }`}
       style={style}
     >
       <div className={styles.name}>{name}</div>

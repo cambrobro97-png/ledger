@@ -42,6 +42,20 @@ export interface TimelineEngine {
   toggleMonth: (month: number) => void;
   /** 0..1 opacity for one month's band segment. */
   bandOpacity: (month: number) => number;
+  /** Whether a payment should be drawn right now.
+   *
+   *  In month view only the open month's payments belong on the chart. The
+   *  pixel culling each renderer does keeps slop so a mark near an edge isn't
+   *  clipped mid-tween, but that slop is wide enough to admit the neighbouring
+   *  months' boundary days, which then sit inside the plot looking like part of
+   *  the open month — and aren't selectable, since the hit layer filters by
+   *  month. This is the one rule for both, so what's drawn and what can be
+   *  picked are always the same set.
+   *
+   *  Measured against the live tweened window rather than the target month, so
+   *  the neighbours stay on screen and slide out as the zoom runs instead of
+   *  vanishing on its first frame. */
+  inView: (occurrence: Occurrence) => boolean;
 
   /** Hovered (desktop) or selected (touch) — whichever is active. */
   active: Occurrence | null;
@@ -132,6 +146,18 @@ export function useTimelineEngine({
     [data.byMonth, data.total, bandScale],
   );
 
+  const inView = useCallback(
+    (occurrence: Occurrence) => {
+      if (zoomMonth === null) return true;
+      // The open month's own payments are always drawn. Everything else is kept
+      // only while the tween still has it inside the window, so a zoom slides
+      // the neighbours out rather than blinking them away.
+      if (occurrence.day.month === zoomMonth) return true;
+      return occurrence.dayOfYear >= view.start && occurrence.dayOfYear < view.end;
+    },
+    [zoomMonth, view.start, view.end],
+  );
+
   const hover = useCallback((occurrence: Occurrence | null) => setHovered(occurrence), []);
   const select = useCallback(
     (occurrence: Occurrence | null) =>
@@ -158,6 +184,7 @@ export function useTimelineEngine({
     monthAtRatio,
     toggleMonth,
     bandOpacity,
+    inView,
     active: selected ?? hovered,
     hover,
     select,

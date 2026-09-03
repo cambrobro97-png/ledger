@@ -5,7 +5,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { HorizontalTimeline } from "./HorizontalTimeline";
 import { VerticalTimeline } from "./VerticalTimeline";
 import { useTimelineEngine } from "./useTimelineEngine";
-import { CARD_SLOT_HEIGHT, useVerticalPlot } from "./useVerticalPlot";
+import { chartPlot, useVerticalPlot } from "./useVerticalPlot";
 import { TIMELINE_VERTICAL_QUERY, type TimelineProps } from "./types";
 import styles from "./Timeline.module.css";
 
@@ -17,12 +17,11 @@ export function Timeline(props: TimelineProps) {
   // Starts false, so the static export renders horizontal and a phone swaps on
   // hydrate. Deliberate — a synchronous read here would be a hydration mismatch.
   const vertical = useMediaQuery(TIMELINE_VERTICAL_QUERY);
-  // In month view the chart leaves room below for the card's fixed spot, so the
-  // month readout under the timeline never jumps as a payment is selected.
-  const { ref, plot } = useVerticalPlot(
-    vertical,
-    props.zoomMonth !== null ? CARD_SLOT_HEIGHT : 0,
-  );
+  // One measurement for the whole timeline, independent of zoom and selection.
+  // The card floats over the chart, so the box is the chart, and neither
+  // opening a month nor tapping a payment resizes anything below it.
+  const { ref, box } = useVerticalPlot(vertical);
+  const plot = box === null ? null : chartPlot(box);
 
   const engine = useTimelineEngine({
     year: props.year,
@@ -57,7 +56,14 @@ export function Timeline(props: TimelineProps) {
   }, [zoomMonth, active, onHoverItem]);
 
   return (
-    <div className={styles.wrap} ref={ref}>
+    <div
+      className={`${styles.wrap} ${vertical ? styles.wrapVertical : ""}`}
+      ref={ref}
+      // Pinned to the measured height so the box can't grow with its own
+      // contents — which would feed back into the next measurement — and so the
+      // panels below it never move as the chart's insides change.
+      style={vertical && box ? { height: `${box.height}px` } : undefined}
+    >
       {vertical ? (
         // Nothing renders until the box is measured, rather than snapping from
         // a guessed size.

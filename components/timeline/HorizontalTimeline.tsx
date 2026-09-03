@@ -53,6 +53,7 @@ export function HorizontalTimeline({
     monthAtRatio,
     toggleMonth,
     bandOpacity,
+    inView,
     active,
     hover,
   } = engine;
@@ -215,6 +216,9 @@ export function HorizontalTimeline({
 
         {/* The payments themselves, stacked into one bar per day. */}
         {data.occurrences.map((occurrence) => {
+          // Month view draws only that month's payments — see inView.
+          if (!inView(occurrence)) return null;
+
           const x = xFor(occurrence.dayOfYear + 0.5);
           if (x < PLOT.left - 30 || x > PLOT.left + PLOT_WIDTH + 30) return null;
 
