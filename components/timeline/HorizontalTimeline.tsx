@@ -1,34 +1,13 @@
 "use client";
 
-import {
-  useCallback,
-  useId,
-  useMemo,
-  useState,
-  type MouseEvent,
-  type PointerEvent,
-} from "react";
-import { TIMELINE_PLOT, innerHeight, innerWidth, niceMax } from "@/components/charts/geometry";
-import { useTweenedViewport, type Viewport } from "@/hooks/useTween";
+import { useCallback, useId, useMemo, type MouseEvent, type PointerEvent } from "react";
+import { TIMELINE_PLOT, innerHeight, innerWidth } from "@/components/charts/geometry";
 import { MONTH_NAMES } from "@/lib/dates";
-import { daysInMonth, daysInYear, monthStartDays } from "@/lib/days";
 import { formatMoneyCompact } from "@/lib/format";
-import { categoryAccent, stackByDay } from "@/lib/expenses";
-import type { ExpenseItem, ExpenseYear, Occurrence } from "@/lib/types";
-import { ExpenseTooltip } from "./ExpenseTooltip";
-import styles from "./ExpenseTimeline.module.css";
-
-interface ExpenseTimelineProps {
-  year: number;
-  derived: ExpenseYear;
-  items: ExpenseItem[];
-  /** Month currently expanded, or null for the whole year. */
-  zoomMonth: number | null;
-  onZoomMonth: (month: number | null) => void;
-  hoveredItemId: string | null;
-  onHoverItem: (id: string | null) => void;
-  duration: number;
-}
+import { OccurrenceCard } from "./OccurrenceCard";
+import type { TimelineEngine } from "./useTimelineEngine";
+import type { TimelineProps } from "./types";
+import styles from "./TimelineChrome.module.css";
 
 const PLOT = TIMELINE_PLOT;
 const PLOT_WIDTH = innerWidth(PLOT);
@@ -40,80 +19,61 @@ const BAND_HEIGHT = 26;
 /** Smallest hover target a band in a stack gets, in viewBox units. */
 const MIN_HIT_HEIGHT = 7;
 
-/**
- * Below this many months in view, the day axis has taken over from the month
- * axis. Crossing it is what "zoomed in" means.
- */
-const DAY_VIEW_SPAN = 3;
-
-/** Fades a value in over the last stretch of the zoom, for the day-level layer. */
-function dayViewProgress(span: number): number {
-  return Math.max(0, Math.min(1, (DAY_VIEW_SPAN - span) / (DAY_VIEW_SPAN - 1)));
+interface Props extends TimelineProps {
+  engine: TimelineEngine;
 }
 
-export function ExpenseTimeline({
-  year,
-  derived,
-  items,
+/** The year drawn across the screen: months banded along the top, payments as
+ *  columns rising from a floor. The desktop layout. */
+export function HorizontalTimeline({
+  data,
+  appearance,
+  nameOf,
+  describe,
+  peerNoun,
+  emptyMessage,
+  bandColor,
+  title,
   zoomMonth,
-  onZoomMonth,
   hoveredItemId,
   onHoverItem,
-  duration,
-}: ExpenseTimelineProps) {
+  engine,
+}: Props) {
   const gradientId = useId();
-  const [hovered, setHovered] = useState<Occurrence | null>(null);
-  /** x of the hovered mark in viewBox units, so the tooltip tracks its column. */
-  const [hoveredX, setHoveredX] = useState(0);
-  const [litMonth, setLitMonth] = useState<number | null>(null);
+  const {
+    view,
+    viewSpan,
+    dayProgress,
+    starts,
+    visibleDays,
+    max,
+    stacks,
+    litMonth,
+    setLitMonth,
+    monthAtRatio,
+    toggleMonth,
+    bandOpacity,
+    active,
+    hover,
+  } = engine;
 
-  const starts = useMemo(() => monthStartDays(year), [year]);
-  const yearLength = daysInYear(year);
-
-  // The window, in days. Memoized so the tween isn't restarted every render.
-  const target = useMemo<Viewport>(
-    () =>
-      zoomMonth === null
-        ? { start: 0, end: yearLength }
-        : { start: starts[zoomMonth], end: starts[zoomMonth + 1] },
-    [zoomMonth, starts, yearLength],
-  );
-
-  const view = useTweenedViewport(target, duration);
-  const viewSpan = Math.max(1, view.end - view.start);
-  const monthsInView = (viewSpan / yearLength) * 12;
-  const dayProgress = dayViewProgress(monthsInView);
-
-  /** Maps a day-of-year to an x position through the live viewport. */
   const xFor = useCallback(
     (day: number) => PLOT.left + ((day - view.start) / viewSpan) * PLOT_WIDTH,
     [view.start, viewSpan],
   );
 
-  // Scaled to the tallest column rather than the tallest single payment, so a
-  // day carrying three bills still fits inside the plot.
-  const max = niceMax(derived.largestDay);
-
-  const stacks = useMemo(() => stackByDay(derived.occurrences), [derived.occurrences]);
-
-  const itemsById = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
-
-  /** Which month sits under a pointer event, or null if it lands nowhere. */
-  const monthAt = useCallback(
-    (event: { currentTarget: SVGRectElement; clientX: number }) => {
-      const bounds = event.currentTarget.getBoundingClientRect();
-      if (bounds.width === 0) return null;
-      const ratio = (event.clientX - bounds.left) / bounds.width;
-      const day = view.start + Math.max(0, Math.min(1, ratio)) * viewSpan;
-      const month = starts.findIndex((start, index) => index < 12 && day < starts[index + 1]);
-      return month === -1 ? 11 : month;
-    },
-    [view.start, viewSpan, starts],
-  );
+  const ratioAt = useCallback((event: { currentTarget: SVGRectElement; clientX: number }) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if (bounds.width === 0) return null;
+    return (event.clientX - bounds.left) / bounds.width;
+  }, []);
 
   const onBandMove = useCallback(
-    (event: PointerEvent<SVGRectElement>) => setLitMonth(monthAt(event)),
-    [monthAt],
+    (event: PointerEvent<SVGRectElement>) => {
+      const ratio = ratioAt(event);
+      setLitMonth(ratio === null ? null : monthAtRatio(ratio));
+    },
+    [ratioAt, monthAtRatio, setLitMonth],
   );
 
   // Read the month from the click itself rather than from whatever the last
@@ -121,40 +81,29 @@ export function ExpenseTimeline({
   // the right month.
   const onBandClick = useCallback(
     (event: MouseEvent<SVGRectElement>) => {
-      const month = monthAt(event);
-      onZoomMonth(month === null || month === zoomMonth ? null : month);
+      const ratio = ratioAt(event);
+      if (ratio !== null) toggleMonth(monthAtRatio(ratio));
     },
-    [monthAt, onZoomMonth, zoomMonth],
+    [ratioAt, monthAtRatio, toggleMonth],
   );
 
-  const visibleDays = zoomMonth === null ? null : daysInMonth(year, zoomMonth);
-
-  /**
-   * The band's shading runs between the lightest and heaviest month rather
-   * than up from zero. Spending, unlike income, rarely goes near zero in any
-   * month — measured against zero the whole year lands in the top of the
-   * range and the band reads as twelve identical blocks.
-   */
-  const range = useMemo(() => {
-    const spending = derived.byMonth.filter((amount) => amount > 0);
-    if (spending.length === 0) return null;
-    const low = Math.min(...spending);
-    const high = Math.max(...spending);
-    // A year of identical months has no contrast to draw; one flat mid-tone
-    // is honest about that, where dividing by zero would not be.
-    return high > low ? { low, high } : null;
-  }, [derived.byMonth]);
+  // The tooltip tracks its column, so its x follows the active mark.
+  const activeX = useMemo(
+    () => (active ? xFor(active.dayOfYear + 0.5) : 0),
+    [active, xFor],
+  );
 
   return (
-    <div className={styles.wrap}>
+    <>
       <svg
         className={styles.svg}
         viewBox={`0 0 ${PLOT.width} ${PLOT.height}`}
         role="img"
-        aria-label={`Expenses across ${year}`}
+        aria-label={title}
+        style={{ ["--band" as string]: bandColor }}
         onPointerLeave={() => {
           setLitMonth(null);
-          setHovered(null);
+          hover(null);
         }}
       >
         <defs>
@@ -175,8 +124,6 @@ export function ExpenseTimeline({
 
             const open = zoomMonth === month;
             const lit = litMonth === month || open;
-            const amount = derived.byMonth[month];
-            const weight = range === null ? 0.5 : (amount - range.low) / (range.high - range.low);
 
             return (
               <g key={name} className={styles.band}>
@@ -187,15 +134,14 @@ export function ExpenseTimeline({
                   height={BAND_HEIGHT}
                   rx={6}
                   className={`${styles.segment} ${lit ? styles.segmentLit : ""}`}
-                  style={{ opacity: amount > 0 ? 0.3 + weight * 0.6 : 0.12 }}
+                  style={{ opacity: bandOpacity(month) }}
                 />
                 {width > 34 ? (
                   <text
                     // A zoomed month grows wider than the plot, so its centre
                     // can sit off-screen; the label is held inside the band
                     // instead. Only a segment that actually overflows is
-                    // clamped, so the year's twelve labels stay centred on
-                    // their own months.
+                    // clamped, so the year's twelve labels stay centred.
                     x={
                       left < PLOT.left || right > PLOT.left + PLOT_WIDTH
                         ? Math.min(
@@ -208,7 +154,7 @@ export function ExpenseTimeline({
                     textAnchor="middle"
                     className={`${styles.bandLabel} ${lit ? styles.bandLabelLit : ""}`}
                   >
-                    {width > 90 ? `${name} · ${formatMoneyCompact(derived.byMonth[month])}` : name}
+                    {width > 90 ? `${name} · ${formatMoneyCompact(data.byMonth[month])}` : name}
                   </text>
                 ) : null}
               </g>
@@ -230,13 +176,7 @@ export function ExpenseTimeline({
         </g>
 
         {/* Baseline */}
-        <line
-          x1={PLOT.left}
-          y1={FLOOR}
-          x2={PLOT.left + PLOT_WIDTH}
-          y2={FLOOR}
-          className={styles.axis}
-        />
+        <line x1={PLOT.left} y1={FLOOR} x2={PLOT.left + PLOT_WIDTH} y2={FLOOR} className={styles.axis} />
 
         {/* Day ticks, only once a month is open enough to read them. */}
         {visibleDays && dayProgress > 0 ? (
@@ -274,27 +214,22 @@ export function ExpenseTimeline({
         </g>
 
         {/* The payments themselves, stacked into one bar per day. */}
-        {derived.occurrences.map((occurrence) => {
+        {data.occurrences.map((occurrence) => {
           const x = xFor(occurrence.dayOfYear + 0.5);
           if (x < PLOT.left - 30 || x > PLOT.left + PLOT_WIDTH + 30) return null;
 
-          const item = itemsById.get(occurrence.itemId);
-          const accent = categoryAccent(item?.category ?? "other");
+          const look = appearance(occurrence.itemId);
           const stack = stacks.get(occurrence.id);
           const base = stack?.base ?? 0;
           const shared = (stack?.count ?? 1) > 1;
 
           const scale = (value: number) => (value / max) * PLOT_HEIGHT * 0.72;
-          // The band runs from the top of everything below it to the top of
-          // its own amount, so rounding never accumulates into a seam.
           const bottom = FLOOR - scale(base);
           const top = FLOOR - scale(base + occurrence.amount);
           const height = Math.max(2, bottom - top);
           const width = Math.max(5, Math.min(26, (PLOT_WIDTH / viewSpan) * 0.62));
           const dimmed = hoveredItemId !== null && hoveredItemId !== occurrence.itemId;
 
-          // Only the ends of a column get the corner radius; the joins stay
-          // square so the segments read as one bar rather than stacked pills.
           const rounded = Math.min(3, width / 2);
           const capped = !shared || base + occurrence.amount >= (stack?.total ?? 0) - 0.0001;
 
@@ -302,14 +237,13 @@ export function ExpenseTimeline({
             <g
               key={occurrence.id}
               className={`${styles.mark} ${dimmed ? styles.markDim : ""}`}
-              style={{ color: accent }}
+              style={{ color: look.accent }}
               onPointerEnter={() => {
-                setHovered(occurrence);
-                setHoveredX(x);
+                hover(occurrence);
                 onHoverItem(occurrence.itemId);
               }}
               onPointerLeave={() => {
-                setHovered(null);
+                hover(null);
                 onHoverItem(null);
               }}
             >
@@ -319,20 +253,12 @@ export function ExpenseTimeline({
                 width={width}
                 height={height}
                 rx={capped ? rounded : 0}
-                fill={accent}
+                fill={look.accent}
                 className={`${styles.markBody} ${shared ? styles.markBand : ""} ${
-                  item?.kind === "variable" ? styles.markVariable : ""
+                  look.muted ? styles.markMuted : ""
                 }`}
-                style={
-                  shared
-                    ? // Grown from the column's own floor, so a stack rises as
-                      // one piece instead of each band scaling about itself.
-                      { transformOrigin: `${x}px ${bottom}px` }
-                    : undefined
-                }
+                style={shared ? { transformOrigin: `${x}px ${bottom}px` } : undefined}
               />
-              {/* A hairline of the panel colour keeps neighbouring bands legible
-                  when two bills happen to share a category. */}
               {shared && !capped ? (
                 <line
                   x1={x - width / 2}
@@ -342,11 +268,7 @@ export function ExpenseTimeline({
                   className={styles.markSeam}
                 />
               ) : null}
-              {/* A wider invisible target, so small marks are still easy to hit.
-                  A lone mark claims the full height above it. A band inside a
-                  stack claims its own slice, floored at a hittable size — and
-                  it grows downward, since the band above is the one whose lower
-                  edge a pointer is most likely to be reaching for. */}
+              {/* A wider invisible target, so small marks are still easy to hit. */}
               <rect
                 x={x - Math.max(9, width / 2)}
                 y={shared ? top : PLOT.top}
@@ -358,26 +280,29 @@ export function ExpenseTimeline({
           );
         })}
 
-        {derived.occurrences.length === 0 ? (
+        {data.occurrences.length === 0 ? (
           <text
             x={PLOT.left + PLOT_WIDTH / 2}
             y={PLOT.top + PLOT_HEIGHT / 2}
             textAnchor="middle"
             className={styles.empty}
           >
-            Nothing lands in {year} yet — add an expense below.
+            {emptyMessage}
           </text>
         ) : null}
       </svg>
 
-      {hovered ? (
-        <ExpenseTooltip
-          occurrence={hovered}
-          item={itemsById.get(hovered.itemId)}
-          left={(hoveredX / PLOT.width) * 100}
-          stack={stacks.get(hovered.id)}
+      {active ? (
+        <OccurrenceCard
+          occurrence={active}
+          name={nameOf(active.itemId)}
+          accent={appearance(active.itemId).accent}
+          meta={describe(active.itemId)}
+          stack={stacks.get(active.id)}
+          peerNoun={peerNoun}
+          placement={{ kind: "float", left: (activeX / PLOT.width) * 100 }}
         />
       ) : null}
-    </div>
+    </>
   );
 }

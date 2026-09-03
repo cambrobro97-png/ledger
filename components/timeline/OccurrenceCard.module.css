@@ -13,6 +13,18 @@
   z-index: 2;
 }
 
+/* On mobile the card is pinned below the chart in normal flow: a floating card
+   at phone widths has nowhere to go without covering the marks it names, and
+   pointer-events: none would leave it undismissable by tap. */
+.tipPinned {
+  position: static;
+  transform: none;
+  margin-top: 10px;
+  width: 100%;
+  min-width: 0;
+  pointer-events: auto;
+}
+
 .name {
   font-family: var(--mono);
   font-size: 10px;

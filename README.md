@@ -49,7 +49,12 @@ it and see the bills that make it up, grouped by line rather than listed per pay
 
 ### Income
 
-Every payday of the year on one line, and what each month adds up to.
+Every payday of the year on one line, and what each month adds up to. Click a month to open
+it and see the sources that make it up.
+
+Both this and the expense timeline draw the year across the screen on desktop and down it on
+mobile, sized to the viewport so the whole year is visible without scrolling; on a phone a
+payment is reached by tapping it.
 
 ### Retirement
 
@@ -89,9 +94,13 @@ hooks/
   useClockDefaults.ts   Applies the real clock after mount
   useTween.ts           Eases numbers and series toward new targets
   useReducedMotion.ts   Honours the OS motion setting
+  useMediaQuery.ts      Tracks a media query; picks the timeline's orientation
   useKeyboardControls.ts
 components/
   Shared chrome, the mortgage view, and expenses/, income/, retirement/ subtrees
+  timeline/             The shared year timeline: one engine, a horizontal
+                        (desktop) and a vertical (mobile) renderer, the month
+                        detail, the year switcher, and the payment card
   charts/               Plot geometry, frames, hover, and each chart
   ui/                   Field, Button, Panel
 ```

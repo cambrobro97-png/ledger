@@ -1,0 +1,27 @@
+.wrap {
+  position: relative;
+  margin-top: clamp(18px, 2vw, 30px);
+}
+
+/* The horizontal chart scales with its width; the vertical one is given an
+   explicit pixel height inline (see VerticalTimeline) and just fills the width. */
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+.svgVertical {
+  height: auto; /* overridden inline by the measured pixel height */
+}
+
+@media (max-width: 700px) {
+  /* A belt-and-braces cap: even the frame before the first measurement lands,
+     the chart can't overflow the viewport. svh is the smallest viewport (URL
+     bar showing), so it never overshoots when the bar retracts. */
+  .wrap {
+    max-height: 78svh;
+  }
+}
