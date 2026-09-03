@@ -1,0 +1,14 @@
+/* A column at least as tall as the viewport, so the footer sits at the bottom
+   of the screen on short pages rather than partway up it. */
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* Without this the tool's own content can't shrink below its intrinsic width
+   inside the flex column, which the charts and editor grids rely on. */
+.main {
+  flex: 1 0 auto;
+  min-width: 0;
+}

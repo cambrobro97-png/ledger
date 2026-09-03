@@ -1,24 +1,13 @@
-.wrap {
-  position: relative;
-  margin-top: clamp(18px, 2vw, 30px);
-}
-
-.svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-  touch-action: pan-y;
-}
-
 /* Month band --------------------------------------------------------- */
 
 .band {
   pointer-events: none;
 }
 
+/* The band's tint is passed in per tool as --band (jade for income, crimson
+   for spending), so the two timelines are never mistaken for each other. */
 .segment {
-  fill: var(--jade);
+  fill: var(--band, var(--ash));
   transition:
     fill var(--tween) var(--ease),
     opacity var(--tween) var(--ease);
@@ -94,6 +83,19 @@
   transform-box: view-box;
 }
 
+/* The vertical bars grow rightward, so they scale on x rather than y. */
+.markGrow {
+  animation-name: grow;
+}
+
+/* Muted spending (variable bills) is drawn lighter than a fixed one, so the
+   part of a column there's a decision to make about is visible without a
+   legend. `fill-opacity` rather than `opacity`, which the rise animation ends
+   at 1. */
+.markMuted {
+  fill-opacity: 0.55;
+}
+
 .markSeam {
   stroke: var(--panel);
   stroke-width: 1;
@@ -104,8 +106,38 @@
   opacity: 0.22;
 }
 
+/* The tapped mark on mobile: full opacity plus a hairline outline, so the
+   selection reads even when its neighbours haven't dimmed yet. */
+.markSelected {
+  stroke: var(--bone);
+  stroke-width: 1;
+  paint-order: stroke;
+}
+
 .mark:hover .markBody {
   filter: brightness(1.25);
+}
+
+/* Vertical month rail ------------------------------------------------- */
+
+.rail {
+  pointer-events: none;
+}
+
+.railLabel {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--bone);
+  opacity: 0.75;
+  transition: opacity var(--tween) var(--ease);
+}
+
+.railLabelLit {
+  opacity: 1;
+}
+
+.railHit {
+  cursor: pointer;
 }
 
 @keyframes rise {
@@ -115,6 +147,17 @@
   }
   to {
     transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0.2);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
     opacity: 1;
   }
 }

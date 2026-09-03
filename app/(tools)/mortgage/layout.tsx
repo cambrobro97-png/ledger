@@ -8,13 +8,13 @@ export const metadata: Metadata = {
   title: tool.name,
   description: tool.blurb,
   openGraph: {
-    title: `${tool.name} — Ledger`,
+    title: `${tool.name} — Ledger 1`,
     description: tool.blurb,
     url: tool.href,
   },
   twitter: {
     card: "summary",
-    title: `${tool.name} — Ledger`,
+    title: `${tool.name} — Ledger 1`,
     description: tool.blurb,
   },
 };

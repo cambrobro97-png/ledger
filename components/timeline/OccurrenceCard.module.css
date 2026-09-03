@@ -13,6 +13,27 @@
   z-index: 2;
 }
 
+/* Anchored beside the tapped mark on the vertical chart. Positioned in CSS
+   pixels by the renderer, which knows the plot's real size — the viewBox is 1:1
+   with pixels there, so a mark's coordinates are the card's coordinates.
+
+   translateX(-50%) is dropped: the caller clamps `left` against the plot's own
+   edges, which is exact, where a percentage-based centre is not. */
+.tipAnchored {
+  transform: none;
+  max-width: min(280px, calc(100% - 24px));
+  min-width: 0;
+  /* Tappable — tapping the card is one of the ways to dismiss the selection. */
+  pointer-events: auto;
+}
+
+/* Flipped above the mark when the card would otherwise run past the bottom of
+   the plot. `top` still names the mark's edge; the shift is what moves the card
+   to the other side of it, so the renderer never has to know the card's height. */
+.tipFlipped {
+  transform: translateY(-100%);
+}
+
 .name {
   font-family: var(--mono);
   font-size: 10px;

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-const SITE_NAME = "Ledger";
+const SITE_NAME = "Ledger 1";
 const SITE_DESCRIPTION =
   "A small set of tools for thinking about money — mortgage payoff, income, expenses, and retirement, all worked out in the browser.";
 

@@ -65,9 +65,13 @@
 
 @media (max-width: 1100px) {
   /* Name spans the top with the remove button beside it; the five remaining
-     fields then pair off down the rows without any of them stranded. */
+     fields then pair off down the rows without any of them stranded.
+
+     minmax(0, 1fr), not 1fr: a track's default minimum is its content's
+     intrinsic minimum, so a plain 1fr won't shrink below the input inside it
+     and the row stops fitting narrow viewports. */
   .grid {
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   }
 
   /* Name, then the button, on the first row. */

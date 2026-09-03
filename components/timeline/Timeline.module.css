@@ -1,0 +1,32 @@
+.wrap {
+  position: relative;
+  margin-top: clamp(18px, 2vw, 30px);
+}
+
+/* Vertical mode: the wrap is pinned to its measured height inline and is the
+   positioning context for the card, which floats over the chart beside the
+   tapped mark. The card's placement flips it above the mark near the bottom
+   edge, so it should stay inside on its own; `overflow: hidden` is the backstop
+   that guarantees it — along with a frame mid-measurement and a mark's rounded
+   cap — so the month readout and the metrics below stay clear. */
+.wrapVertical {
+  overflow: hidden;
+}
+
+/* The horizontal chart scales with its width; the vertical one is given an
+   explicit pixel height inline (see VerticalTimeline) and just fills the width. */
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+/* Sized in real pixels rather than by aspect ratio, and clipped to itself:
+   without this the marks' rounded caps and the rail's labels can spill past
+   the measured box and over whatever follows the timeline. */
+.svgVertical {
+  height: auto; /* overridden inline by the measured pixel height */
+  overflow: hidden;
+}
