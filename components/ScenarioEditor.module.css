@@ -5,7 +5,12 @@
 .grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* min(300px, 100%), not a bare 300px: the track minimum is what decides when
+     a second column fits, but a hard 300px also refuses to shrink below itself,
+     so on a viewport narrower than 300px + padding the grid overflowed the page
+     sideways. min() keeps the column-fitting behaviour and lets the last
+     single-column case collapse to whatever room there is. */
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
 }
 
 .actions {

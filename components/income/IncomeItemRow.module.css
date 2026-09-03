@@ -18,7 +18,15 @@
   display: grid;
   gap: 10px;
   align-items: center;
-  grid-template-columns: minmax(120px, 1.4fr) minmax(90px, 0.9fr) minmax(120px, 1.1fr) minmax(130px, 1fr) minmax(130px, 1fr) auto;
+  /* The named minimums are what keep the six columns readable side by side;
+     below 900px the row folds and they no longer apply. */
+  grid-template-columns:
+    minmax(120px, 1.4fr)
+    minmax(90px, 0.9fr)
+    minmax(120px, 1.1fr)
+    minmax(130px, 1fr)
+    minmax(130px, 1fr)
+    auto;
 }
 
 .foot {
@@ -72,9 +80,14 @@
 
 @media (max-width: 900px) {
   /* The row folds to two columns; the remove button keeps its own narrow
-     cell at the end rather than stretching across one. */
+     cell at the end rather than stretching across one.
+
+     minmax(0, 1fr), not 1fr: a grid track's default minimum is `auto`, which is
+     its content's intrinsic minimum, so a plain 1fr refuses to go narrower than
+     the input inside it. That floored the row at ~416px and scrolled the whole
+     page sideways on any phone. */
   .grid {
-    grid-template-columns: 1fr 1fr auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   }
 
   .grid > *:nth-child(1) {

@@ -1,6 +1,9 @@
 .row {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  /* minmax(0, 1fr), not 1fr: a track's default minimum is its content's
+     intrinsic minimum, so a plain 1fr won't shrink below the field inside it
+     and the row pushes its remove button off a narrow screen. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
 }
