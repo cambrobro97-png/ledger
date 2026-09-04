@@ -22,7 +22,7 @@ export const TOOLS: Tool[] = [
   {
     id: "mortgage",
     href: "/mortgage",
-    name: "Mortgage payoff",
+    name: "Mortgage",
     blurb: "What extra principal payments buy on a mortgage.",
   },
   {
