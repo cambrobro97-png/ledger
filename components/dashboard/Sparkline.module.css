@@ -1,0 +1,25 @@
+/*
+ * A fixed height, not `auto`. The viewBox is stretched to fill the card's
+ * width (`preserveAspectRatio: none`), so an aspect-derived height would make
+ * a wide card several hundred pixels tall — the chart is a footnote to the
+ * figure, not the subject of the card.
+ */
+.svg {
+  display: block;
+  width: 100%;
+  height: 64px;
+  overflow: visible;
+}
+
+.line {
+  fill: none;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.area {
+  stroke: none;
+  opacity: 0.14;
+}

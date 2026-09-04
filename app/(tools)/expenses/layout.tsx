@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { TOOLS } from "@/lib/tools";
+import { toolById } from "@/lib/tools";
 
 // The page itself is a Client Component, so its metadata lives here.
-const tool = TOOLS[1];
+const tool = toolById("expenses");
 
 export const metadata: Metadata = {
   title: tool.name,

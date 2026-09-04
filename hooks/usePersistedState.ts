@@ -2,12 +2,29 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+export interface PersistedStateOptions {
+  /**
+   * Read the stored value but never write it back.
+   *
+   * For consumers that only display what a tool saved — the dashboard widgets.
+   * Without this every mounted reader schedules a debounced `setItem` of a
+   * value it never changed, so merely looking at a summary would rewrite the
+   * tool's entry.
+   */
+  readOnly?: boolean;
+}
+
 /**
  * State backed by localStorage. The first render always uses the initial value
  * so server and client markup agree; stored values are adopted after mount,
  * which is what `hydrated` reports.
  */
-export function usePersistedState<T>(key: string, createInitial: () => T) {
+export function usePersistedState<T>(
+  key: string,
+  createInitial: () => T,
+  options: PersistedStateOptions = {},
+) {
+  const readOnly = options.readOnly ?? false;
   const [value, setValue] = useState<T>(createInitial);
   const [hydrated, setHydrated] = useState(false);
   const writeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -23,7 +40,7 @@ export function usePersistedState<T>(key: string, createInitial: () => T) {
   }, [key]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || readOnly) return;
     if (writeTimer.current) clearTimeout(writeTimer.current);
     writeTimer.current = setTimeout(() => {
       try {
@@ -35,7 +52,7 @@ export function usePersistedState<T>(key: string, createInitial: () => T) {
     return () => {
       if (writeTimer.current) clearTimeout(writeTimer.current);
     };
-  }, [key, value, hydrated]);
+  }, [key, value, hydrated, readOnly]);
 
   const reset = useCallback(() => {
     setValue(createInitial());
