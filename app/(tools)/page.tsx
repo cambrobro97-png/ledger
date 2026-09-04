@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { Dashboard } from "@/components/dashboard/Dashboard";
 import { toolById } from "@/lib/tools";
 
-// The page itself is a Client Component, so its metadata lives here.
-const tool = toolById("retirement");
+// A server component wrapping the client dashboard, so the root route can
+// export its own metadata. The (tools) group layout is shared by every tool
+// and has no per-page slot for "/".
+const tool = toolById("dashboard");
 
 export const metadata: Metadata = {
   title: tool.name,
@@ -19,6 +22,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RetirementLayout({ children }: LayoutProps<"/retirement">) {
-  return children;
+export default function Page() {
+  return <Dashboard />;
 }

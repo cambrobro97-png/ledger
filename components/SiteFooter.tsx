@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { TOOLS } from "@/lib/tools";
+import { HOME_HREF } from "@/lib/tools";
 import { useSiteChrome } from "./SiteChrome";
 import styles from "./SiteFooter.module.css";
 
@@ -26,7 +26,7 @@ export function SiteFooter() {
 
   return (
     <footer className={styles.bar}>
-      <Link href={TOOLS[0].href} className={styles.brand}>
+      <Link href={HOME_HREF} className={styles.brand}>
         <span className={styles.mark} aria-hidden="true" />
         <span className={styles.wordmark}>Ledger 1</span>
       </Link>
