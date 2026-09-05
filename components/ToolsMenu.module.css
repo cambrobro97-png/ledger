@@ -1,0 +1,119 @@
+.wrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--ash);
+  font: 500 clamp(13px, 0.92vw, 15px) / 1 var(--sans);
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  color: var(--bone);
+  background: var(--panel);
+  border-color: var(--rule);
+}
+
+/* A chevron drawn from a rotated corner, so there's no icon to ship. */
+.chevron {
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.18s ease;
+}
+
+.trigger[aria-expanded="true"] .chevron {
+  transform: translateY(1px) rotate(-135deg);
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 30;
+  width: max-content;
+  min-width: 240px;
+  max-width: min(320px, calc(100vw - 2 * var(--pad-bar)));
+  padding: 6px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  animation: drop 0.16s var(--ease);
+}
+
+/* A class rule outranks the UA's `[hidden]`, so say it again here. */
+.panel[hidden] {
+  display: none;
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: block;
+  position: relative;
+  padding: 9px 12px;
+  border-radius: 9px;
+  text-decoration: none;
+  color: var(--ash);
+  transition: color 0.18s ease, background 0.18s ease;
+}
+
+.item:hover {
+  color: var(--bone);
+  background: var(--panel);
+}
+
+.item[aria-current="page"] {
+  color: var(--bone);
+  background: var(--panel);
+}
+
+/* The active tool keeps the brass marker the tab bar used to carry. */
+.item[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--brass);
+}
+
+.name {
+  display: block;
+  font: 500 14px / 1.2 var(--sans);
+  color: inherit;
+}
+
+.blurb {
+  display: block;
+  margin-top: 3px;
+  font: 400 12px / 1.35 var(--sans);
+  color: var(--ash);
+}

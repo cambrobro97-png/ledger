@@ -61,3 +61,14 @@ export function toolById(id: ToolId): Tool {
 
 /** Where the brand mark points, and the site's root. */
 export const HOME_HREF = "/";
+
+/**
+ * Whether `pathname` is inside `tool`.
+ *
+ * The dashboard lives at "/", which every other path starts with, so it only
+ * counts as active on an exact match.
+ */
+export function isToolActive(tool: Tool, pathname: string): boolean {
+  if (tool.href === HOME_HREF) return pathname === HOME_HREF;
+  return pathname === tool.href || pathname.startsWith(`${tool.href}/`);
+}

@@ -1,12 +1,8 @@
 .bar {
-  /* How far the active tab's underline hangs below the tabs, so it lands on
-     the bar's own bottom border. `.tabs` reserves exactly this much room. */
-  --marker-drop: 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: clamp(16px, 3vw, 48px);
-  flex-wrap: wrap;
   padding: 14px var(--pad-bar);
   border-bottom: 1px solid var(--rule);
   background: rgba(15, 22, 32, 0.72);
@@ -38,75 +34,4 @@
   font-weight: 700;
   font-size: clamp(16px, 1.2vw, 20px);
   letter-spacing: -0.01em;
-}
-
-/*
- * Tabs scroll rather than wrap, so the bar stays one line on narrow screens.
- *
- * `overflow-x: auto` makes this a scroll container on *both* axes — CSS forces
- * `overflow-y` to `auto` too, and there is no way to opt one axis back out. The
- * active tab's underline sits below the tabs' own box, so it counted as
- * vertical overflow and the bar could be swiped up and down by a few pixels.
- * The padding below reserves room for that marker inside the box, and the
- * matching negative margin keeps the bar the same height as before.
- */
-.tabs {
-  display: flex;
-  gap: clamp(4px, 0.8vw, 14px);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  margin-left: auto;
-  padding-bottom: var(--marker-drop);
-  margin-bottom: calc(var(--marker-drop) * -1);
-}
-
-.tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.tab {
-  flex: 0 0 auto;
-  position: relative;
-  text-decoration: none;
-  color: var(--ash);
-  font: 500 clamp(13px, 0.92vw, 15px) / 1 var(--sans);
-  padding: 10px 12px;
-  border-radius: 8px;
-  white-space: nowrap;
-  transition: color 0.18s ease, background 0.18s ease;
-}
-
-.tab:hover {
-  color: var(--bone);
-  background: var(--panel);
-}
-
-.tab[aria-current="page"] {
-  color: var(--bone);
-}
-
-/* The active marker sits on the bar's own border line. */
-.tab[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: calc(var(--marker-drop) * -1);
-  height: 2px;
-  background: var(--brass);
-  border-radius: 2px;
-}
-
-@media (max-width: 620px) {
-  .bar {
-    --marker-drop: 11px;
-    padding-bottom: 10px;
-  }
-
-  .tabs {
-    margin-left: 0;
-    width: 100%;
-    order: 3;
-  }
 }

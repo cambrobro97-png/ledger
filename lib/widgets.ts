@@ -2,8 +2,13 @@ import type { ComponentType } from "react";
 import { CashFlowWidget } from "@/components/dashboard/widgets/CashFlowWidget";
 import { ExpensesYearWidget } from "@/components/dashboard/widgets/ExpensesYearWidget";
 import { IncomeYearWidget } from "@/components/dashboard/widgets/IncomeYearWidget";
+import { InterestAvoidedWidget } from "@/components/dashboard/widgets/InterestAvoidedWidget";
+import { MonthlySurplusWidget } from "@/components/dashboard/widgets/MonthlySurplusWidget";
 import { MortgagePayoffWidget } from "@/components/dashboard/widgets/MortgagePayoffWidget";
 import { RetirementAgeWidget } from "@/components/dashboard/widgets/RetirementAgeWidget";
+import { RetirementCrossoverWidget } from "@/components/dashboard/widgets/RetirementCrossoverWidget";
+import { SpendingHeatWidget } from "@/components/dashboard/widgets/SpendingHeatWidget";
+import { SpendingSplitWidget } from "@/components/dashboard/widgets/SpendingSplitWidget";
 import type { WidgetSize } from "./dashboardLayout";
 import type { ToolId } from "./tools";
 
@@ -99,6 +104,68 @@ export const WIDGETS: WidgetDefinition[] = [
     defaultSize: "wide",
     inDefaultLayout: true,
     Component: CashFlowWidget,
+  },
+
+  /*
+   * The chart cards. Every one of these is off the default board: someone
+   * already using the dashboard has arranged it, and five new cards appearing
+   * unasked would undo that. `reconcileLayout` puts them in the catalog
+   * instead, where they are one click away.
+   */
+  {
+    id: "monthly-surplus",
+    title: "Months in the black",
+    blurb: "Which months clear and which fall short, across the year.",
+    owner: "cross",
+    href: "/expenses",
+    sizes: ["small", "medium", "wide"],
+    defaultSize: "medium",
+    inDefaultLayout: false,
+    Component: MonthlySurplusWidget,
+  },
+  {
+    id: "expenses-split",
+    title: "Where it goes",
+    blurb: "The year's spending broken up by category.",
+    owner: "expenses",
+    href: "/expenses",
+    sizes: ["small", "medium", "wide"],
+    defaultSize: "medium",
+    inDefaultLayout: false,
+    Component: SpendingSplitWidget,
+  },
+  {
+    id: "expenses-heat",
+    title: "Heaviest month",
+    blurb: "The shape of the spending year, month by month.",
+    owner: "expenses",
+    href: "/expenses",
+    sizes: ["small", "medium", "wide"],
+    defaultSize: "small",
+    inDefaultLayout: false,
+    Component: SpendingHeatWidget,
+  },
+  {
+    id: "mortgage-interest-avoided",
+    title: "Interest avoided",
+    blurb: "What the extra payments save against the scheduled payment.",
+    owner: "mortgage",
+    href: "/mortgage",
+    sizes: ["small", "medium", "wide"],
+    defaultSize: "wide",
+    inDefaultLayout: false,
+    Component: InterestAvoidedWidget,
+  },
+  {
+    id: "retirement-crossover",
+    title: "Work optional at",
+    blurb: "The age a safe withdrawal first covers what a year costs.",
+    owner: "retirement",
+    href: "/retirement",
+    sizes: ["small", "medium", "wide"],
+    defaultSize: "medium",
+    inDefaultLayout: false,
+    Component: RetirementCrossoverWidget,
   },
 ];
 
