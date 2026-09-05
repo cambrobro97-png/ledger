@@ -14,10 +14,12 @@ import styles from "./SiteFooter.module.css";
  */
 const COPYRIGHT_YEAR = new Date().getFullYear();
 
+const REPO_URL = "https://github.com/cambrobro97-png/ledger";
+
 /**
- * Closes out every tool page: the brand mark, the "not advice" disclosure, and
- * the copyright. Like the header, it steps aside when a tool takes over the
- * screen.
+ * Closes out every tool page: the brand mark, the "not advice" disclosure, the
+ * open-source note, and the copyright. Like the header, it steps aside when a
+ * tool takes over the screen.
  */
 export function SiteFooter() {
   const { chromeVisible } = useSiteChrome();
@@ -36,6 +38,20 @@ export function SiteFooter() {
         estimate worked out from the numbers you enter, and it makes no assumptions
         about your circumstances. Talk to a qualified financial, tax, or legal
         professional before acting on anything you see here.
+      </p>
+
+      <p className={styles.source}>
+        Ledger 1 is open source under the MIT License. Read the code, report a bug,
+        or send a pull request on{" "}
+        <a
+          className={styles.link}
+          href={REPO_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub
+        </a>
+        .
       </p>
 
       <p className={styles.copyright}>
