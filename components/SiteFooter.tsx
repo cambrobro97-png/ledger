@@ -17,9 +17,24 @@ const COPYRIGHT_YEAR = new Date().getFullYear();
 const REPO_URL = "https://github.com/cambrobro97-png/ledger";
 
 /**
+ * The Buy Me a Coffee page to send supporters to. A plain outbound link on
+ * purpose: the platform's embed widget is a third-party script that would run
+ * on every page of a tool that holds the visitor's balances in `localStorage`,
+ * and its floating button is appended to `document.body` outside React, so it
+ * would sit over the charts in presentation mode where the rest of the chrome
+ * steps aside. A link sends nothing until it is clicked, and swapping to Ko-fi
+ * or GitHub Sponsors later is this one string.
+ *
+ * Set to the real page before merging; the note stays hidden while it holds
+ * the placeholder, so a half-finished link can never reach production.
+ */
+const SUPPORT_URL = "https://buymeacoffee.com/YOUR_HANDLE";
+const SUPPORT_CONFIGURED = !SUPPORT_URL.includes("YOUR_HANDLE");
+
+/**
  * Closes out every tool page: the brand mark, the "not advice" disclosure, the
- * open-source note, and the copyright. Like the header, it steps aside when a
- * tool takes over the screen.
+ * open-source note, the support link, and the copyright. Like the header, it
+ * steps aside when a tool takes over the screen.
  */
 export function SiteFooter() {
   const { chromeVisible } = useSiteChrome();
@@ -53,6 +68,23 @@ export function SiteFooter() {
         </a>
         .
       </p>
+
+      {SUPPORT_CONFIGURED && (
+        <p className={styles.support}>
+          <a
+            className={styles.coffee}
+            href={SUPPORT_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Buy me a coffee
+          </a>
+          <span className={styles.supportNote}>
+            The tools are free and stay that way. A coffee helps cover the
+            hosting.
+          </span>
+        </p>
+      )}
 
       <p className={styles.copyright}>
         © {COPYRIGHT_YEAR} Ledger 1. All rights reserved.
