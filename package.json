@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
-  "description": "A small set of tools for thinking about money — mortgage payoff, income, expenses, and retirement, worked out in the browser.",
+  "description": "A small set of tools for thinking about money \u2014 mortgage payoff, income, expenses, and retirement, worked out in the browser.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "next": "^16.3.3",
@@ -19,6 +19,8 @@
     "@types/node": "22.10.7",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.4",
     "typescript": "5.7.3"
   }
 }

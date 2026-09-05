@@ -41,13 +41,15 @@ export function Donut({ segments, legend = 0, format, label }: DonutProps) {
   // A hairline between neighbours, but never between a segment and itself.
   const gap = segments.length > 1 ? 0.7 : 0;
 
-  let consumed = 0;
-  const arcs = segments.map((segment) => {
-    const share = (segment.value / total) * 100;
-    const arc = { ...segment, share, offset: consumed };
-    consumed += share;
-    return arc;
-  });
+  // Each segment starts where everything before it ended. Summed per segment
+  // rather than carried in a running total, because a variable mutated from
+  // inside a render callback is exactly what `react-hooks` rules out.
+  const arcs = segments.map((segment, index) => ({
+    ...segment,
+    share: (segment.value / total) * 100,
+    offset:
+      (segments.slice(0, index).reduce((sum, earlier) => sum + earlier.value, 0) / total) * 100,
+  }));
 
   const named = arcs.slice(0, legend);
   const rest = arcs.slice(legend);
