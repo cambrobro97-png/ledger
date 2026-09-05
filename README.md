@@ -19,13 +19,29 @@ Then open http://localhost:3000.
 For a production build:
 
 ```bash
-npm run build
-npm start
+npm run build        # writes the static export to out/
+npx serve@latest out
 ```
+
+`next.config.mjs` sets `output: "export"`, so there's no server to run — `npm start`
+refuses and points at `serve` instead. The `out/` directory is the whole site.
 
 ## The tools
 
-### Mortgage payoff
+### Dashboard
+
+The site root: a grid of cards summarising the other four tools, each reading the same
+`localStorage` the tool itself writes. Nothing is entered here.
+
+- **Ten cards** to choose from — payoff date, interest avoided, the year's income and
+  expenses, retirement age and crossover, monthly surplus, cash flow, where the spending
+  goes, and which months run hot. Five are placed by default.
+- **Arrange it.** Drag a card to reorder it, cycle it between small, medium, and wide,
+  or remove it. Anything not placed waits in the catalogue below the grid, and **Reset**
+  restores the default set.
+- The layout persists to its own key, so it survives a reload.
+
+### Mortgage
 
 Compares extra-principal payoff scenarios against the scheduled payment. Saved scenarios,
 animated transitions between them, and a presentation mode that locks editing.
@@ -36,6 +52,11 @@ animated transitions between them, and a presentation mode that locks editing.
   positions rather than jumping.
 - **Each scenario** takes an extra monthly amount, an annual amount with the month it lands in,
   and any number of one-time lump sums with their own dates.
+- **PMI is optional and off by default.** Switch it on with the premium, the home's value, and
+  the LTV it drops off at, and the projection stops charging it once the balance clears that
+  threshold. It can also put the freed-up premium toward principal from that month on — money
+  already in the budget, so the baseline abstains and the recycling reads as the scenario's
+  saving rather than new money out of pocket.
 - **Present** hides every input and disables editing. **Edit** brings them back.
 - **Keyboard:** `P` toggles presentation, `Esc` leaves it, `<-` and `->` move between scenarios.
 
@@ -63,11 +84,28 @@ payment is reached by tapping it.
 
 Contributions, growth, and how long the balance lasts across accounts and outlooks.
 
+- **The profile** sets the ages the projection runs between and the month it starts from,
+  and every outlook is measured over that same horizon so the axis holds still.
+- **Accounts** are 401(k), investment, or cash, each with its own balance, contribution, and
+  return. The 401(k) deferral limit — and the catch-up allowance from 50 — is flagged when a
+  contribution runs past it.
+- **Outlooks** work like the mortgage's scenarios: tabs that swap the assumptions — spend,
+  inflation, returns — each with a withdrawal strategy saying how the portfolio is drawn
+  down: proportionally, lowest-return account first, or taxable accounts first, leaving the
+  401(k) until it's penalty-free.
+- **Present**, **Edit**, and the same keys as the mortgage tool: `P`, `Esc`, `<-` and `->`.
+
 ## Storage
 
 Each tool persists to its own `localStorage` key: `mortgage-payoff:v1`, `expenses:v1`,
-`income:v1`, and `retirement:v1`. Nothing leaves the browser, and the seed values are
-placeholders meant to be replaced with your own.
+`income:v1`, and `retirement:v1`, plus `dashboard:v1` for the arrangement of the cards on
+the site root. Nothing leaves the browser, and the seed values are placeholders meant to be
+replaced with your own.
+
+The seed data is written around a fixed month rather than the clock, because a static export
+prerenders on the build machine and hydrates in the visitor's browser — a date read at render
+time can differ between the two and throws. `useClockDefaults` applies the real clock after
+mount instead.
 
 ## Layout
 
@@ -75,24 +113,32 @@ placeholders meant to be replaced with your own.
 app/
   layout.tsx            Document shell, web fonts, site metadata
   globals.css           Design tokens: colour, type, spacing
-  (tools)/              One route per tool, sharing the tab bar
+  (tools)/              The dashboard at "/", one route per tool below it,
+                        sharing the header, its tool menu, and the footer
 lib/
-  types.ts              Loan, Scenario, Amortization, Comparison
-  amortization.ts       The simulation, the baseline comparison, series padding
+  types.ts              Every shape the tools share, from Loan and Scenario
+                        through the income, expense, and retirement models
+  amortization.ts       The simulation, PMI drop-off, the baseline comparison,
+                        series padding
   schedule.ts           Cadences expanded into dated occurrences, shared by the two lists
   income.ts             The income year derived from those occurrences
   expenses.ts           The expense year, plus categories and the fixed/variable split
-  retirement.ts         Contribution and drawdown projection
+  retirement.ts         Contribution and drawdown projection, deferral limits
   dates.ts / days.ts    YYYY-MM parsing and calendar arithmetic
   format.ts             Currency, percentage, and duration formatting
   describe.ts           Plain-language summary of a scenario's contributions
+  describeRetirement.ts The same for accounts, outlooks, and withdrawal strategies
+  widgets.ts            The dashboard card registry
+  dashboardLayout.ts    Placed cards, their sizes, and the default set
   defaults.ts           Seed data and storage keys
-  tools.ts              The tool registry the tab bar reads
+  tools.ts              The tool registry the header menu reads
 hooks/
   useMortgageModel.ts   Mortgage state plus every derived projection
   useIncomeModel.ts     Income state and the year's occurrences
   useExpenseModel.ts    Expense state and the year's occurrences
   useRetirementModel.ts Retirement state and its projections
+  useDashboardLayout.ts The dashboard's arrangement, persisted
+  summaries/            Read-only reads of each tool's stored state, for the cards
   usePersistedState.ts  localStorage-backed state, hydration-safe
   useClockDefaults.ts   Applies the real clock after mount
   useTween.ts           Eases numbers and series toward new targets
@@ -101,11 +147,16 @@ hooks/
   useKeyboardControls.ts
 components/
   Shared chrome, the mortgage view, and expenses/, income/, retirement/ subtrees
+  dashboard/            The card grid, its catalogue, and each card, over the
+                        small charts they share: sparkline, donut, columns,
+                        heat strip, gap
   timeline/             The shared year timeline: one engine, a horizontal
                         (desktop) and a vertical (mobile) renderer, the month
                         detail, the year switcher, and the payment card
   charts/               Plot geometry, frames, hover, and each chart
   ui/                   Field, Button, Panel
+cdk/                    Both environments as infrastructure: bucket,
+                        distribution, certificate, deploy role
 ```
 
 ## Where the numbers come from
@@ -115,8 +166,20 @@ interest on the balance, applies the scheduled payment, then applies any extra p
 capped so a lump sum can never overshoot the payoff. Scenarios are always measured against
 `BASELINE_SCENARIO` &mdash; the scheduled payment and nothing more.
 
+When PMI is switched on, the premium is tested before each month's payment — against the
+balance the servicer would see when it bills — so it stops the month after the one that
+carried the balance under the drop-off threshold, not the same month. A drop-off landing on
+the final payment isn't reported, since the loan ends that month and the borrower never
+experiences it.
+
 Charts pin their x-axis to the baseline term and pad shorter scenarios out to that length,
 which is what lets the lines interpolate smoothly instead of rescaling on every switch.
+
+`lib/retirement.ts` is the same idea for the retirement tool: it steps each account forward a
+year at a time through contributions and growth, inflates what a year of retirement costs,
+then draws the portfolio down the way the outlook's withdrawal strategy asks. It tries each
+retirement year in turn and reports the first one whose money reaches the end of the horizon;
+falling past the last candidate is the shortfall case.
 
 ## Deploying
 
