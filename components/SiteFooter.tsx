@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { KOFI_URL, SPONSORS_URL, SUPPORT_ENABLED } from "@/lib/support";
 import { HOME_HREF } from "@/lib/tools";
 import { useSiteChrome } from "./SiteChrome";
 import styles from "./SiteFooter.module.css";
@@ -15,21 +16,6 @@ import styles from "./SiteFooter.module.css";
 const COPYRIGHT_YEAR = new Date().getFullYear();
 
 const REPO_URL = "https://github.com/cambrobro97-png/ledger";
-
-/**
- * The Buy Me a Coffee page to send supporters to. A plain outbound link on
- * purpose: the platform's embed widget is a third-party script that would run
- * on every page of a tool that holds the visitor's balances in `localStorage`,
- * and its floating button is appended to `document.body` outside React, so it
- * would sit over the charts in presentation mode where the rest of the chrome
- * steps aside. A link sends nothing until it is clicked, and swapping to Ko-fi
- * or GitHub Sponsors later is this one string.
- *
- * Set to the real page before merging; the note stays hidden while it holds
- * the placeholder, so a half-finished link can never reach production.
- */
-const SUPPORT_URL = "https://buymeacoffee.com/YOUR_HANDLE";
-const SUPPORT_CONFIGURED = !SUPPORT_URL.includes("YOUR_HANDLE");
 
 /**
  * Closes out every tool page: the brand mark, the "not advice" disclosure, the
@@ -69,19 +55,35 @@ export function SiteFooter() {
         .
       </p>
 
-      {SUPPORT_CONFIGURED && (
+      {SUPPORT_ENABLED && (
         <p className={styles.support}>
-          <a
-            className={styles.coffee}
-            href={SUPPORT_URL}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Buy me a coffee
-          </a>
+          {KOFI_URL && (
+            <a
+              className={styles.coffee}
+              href={KOFI_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Buy me a coffee
+            </a>
+          )}
           <span className={styles.supportNote}>
             The tools are free and stay that way. A coffee helps cover the
-            hosting.
+            hosting.{" "}
+            {SPONSORS_URL && (
+              <>
+                Developers can also{" "}
+                <a
+                  className={styles.link}
+                  href={SPONSORS_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  sponsor the project on GitHub
+                </a>
+                .
+              </>
+            )}
           </span>
         </p>
       )}

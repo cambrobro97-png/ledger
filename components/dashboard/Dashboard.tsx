@@ -7,6 +7,7 @@ import headStyles from "@/components/TopBar.module.css";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { SIZE_LABELS, type WidgetSize } from "@/lib/dashboardLayout";
+import { KOFI_URL } from "@/lib/support";
 import { TOOLS, type ToolId } from "@/lib/tools";
 import { WIDGETS, widgetById, type WidgetDefinition } from "@/lib/widgets";
 import styles from "./Dashboard.module.css";
@@ -255,6 +256,27 @@ export function Dashboard() {
           })}
         </ul>
       )}
+
+      {/* The footer carries the same ask, but it sits below a full tool page
+          and most visitors never reach it. This is the page everyone lands on,
+          so the ask goes under the cards — once, in plain words, and out of the
+          way while the dashboard is being rearranged. */}
+      {KOFI_URL && !editing ? (
+        <aside className={styles.support}>
+          <p className={styles.supportText}>
+            These tools are free to use and always will be. If one of them
+            saved you money, you can put a coffee toward the hosting.
+          </p>
+          <a
+            className={styles.supportLink}
+            href={KOFI_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Buy me a coffee
+          </a>
+        </aside>
+      ) : null}
 
       {editing ? (
         <section className={styles.catalog} aria-label="Widgets you can add">
