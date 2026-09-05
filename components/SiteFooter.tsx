@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { KOFI_URL, SPONSORS_URL, SUPPORT_ENABLED } from "@/lib/support";
 import { HOME_HREF } from "@/lib/tools";
 import { useSiteChrome } from "./SiteChrome";
 import styles from "./SiteFooter.module.css";
@@ -18,8 +19,8 @@ const REPO_URL = "https://github.com/cambrobro97-png/ledger";
 
 /**
  * Closes out every tool page: the brand mark, the "not advice" disclosure, the
- * open-source note, and the copyright. Like the header, it steps aside when a
- * tool takes over the screen.
+ * open-source note, the support link, and the copyright. Like the header, it
+ * steps aside when a tool takes over the screen.
  */
 export function SiteFooter() {
   const { chromeVisible } = useSiteChrome();
@@ -53,6 +54,40 @@ export function SiteFooter() {
         </a>
         .
       </p>
+
+      {SUPPORT_ENABLED && (
+        <p className={styles.support}>
+          {KOFI_URL && (
+            <a
+              className={styles.coffee}
+              href={KOFI_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Buy me a coffee
+            </a>
+          )}
+          <span className={styles.supportNote}>
+            The tools are free and stay that way. A coffee helps cover the
+            hosting.
+            {SPONSORS_URL && (
+              <>
+                {" "}
+                Developers can also{" "}
+                <a
+                  className={styles.link}
+                  href={SPONSORS_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  sponsor the project on GitHub
+                </a>
+                .
+              </>
+            )}
+          </span>
+        </p>
+      )}
 
       <p className={styles.copyright}>
         © {COPYRIGHT_YEAR} Ledger 1. All rights reserved.

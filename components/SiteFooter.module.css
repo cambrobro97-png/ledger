@@ -67,6 +67,45 @@
   text-decoration-color: var(--brass);
 }
 
+/* Between the open-source note and the copyright: the ask, kept quieter than
+   the disclosure above it so it reads as an aside rather than a pitch. */
+.support {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+/* Outlined rather than filled: the brass fill is the site's emphasis colour
+   and a solid button here would outrank the tools it sits under. */
+.coffee {
+  flex: none;
+  padding: 6px 12px;
+  border: 1px solid var(--brass);
+  border-radius: 999px;
+  color: var(--brass);
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.coffee:hover {
+  background: var(--brass);
+  color: var(--ink);
+}
+
+.supportNote {
+  color: var(--ash);
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-width: 92ch;
+}
+
 .copyright {
   grid-column: 2;
   margin: 0;
@@ -82,6 +121,7 @@
   }
 
   .source,
+  .support,
   .copyright {
     grid-column: 1;
   }
