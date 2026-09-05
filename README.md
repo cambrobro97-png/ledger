@@ -4,6 +4,9 @@ A small set of tools for thinking about money — mortgage payoff, income, expen
 retirement — all worked out in the browser. Nothing is sent anywhere; every figure you
 enter stays in `localStorage`.
 
+Open source under the [MIT License](LICENSE). The code lives at
+<https://github.com/cambrobro97-png/ledger> — read it, fork it, or open an issue.
+
 ## Running it
 
 ```bash
@@ -152,3 +155,32 @@ resource the other depends on.
 `./deploy.sh` does the same build-and-sync from a laptop, for when CI isn't an option.
 Copy `.env.deploy.example` to `.env.deploy` and fill in the bucket and distribution ID
 (`.env.deploy` is gitignored), or pass them as environment variables.
+
+## Contributing
+
+Issues and pull requests are welcome — bug reports, a tool that gets a calculation
+wrong, or a case the models don't handle.
+
+Branch from `dev` and open the pull request against `dev`. `main` is what
+production deploys from, so changes reach it by way of `dev` rather than directly.
+
+Before opening a pull request:
+
+```bash
+npm run build   # compiles and typechecks
+npm run lint
+```
+
+`npm run build` runs the TypeScript check, so a clean build is the bar for a change.
+`npm run lint` currently reports some pre-existing problems in `hooks/` — compare
+against what it says on `dev` rather than expecting a clean run, and don't add new ones.
+
+There's no test suite. Changes to `lib/` are the arithmetic the whole site rests on, so
+say in the pull request how you checked the numbers.
+
+Match the surrounding code. Comments here explain why something is the way it is rather
+than restating what the line does; the existing ones are the guide.
+
+## License
+
+[MIT](LICENSE). Copyright (c) 2026 cbrown-broadside.
