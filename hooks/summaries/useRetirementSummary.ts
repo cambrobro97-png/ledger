@@ -14,6 +14,8 @@ export interface RetirementSummary {
   hydrated: boolean;
   /** The outlook the retirement tool itself has selected. */
   outlookName: string;
+  /** Your age today, which is what turns a series index back into an age. */
+  currentAge: number;
   /** The age the projection runs to, for "…left at N". */
   endAge: number;
   baseline: Projection | null;
@@ -55,6 +57,7 @@ export function useRetirementSummary(): RetirementSummary {
     return {
       hydrated,
       outlookName: scenario?.name ?? "",
+      currentAge: state.profile.currentAge,
       endAge: state.profile.endAge,
       baseline,
       current,
