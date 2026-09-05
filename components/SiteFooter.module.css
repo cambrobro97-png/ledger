@@ -44,6 +44,29 @@
   max-width: 92ch;
 }
 
+/* Sits under the disclosure in the text column, above the copyright. */
+.source {
+  grid-column: 2;
+  margin: 0;
+  color: var(--ash);
+  font-size: 12.5px;
+  line-height: 1.55;
+  max-width: 92ch;
+}
+
+.link {
+  color: var(--bone);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--rule);
+  transition: color 0.18s ease, text-decoration-color 0.18s ease;
+}
+
+.link:hover {
+  color: var(--brass);
+  text-decoration-color: var(--brass);
+}
+
 .copyright {
   grid-column: 2;
   margin: 0;
@@ -58,6 +81,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .source,
   .copyright {
     grid-column: 1;
   }
