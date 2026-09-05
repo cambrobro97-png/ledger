@@ -31,11 +31,11 @@ function live(url: string): string | null {
   return url.includes(PLACEHOLDER) ? null : url;
 }
 
-/** Set to the Ko-fi page, e.g. `https://ko-fi.com/${PLACEHOLDER}`. */
-export const KOFI_URL = live(`https://ko-fi.com/${PLACEHOLDER}`);
+/** The Ko-fi page. Live, so both the footer and the dashboard show the ask. */
+export const KOFI_URL = live("https://ko-fi.com/ledger1");
 
 /**
- * Set to `https://github.com/sponsors/${PLACEHOLDER}` once the account is
+ * Set to "https://github.com/sponsors/cambrobro97-png" once the account is
  * accepted into GitHub Sponsors. The page 404s before enrolment, which is why
  * it stays behind the placeholder rather than shipping as a dead link.
  */

@@ -69,9 +69,10 @@ export function SiteFooter() {
           )}
           <span className={styles.supportNote}>
             The tools are free and stay that way. A coffee helps cover the
-            hosting.{" "}
+            hosting.
             {SPONSORS_URL && (
               <>
+                {" "}
                 Developers can also{" "}
                 <a
                   className={styles.link}
