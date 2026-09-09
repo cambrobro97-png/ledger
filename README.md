@@ -70,6 +70,9 @@ it and see the bills that make it up, grouped by line rather than listed per pay
 - **Fixed or variable** marks what a lean month can't go below, which is what the headline
   figures and the lighter timeline bars are measured against.
 - **Categories** colour the timeline and drive the split of where the money goes.
+- **Take a line from the mortgage.** A scenario can be put straight on the timeline — its
+  payment, its PMI premium, its yearly extra principal, and any lump sums, each as its own
+  line with its own dates. See [How the tools connect](#how-the-tools-connect).
 
 ### Income
 
@@ -94,6 +97,32 @@ Contributions, growth, and how long the balance lasts across accounts and outloo
   down: proportionally, lowest-return account first, or taxable accounts first, leaving the
   401(k) until it's penalty-free.
 - **Present**, **Edit**, and the same keys as the mortgage tool: `P`, `Esc`, `<-` and `->`.
+
+## How the tools connect
+
+A tool can take a figure from another rather than being told it twice. The link is live: the
+line's money and dates are worked out from the source every time the page renders, so
+changing the mortgage payment changes what the expense timeline draws.
+
+**A mortgage scenario, on the expense list.** *Take a line from the mortgage* in the expense
+editor offers a scenario a piece at a time — the payment every month, the premium until it
+drops off, the extra principal once a year, each lump sum on its own date. They arrive as
+separate lines because that is what they are: one line averaging them together is a payment
+nobody makes. The dates come from the scenario's own run, so the mortgage stops on the month
+the amortization finishes it, and PMI stops when the balance clears the threshold.
+
+A linked line shows its source, and its money and dates become readouts rather than inputs.
+What stays yours: its name, its category, whether it counts as fixed or variable, which day of
+the month it lands on, and whether the extra principal counts as spending at all — it is money
+that leaves the account, but it is a choice rather than a bill. **Unlink** keeps the figures
+and drops the connection, leaving an ordinary expense behind.
+
+Delete the scenario a line came from and the line stays, holding the figures it was linked
+with and saying where they came from. A stale payment you can see beats a mortgage that
+quietly vanishes from the year.
+
+Links only ever point one way — mortgage to expenses — so resolving them is a single pass and
+no two tools can chase each other.
 
 ## Storage
 
@@ -129,6 +158,8 @@ lib/
   schedule.ts           Cadences expanded into dated occurrences, shared by the two lists
   income.ts             The income year derived from those occurrences
   expenses.ts           The expense year, plus categories and the fixed/variable split
+  links.ts              What one tool takes from another: the link shapes, and
+                        the resolvers that fill a linked line in
   retirement.ts         Contribution and drawdown projection, deferral limits
   dates.ts / days.ts    YYYY-MM parsing and calendar arithmetic
   format.ts             Currency, percentage, and duration formatting

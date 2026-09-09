@@ -99,3 +99,80 @@
     grid-column: 1 / 4;
   }
 }
+
+/* --- Linked lines -------------------------------------------------------
+   A line another tool decides. Its money and dates are readouts rather than
+   inputs, so the row has to say where they come from and offer a way out. */
+
+.linkBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.linkBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.72vw, 12px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ash);
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  padding: 4px 10px;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.linkBadge:hover,
+.linkBadge:focus-visible {
+  color: var(--bone);
+  border-color: var(--brass);
+}
+
+.linkToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: var(--ash);
+  cursor: pointer;
+}
+
+.linkActions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Said out loud only when the link can't be worked out — a live one is
+   already describing itself in the foot. */
+.linkWarning {
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: var(--brass);
+  flex-basis: 100%;
+}
+
+/* A figure another tool decides. The same box as an input so a linked row
+   still lines up with the ones above it, but plainly not one to type into. */
+.derived {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ash);
+  font-size: clamp(14px, 1vw, 17px);
+  padding: 10px 6px;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
