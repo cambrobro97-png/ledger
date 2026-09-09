@@ -102,6 +102,12 @@ Each tool persists to its own `localStorage` key: `mortgage-payoff:v1`, `expense
 the site root. Nothing leaves the browser, and the seed values are placeholders meant to be
 replaced with your own.
 
+Writes are debounced, so at any moment there may be a figure on screen that storage hasn't
+got yet. Leaving the page ends that wait early rather than cancelling it — on unmount and on
+`pagehide` — so an edit made a moment before navigating away is still there when another tool
+reads it. Read-only consumers also adopt writes from other tabs, which is what keeps two open
+tabs from disagreeing about a number one of them just changed.
+
 The seed data is written around a fixed month rather than the clock, because a static export
 prerenders on the build machine and hydrates in the visitor's browser — a date read at render
 time can differ between the two and throws. `useClockDefaults` applies the real clock after
@@ -138,7 +144,8 @@ hooks/
   useExpenseModel.ts    Expense state and the year's occurrences
   useRetirementModel.ts Retirement state and its projections
   useDashboardLayout.ts The dashboard's arrangement, persisted
-  summaries/            Read-only reads of each tool's stored state, for the cards
+  summaries/            Read-only reads of each tool's stored state, for the
+                        cards and for the links between tools
   usePersistedState.ts  localStorage-backed state, hydration-safe
   useClockDefaults.ts   Applies the real clock after mount
   useTween.ts           Eases numbers and series toward new targets
