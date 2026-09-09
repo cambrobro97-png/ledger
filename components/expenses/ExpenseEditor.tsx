@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Panel, PanelHead } from "@/components/ui/Panel";
 import type { ExpenseModel } from "@/hooks/useExpenseModel";
 import { formatMoney } from "@/lib/format";
 import type { ExpenseItem } from "@/lib/types";
 import { ExpenseItemRow } from "./ExpenseItemRow";
+import { MortgageLinkPicker } from "./MortgageLinkPicker";
 import styles from "./ExpenseEditor.module.css";
 
 interface ExpenseEditorProps {
@@ -23,6 +24,8 @@ interface ExpenseEditorProps {
  * fifteen-line list gives no sense of which is which.
  */
 export function ExpenseEditor({ model, hoveredItemId, onHoverItem }: ExpenseEditorProps) {
+  const [picking, setPicking] = useState(false);
+
   const totals = useMemo(
     () => new Map(model.derived.byItem.map((entry) => [entry.itemId, entry.total])),
     [model.derived.byItem],
@@ -44,8 +47,10 @@ export function ExpenseEditor({ model, hoveredItemId, onHoverItem }: ExpenseEdit
       year={model.year}
       total={totals.get(item.id) ?? 0}
       hovered={hoveredItemId === item.id}
+      resolution={model.resolutions.get(item.id)}
       onChange={(patch) => model.updateItem(item.id, patch)}
       onRemove={() => model.removeItem(item.id)}
+      onUnlink={() => model.unlinkItem(item.id)}
       onHover={(hovered) => onHoverItem(hovered ? item.id : null)}
     />
   );
@@ -89,6 +94,15 @@ export function ExpenseEditor({ model, hoveredItemId, onHoverItem }: ExpenseEdit
         </section>
       ) : null}
 
+      {picking && model.mortgage ? (
+        <MortgageLinkPicker
+          mortgage={model.mortgage}
+          items={model.items}
+          onAdd={model.addMortgageLink}
+          onClose={() => setPicking(false)}
+        />
+      ) : null}
+
       <div className={styles.actions}>
         <Button onClick={() => model.addItem({ cadence: "monthly" })}>Add recurring expense</Button>
         <Button
@@ -104,6 +118,14 @@ export function ExpenseEditor({ model, hoveredItemId, onHoverItem }: ExpenseEdit
         >
           Add one-time expense
         </Button>
+        {/* Only once the mortgage tool's own figures have been read: until
+            then there is nothing to list, and no dates to work the lines out
+            against. */}
+        {model.mortgage && !picking ? (
+          <Button variant="ghost" onClick={() => setPicking(true)}>
+            Take a line from the mortgage
+          </Button>
+        ) : null}
         <Button variant="ghost" onClick={model.resetAll}>
           Start over from the defaults
         </Button>

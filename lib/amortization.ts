@@ -190,6 +190,26 @@ export function simulate(loan: Loan, scenario: Scenario): AmortizationResult {
   };
 }
 
+/**
+ * Every scenario run against the same loan, keyed by scenario id.
+ *
+ * The mortgage tool only ever needs the one scenario it has open. A tool
+ * linking to a scenario needs all of them: it lists them to choose between, and
+ * what distinguishes one from another — its payoff date — doesn't exist until
+ * the loan has actually been run against it.
+ *
+ * The whole result is kept, failures included, so a caller can tell "this loan
+ * never pays off" from "there is no such scenario" and say which it is rather
+ * than reporting a broken link either way.
+ */
+export function simulateAll(loan: Loan, scenarios: Scenario[]): Map<string, AmortizationResult> {
+  const runs = new Map<string, AmortizationResult>();
+  for (const scenario of scenarios) {
+    runs.set(scenario.id, simulate(loan, scenario));
+  }
+  return runs;
+}
+
 /** Measures a scenario against the do-nothing baseline. */
 export function compare(baseline: Amortization, scenario: Amortization): Comparison {
   const interestSaved = baseline.totalInterest - scenario.totalInterest;

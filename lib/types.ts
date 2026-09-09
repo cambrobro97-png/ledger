@@ -180,10 +180,48 @@ export type ExpenseCategory =
   | "lifestyle"
   | "other";
 
+/**
+ * Which piece of a mortgage scenario a linked expense line stands for.
+ *
+ * A scenario is four different rhythms at once — the payment every month, the
+ * premium until it drops off, the extra principal once a year, a lump sum on
+ * its own date — and a single `ScheduledItem` has room for exactly one. So a
+ * scenario resolves to as many lines as it has pieces, each with its own dates,
+ * rather than one line that averages them into something nobody ever pays.
+ */
+export type MortgagePart = "payment" | "pmi" | "annual" | "lump";
+
+/**
+ * What ties an expense line to a mortgage scenario.
+ *
+ * The line's money and dates are then derived rather than typed: they come from
+ * the loan and from the scenario's own run, so the timeline shows the mortgage
+ * ending on the month the amortization actually finishes it.
+ */
+export interface MortgageLink {
+  /** Named rather than assumed, so a second kind of source can be added later. */
+  source: "mortgage";
+  scenarioId: string;
+  part: MortgagePart;
+  /**
+   * `payment` only: whether the scenario's extra principal counts as spending.
+   * It is money that genuinely leaves the account, but it is also a choice
+   * rather than a bill, so which side of the line it falls on is yours.
+   */
+  includeExtra: boolean;
+  /** `lump` only: which of the scenario's one-time payments this stands for. */
+  oneTimeId?: string;
+}
+
 /** One outgoing: rent, a utility bill, a subscription, a yearly premium. */
 export interface ExpenseItem extends ScheduledItem {
   category: ExpenseCategory;
   kind: ExpenseKind;
+  /**
+   * Set when another tool drives this line. Absent on every hand-entered
+   * expense, and on anything saved before links existed.
+   */
+  link?: MortgageLink;
 }
 
 export interface ExpenseState {

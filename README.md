@@ -70,6 +70,9 @@ it and see the bills that make it up, grouped by line rather than listed per pay
 - **Fixed or variable** marks what a lean month can't go below, which is what the headline
   figures and the lighter timeline bars are measured against.
 - **Categories** colour the timeline and drive the split of where the money goes.
+- **Take a line from the mortgage.** A scenario can be put straight on the timeline — its
+  payment, its PMI premium, its yearly extra principal, and any lump sums, each as its own
+  line with its own dates. See [How the tools connect](#how-the-tools-connect).
 
 ### Income
 
@@ -95,12 +98,44 @@ Contributions, growth, and how long the balance lasts across accounts and outloo
   401(k) until it's penalty-free.
 - **Present**, **Edit**, and the same keys as the mortgage tool: `P`, `Esc`, `<-` and `->`.
 
+## How the tools connect
+
+A tool can take a figure from another rather than being told it twice. The link is live: the
+line's money and dates are worked out from the source every time the page renders, so
+changing the mortgage payment changes what the expense timeline draws.
+
+**A mortgage scenario, on the expense list.** *Take a line from the mortgage* in the expense
+editor offers a scenario a piece at a time — the payment every month, the premium until it
+drops off, the extra principal once a year, each lump sum on its own date. They arrive as
+separate lines because that is what they are: one line averaging them together is a payment
+nobody makes. The dates come from the scenario's own run, so the mortgage stops on the month
+the amortization finishes it, and PMI stops when the balance clears the threshold.
+
+A linked line shows its source, and its money and dates become readouts rather than inputs.
+What stays yours: its name, its category, whether it counts as fixed or variable, which day of
+the month it lands on, and whether the extra principal counts as spending at all — it is money
+that leaves the account, but it is a choice rather than a bill. **Unlink** keeps the figures
+and drops the connection, leaving an ordinary expense behind.
+
+Delete the scenario a line came from and the line stays, holding the figures it was linked
+with and saying where they came from. A stale payment you can see beats a mortgage that
+quietly vanishes from the year.
+
+Links only ever point one way — mortgage to expenses — so resolving them is a single pass and
+no two tools can chase each other.
+
 ## Storage
 
 Each tool persists to its own `localStorage` key: `mortgage-payoff:v1`, `expenses:v1`,
 `income:v1`, and `retirement:v1`, plus `dashboard:v1` for the arrangement of the cards on
 the site root. Nothing leaves the browser, and the seed values are placeholders meant to be
 replaced with your own.
+
+Writes are debounced, so at any moment there may be a figure on screen that storage hasn't
+got yet. Leaving the page ends that wait early rather than cancelling it — on unmount and on
+`pagehide` — so an edit made a moment before navigating away is still there when another tool
+reads it. Read-only consumers also adopt writes from other tabs, which is what keeps two open
+tabs from disagreeing about a number one of them just changed.
 
 The seed data is written around a fixed month rather than the clock, because a static export
 prerenders on the build machine and hydrates in the visitor's browser — a date read at render
@@ -123,6 +158,8 @@ lib/
   schedule.ts           Cadences expanded into dated occurrences, shared by the two lists
   income.ts             The income year derived from those occurrences
   expenses.ts           The expense year, plus categories and the fixed/variable split
+  links.ts              What one tool takes from another: the link shapes, and
+                        the resolvers that fill a linked line in
   retirement.ts         Contribution and drawdown projection, deferral limits
   dates.ts / days.ts    YYYY-MM parsing and calendar arithmetic
   format.ts             Currency, percentage, and duration formatting
@@ -138,7 +175,8 @@ hooks/
   useExpenseModel.ts    Expense state and the year's occurrences
   useRetirementModel.ts Retirement state and its projections
   useDashboardLayout.ts The dashboard's arrangement, persisted
-  summaries/            Read-only reads of each tool's stored state, for the cards
+  summaries/            Read-only reads of each tool's stored state, for the
+                        cards and for the links between tools
   usePersistedState.ts  localStorage-backed state, hydration-safe
   useClockDefaults.ts   Applies the real clock after mount
   useTween.ts           Eases numbers and series toward new targets
