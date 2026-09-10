@@ -1,4 +1,12 @@
-import { MONTH_NAMES, addMonths, formatMonth, monthsBetween, parseMonth } from "./dates";
+import {
+  MONTH_NAMES,
+  addMonths,
+  formatMonth,
+  formatMonthValue,
+  isMonthValue,
+  monthsBetween,
+  parseMonth,
+} from "./dates";
 import { daysInMonth, formatDayValue, parseDay } from "./days";
 import { formatMoney } from "./format";
 import type {
@@ -8,6 +16,7 @@ import type {
   Loan,
   MortgageLink,
   MortgagePart,
+  RetirementProfile,
   Scenario,
 } from "./types";
 
@@ -67,18 +76,6 @@ export interface ResolvedExpenses {
   items: ExpenseItem[];
   /** Keyed by item id, and only for the linked ones. */
   resolutions: Map<string, LinkResolution>;
-}
-
-/**
- * Whether a stored `YYYY-MM` is one we can parse.
- *
- * `parseMonth` falls back to the current month, which reads the clock — fine
- * where a person is typing into a month field, wrong here: resolution runs
- * during render, and a value that differs between the prerender and the browser
- * throws at hydration. Anything unparseable is reported as unresolved instead.
- */
-function isMonthValue(value: string | undefined): boolean {
-  return /^\d{4}-\d{2}$/.test(value ?? "");
 }
 
 /** A date in a given month, on a given day, clamped to months that are too short. */
@@ -437,4 +434,82 @@ export function mortgagePartOptions(
     describe("annual"),
     ...scenario.oneTimes.map((oneTime) => describe("lump", oneTime.id)),
   ];
+}
+
+/* --- The retirement profile's mortgage ---------------------------------- */
+
+/** The mortgage figures a retirement projection runs on. */
+export interface RetirementMortgage {
+  /** Monthly outflow while the loan runs. */
+  payment: number;
+  /** `YYYY-MM` it ends, or empty for a projection that never drops it. */
+  payoff: string;
+  /** How the link is faring, or null when the figures were simply typed in. */
+  resolution: LinkResolution | null;
+}
+
+/**
+ * The retirement profile's mortgage, taken from a scenario when it is linked.
+ *
+ * The payment includes the scenario's monthly extra principal, deliberately and
+ * without a switch. The payoff date is the one that scenario's run produces,
+ * which only happens if the extra is actually being paid — so counting the
+ * payoff while not counting what buys it would have the projection retire early
+ * on money it never spent.
+ *
+ * A yearly extra or a lump sum still moves the payoff date but has no place in
+ * a monthly figure, so neither appears here. The date accounts for them; the
+ * monthly outflow doesn't.
+ */
+export function resolveRetirementMortgage(
+  profile: RetirementProfile,
+  source: MortgageSource | null,
+): RetirementMortgage {
+  const stored = {
+    payment: Number(profile.mortgagePayment) || 0,
+    payoff: profile.mortgagePayoff,
+  };
+
+  const link = profile.mortgageLink;
+  if (!link) return { ...stored, resolution: null };
+
+  if (!source) {
+    return { ...stored, resolution: { status: "pending", scenarioName: "", note: "" } };
+  }
+
+  const scenario = source.scenarios.find((candidate) => candidate.id === link.scenarioId);
+  if (!scenario) {
+    return {
+      ...stored,
+      resolution: {
+        status: "missing",
+        scenarioName: "",
+        note: "The scenario this came from has been deleted — these are the figures it was linked with.",
+      },
+    };
+  }
+
+  const run = source.runs.get(link.scenarioId);
+  if (!run || !run.ok) {
+    return {
+      ...stored,
+      resolution: unresolved(
+        scenario.name,
+        run && !run.ok ? run.reason : "That scenario hasn't been run against the loan.",
+      ),
+    };
+  }
+
+  const payment = (Number(source.loan.payment) || 0) + (Number(scenario.monthly) || 0);
+  const payoff = formatMonthValue(run.payoffDate);
+
+  return {
+    payment,
+    payoff,
+    resolution: {
+      status: "live",
+      scenarioName: scenario.name,
+      note: `${formatMoney(payment)} a month until ${formatMonth(run.payoffDate)}.`,
+    },
+  };
 }

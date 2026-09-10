@@ -2,9 +2,10 @@
 
 import { formatMoney } from "@/lib/format";
 import { formatMonth, parseMonth } from "@/lib/dates";
+import type { LinkResolution, MortgageSource } from "@/lib/links";
 import type { RetirementProfile } from "@/lib/types";
 import { Panel } from "../ui/Panel";
-import { MonthField, NumericField } from "../ui/Field";
+import { MonthField, NumericField, TextSelectField } from "../ui/Field";
 import styles from "./ProfilePanel.module.css";
 
 interface ProfilePanelProps {
@@ -12,8 +13,16 @@ interface ProfilePanelProps {
   /** The age the active outlook solves to, or null while the inputs don't project. */
   retirementAge: number | null;
   presenting: boolean;
+  /** The mortgage tool's scenarios, or null until its stored state has been read. */
+  mortgage: MortgageSource | null;
+  /** How the mortgage link is faring, or null when the figures were typed in. */
+  resolution: LinkResolution | null;
   onChange: <K extends keyof RetirementProfile>(field: K, value: RetirementProfile[K]) => void;
+  onLink: (scenarioId: string | null) => void;
 }
+
+/** The option value standing for "not linked to anything". */
+const TYPED = "";
 
 function Chip({ label, value }: { label: string; value: string }) {
   return (
@@ -29,9 +38,12 @@ export function ProfilePanel({
   profile,
   retirementAge,
   presenting,
+  mortgage,
+  resolution,
   onChange,
+  onLink,
 }: ProfilePanelProps) {
-  const mortgage = profile.mortgagePayoff
+  const mortgageEnds = profile.mortgagePayoff
     ? formatMonth(parseMonth(profile.mortgagePayoff))
     : "no end set";
 
@@ -42,12 +54,31 @@ export function ProfilePanel({
           <Chip label="Age today" value={String(profile.currentAge)} />
           <Chip label="Money lasts to" value={String(profile.endAge)} />
           <Chip label="Salary" value={formatMoney(profile.salary)} />
-          <Chip label="Mortgage ends" value={mortgage} />
+          <Chip label="Mortgage ends" value={mortgageEnds} />
           {retirementAge !== null ? <Chip label="Retire at" value={String(retirementAge)} /> : null}
         </div>
       </Panel>
     );
   }
+
+  const linkedId = profile.mortgageLink?.scenarioId ?? TYPED;
+  const linked = Boolean(profile.mortgageLink);
+
+  /*
+   * "Typed in here" plus every scenario. A link whose scenario has since been
+   * deleted keeps an option of its own: without one the select would fall back
+   * to showing "typed in here", which is the opposite of what is going on.
+   */
+  const sourceOptions = [
+    { value: TYPED, label: "Typed in here" },
+    ...(mortgage?.scenarios ?? []).map((scenario) => ({
+      value: scenario.id,
+      label: scenario.name || "Untitled scenario",
+    })),
+    ...(linked && !(mortgage?.scenarios ?? []).some((scenario) => scenario.id === linkedId)
+      ? [{ value: linkedId, label: "Deleted scenario" }]
+      : []),
+  ];
 
   return (
     <Panel className={styles.panel}>
@@ -56,7 +87,7 @@ export function ProfilePanel({
         <div className={styles.eyebrow}>
           {retirementAge !== null
             ? `${Math.max(0, retirementAge - profile.currentAge)} years to go on this outlook`
-            : " "}
+            : " "}
         </div>
       </div>
 
@@ -89,21 +120,46 @@ export function ProfilePanel({
           value={profile.start}
           onChange={(value) => onChange("start", value)}
         />
+
+        {/* Only offered once the mortgage tool's own figures have been read:
+            until then there are no scenarios to list. */}
+        {mortgage ? (
+          <TextSelectField
+            id="profile-mortgage-source"
+            label="Mortgage figures from"
+            value={linkedId}
+            options={sourceOptions}
+            onChange={(value) => onLink(value === TYPED ? null : value)}
+          />
+        ) : null}
+
         <NumericField
           id="profile-mortgage"
           label="Mortgage payment"
           prefix="$"
           step={25}
           value={profile.mortgagePayment}
+          disabled={linked}
           onChange={(value) => onChange("mortgagePayment", value)}
         />
         <MonthField
           id="profile-mortgage-payoff"
           label="Mortgage paid off"
           value={profile.mortgagePayoff}
+          disabled={linked}
           onChange={(value) => onChange("mortgagePayoff", value)}
         />
       </div>
+
+      {resolution && resolution.status !== "pending" ? (
+        <p
+          className={`${styles.linkNote} ${resolution.status === "live" ? "" : styles.linkWarning}`}
+        >
+          {resolution.status === "live"
+            ? `From the mortgage tool · ${resolution.scenarioName} · ${resolution.note} The payment includes that scenario's extra principal, because the payoff date assumes you are paying it.`
+            : resolution.note}
+        </p>
+      ) : null}
     </Panel>
   );
 }

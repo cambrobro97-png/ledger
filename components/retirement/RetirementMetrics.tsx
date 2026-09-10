@@ -10,21 +10,33 @@ interface RetirementMetricsProps {
   baseline: Projection;
   current: Projection;
   comparison: RetirementComparison;
+  /** The same outlook with the redirect off, or null when it isn't switched on. */
+  withoutRedirect: Projection | null;
   duration: number;
 }
 
-/** The four headline figures, each counting into place when an outlook changes. */
+/** The headline figures, each counting into place when an outlook changes. */
 export function RetirementMetrics({
   profile,
   baseline,
   current,
   comparison,
+  withoutRedirect,
   duration,
 }: RetirementMetricsProps) {
   const age = useTweenedNumber(current.retirementAge, duration);
   const peak = useTweenedNumber(current.peakBalance, duration);
   const match = useTweenedNumber(current.totalMatch, duration);
   const ending = useTweenedNumber(current.endingBalance, duration);
+  const redirected = useTweenedNumber(current.totalRedirected, duration);
+
+  // A fifth card, and only when there is something to put on it: the redirect
+  // is off by default, and an off switch is not a figure.
+  const showRedirect = current.totalRedirected > 0;
+  const redirectYearsEarlier =
+    withoutRedirect && !current.shortfall && !withoutRedirect.shortfall
+      ? withoutRedirect.retirementAge - current.retirementAge
+      : 0;
 
   const { yearsEarlier } = comparison;
   const runsDry = current.endingBalance <= 0.5;
@@ -83,6 +95,26 @@ export function RetirementMetrics({
           )
         }
       />
+
+      {showRedirect ? (
+        <MetricCard
+          accent="var(--brass)"
+          label="Freed by the payoff"
+          value={formatMoney(redirected)}
+          detail={
+            redirectYearsEarlier > 0 ? (
+              <>
+                Brings retirement forward{" "}
+                <strong>
+                  {redirectYearsEarlier} {redirectYearsEarlier === 1 ? "year" : "years"}
+                </strong>
+              </>
+            ) : (
+              <>Saved instead of absorbed, once the mortgage ends</>
+            )
+          }
+        />
+      ) : null}
 
       <MetricCard
         accent={runsDry ? "var(--crimson)" : "var(--ash)"}

@@ -1,4 +1,4 @@
-import { addMonths, parseMonth } from "./dates";
+import { addMonths, formatMonthValue, parseMonth } from "./dates";
 import type {
   Account,
   AppState,
@@ -6,6 +6,7 @@ import type {
   ExpenseState,
   IncomeItem,
   IncomeState,
+  MortgageRedirect,
   OneTimePayment,
   Pmi,
   RetirementProfile,
@@ -306,6 +307,15 @@ export function createAccount(overrides: Partial<Account> = {}): Account {
   };
 }
 
+/**
+ * Redirect defaults: switched off, but pre-filled so turning it on shows a
+ * working example rather than a form of zeroes. The whole payment, because that
+ * is the question worth asking first — what if none of it got absorbed?
+ */
+export function createRedirect(overrides: Partial<MortgageRedirect> = {}): MortgageRedirect {
+  return { enabled: false, share: 100, accountId: "", ...overrides };
+}
+
 export function createRetirementScenario(
   overrides: Partial<RetirementScenario> = {},
 ): RetirementScenario {
@@ -391,7 +401,7 @@ export function createDefaultRetirementState(): RetirementState {
     start,
     accounts,
     mortgagePayment: 1675,
-    mortgagePayoff: `${payoff.year}-${String(payoff.month + 1).padStart(2, "0")}`,
+    mortgagePayoff: formatMonthValue(payoff),
   };
 
   return { profile, scenarios, activeId: scenarios[0].id };

@@ -1,4 +1,4 @@
-import { addMonths, monthsBetween, parseMonth } from "./dates";
+import { addMonths, isMonthValue, monthsBetween, parseMonth } from "./dates";
 import type {
   Account,
   Projection,
@@ -67,6 +67,50 @@ function effectiveReturn(account: Account, scenario: RetirementScenario): number
 /** Bisection steps for `affordableSpend` — 40 halvings resolve to cents. */
 const SOLVE_STEPS = 40;
 
+/**
+ * How much of one projected year still carries the mortgage, from 0 to 1.
+ *
+ * A payoff rarely lands on a year boundary. Treating it as all-or-nothing puts
+ * a whole year of payments on one side of the line, which is up to twelve
+ * months of spending in the wrong place — and once the freed payment starts
+ * being saved, the same error appears again with the opposite sign. Both read
+ * this, so the year the mortgage ends can only ever be counted once.
+ */
+function mortgageShareOfYear(year: number, mortgageYears: number): number {
+  return Math.min(1, Math.max(0, mortgageYears - year));
+}
+
+/**
+ * Splits the freed mortgage payment across the accounts.
+ *
+ * A named account takes all of it. Anything else — none chosen, or one since
+ * deleted — spreads it in proportion to what is already being contributed, so
+ * the money follows the plan that exists rather than landing somewhere
+ * arbitrary. With nothing being contributed anywhere there is no plan to
+ * follow, and an even split beats dropping it on the floor.
+ */
+function spreadRedirect(
+  accounts: Account[],
+  contributions: number[],
+  amount: number,
+  accountId: string,
+): number[] {
+  const split = accounts.map(() => 0);
+  if (amount <= 0 || accounts.length === 0) return split;
+
+  const named = accounts.findIndex((account) => account.id === accountId);
+  if (named >= 0) {
+    split[named] = amount;
+    return split;
+  }
+
+  const total = contributions.reduce((sum, value) => sum + value, 0);
+  for (let index = 0; index < split.length; index += 1) {
+    split[index] = total > 0 ? amount * (contributions[index] / total) : amount / split.length;
+  }
+  return split;
+}
+
 /** The employer's contribution for one year, which only a 401k earns. */
 function matchFor(account: Account, contribution: number, salary: number): number {
   if (account.kind !== "401k") return 0;
@@ -133,6 +177,7 @@ interface Run {
   balances: number[];
   balancesByAccount: number[][];
   contributionsByYear: number[];
+  redirectedByYear: number[];
   matchByYear: number[];
   growthByYear: number[];
   withdrawalsByYear: number[];
@@ -143,6 +188,8 @@ function run(
   profile: RetirementProfile,
   scenario: RetirementScenario,
   spending: number[],
+  /** The freed mortgage payment available to save in each year, before retiring. */
+  redirect: number[],
   retireAt: number,
   years: number,
 ): Run {
@@ -155,6 +202,7 @@ function run(
   const totals = [balances.reduce((sum, balance) => sum + balance, 0)];
 
   const contributionsByYear: number[] = [];
+  const redirectedByYear: number[] = [];
   const matchByYear: number[] = [];
   const growthByYear: number[] = [];
   const withdrawalsByYear: number[] = [];
@@ -167,16 +215,29 @@ function run(
     const salary = (Number(profile.salary) || 0) * Math.pow(1 + inflation, year);
 
     let contributed = 0;
+    let redirected = 0;
     let matched = 0;
     let grown = 0;
     let withdrawn = 0;
 
     if (working) {
+      const planned = accounts.map((account) => {
+        const step = (Number(account.contributionGrowth) || 0) / 100;
+        return (Number(account.monthlyContribution) || 0) * 12 * Math.pow(1 + step, year);
+      });
+
+      // Only while working. Retired, the payment ending is not money to save —
+      // the spending path has already dropped it, which is the same saving seen
+      // from the other side.
+      redirected = redirect[year] ?? 0;
+      const freed = spreadRedirect(accounts, planned, redirected, profile.redirect?.accountId ?? "");
+
       for (let index = 0; index < accounts.length; index += 1) {
         const account = accounts[index];
-        const step = (Number(account.contributionGrowth) || 0) / 100;
-        const contribution =
-          (Number(account.monthlyContribution) || 0) * 12 * Math.pow(1 + step, year);
+        // The freed payment is a contribution like any other, so it earns the
+        // match too — capped, like the rest, at the share of salary the plan
+        // matches to.
+        const contribution = planned[index] + freed[index];
         const match = matchFor(account, contribution, salary);
 
         // Growth on the mid-year balance, so a year's contributions earn a
@@ -218,6 +279,7 @@ function run(
 
     totals.push(balances.reduce((sum, balance) => sum + balance, 0));
     contributionsByYear.push(contributed);
+    redirectedByYear.push(redirected);
     matchByYear.push(matched);
     growthByYear.push(grown);
     withdrawalsByYear.push(withdrawn);
@@ -227,6 +289,7 @@ function run(
     balances: totals,
     balancesByAccount,
     contributionsByYear,
+    redirectedByYear,
     matchByYear,
     growthByYear,
     withdrawalsByYear,
@@ -245,14 +308,19 @@ function affordableSpend(
   profile: RetirementProfile,
   scenario: RetirementScenario,
   spending: number[],
+  redirect: number[],
   retireAt: number,
   years: number,
 ): number {
+  // The spending path is what gets scaled; the redirect is not. What the
+  // mortgage frees up is a fact about the loan, not about how much you choose
+  // to live on, so it stays put while the solver moves everything else.
   const survives = (scale: number) =>
     run(
       profile,
       scenario,
       spending.map((value) => value * scale),
+      redirect,
       retireAt,
       years,
     ).depletionAge === null;
@@ -315,14 +383,25 @@ export function project(
   const creep =
     ((Number(scenario.inflation) || 0) + (Number(scenario.colaIncrease) || 0)) / 100;
   const mortgageYearly = (Number(profile.mortgagePayment) || 0) * 12;
-  const mortgageYears = profile.mortgagePayoff
+  const mortgageYears = isMonthValue(profile.mortgagePayoff)
     ? Math.max(0, monthsBetween(start, parseMonth(profile.mortgagePayoff)) / 12)
     : years;
 
+  // What the freed payment is worth to savings each year, once it stops. Zero
+  // throughout unless the redirect is switched on.
+  const redirectShare = profile.redirect?.enabled
+    ? Math.min(100, Math.max(0, Number(profile.redirect.share) || 0)) / 100
+    : 0;
+
   const spending: number[] = [];
+  const redirect: number[] = [];
   for (let year = 0; year < years; year += 1) {
+    // The one number both sides read, so the payoff year is never counted twice
+    // nor missed by both.
+    const carrying = mortgageShareOfYear(year, mortgageYears);
     const base = (Number(scenario.annualSpend) || 0) * Math.pow(1 + creep, year);
-    spending.push(base + (year < mortgageYears ? mortgageYearly : 0));
+    spending.push(base + mortgageYearly * carrying);
+    redirect.push(mortgageYearly * (1 - carrying) * redirectShare);
   }
 
   // Try each retirement year in turn; the first one whose money reaches
@@ -334,7 +413,7 @@ export function project(
   // describe working the whole way through.
   const lastCandidate = Math.max(0, years - MIN_RETIREMENT_YEARS);
   let chosen = years;
-  let result = run(profile, scenario, spending, years, years);
+  let result = run(profile, scenario, spending, redirect, years, years);
   let shortfall = true;
 
   // What retiring in each year would let you spend, on the same terms the
@@ -351,12 +430,12 @@ export function project(
     // than crossing in years the solver itself refuses to consider.
     sustainableDrawByYear.push(
       retireAt <= lastCandidate
-        ? affordableSpend(profile, scenario, spending, retireAt, years)
+        ? affordableSpend(profile, scenario, spending, redirect, retireAt, years)
         : sustainableDrawByYear[sustainableDrawByYear.length - 1] ?? 0,
     );
 
     if (!shortfall || retireAt > lastCandidate) continue;
-    const attempt = run(profile, scenario, spending, retireAt, years);
+    const attempt = run(profile, scenario, spending, redirect, retireAt, years);
     if (attempt.depletionAge === null) {
       chosen = retireAt;
       result = attempt;
@@ -375,6 +454,7 @@ export function project(
     balances: result.balances,
     balancesByAccount: result.balancesByAccount,
     contributionsByYear: result.contributionsByYear,
+    redirectedByYear: result.redirectedByYear,
     matchByYear: result.matchByYear,
     growthByYear: result.growthByYear,
     withdrawalsByYear: result.withdrawalsByYear,
@@ -383,6 +463,7 @@ export function project(
     peakBalance: Math.max(...result.balances),
     endingBalance: result.balances[result.balances.length - 1],
     totalContributed: sum(result.contributionsByYear),
+    totalRedirected: sum(result.redirectedByYear),
     totalMatch: sum(result.matchByYear),
     totalGrowth: sum(result.growthByYear),
     depletionAge: result.depletionAge,

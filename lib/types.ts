@@ -342,6 +342,27 @@ export interface Account {
 /** Which account a retired year spends out of first. */
 export type WithdrawalStrategy = "lowest-return-first" | "proportional" | "taxable-first";
 
+/**
+ * What the mortgage payment does once the loan is paid off.
+ *
+ * Only while you are still working. The payment stopping is then a raise you
+ * have already proved you can live without, so it can go straight into savings.
+ * Retired, it is not new money to redirect: the spending path already drops the
+ * payment at payoff, which lowers what has to be withdrawn that year.
+ */
+export interface MortgageRedirect {
+  /** Off by default; the whole feature is opt-in. */
+  enabled: boolean;
+  /** Share of the freed payment that goes into savings, 0 to 100. */
+  share: number;
+  /**
+   * The account it lands in. Anything unrecognised — nothing chosen, or an
+   * account since deleted — spreads it across the accounts already being
+   * contributed to, in proportion.
+   */
+  accountId: string;
+}
+
 /** Shared facts about you and your accounts, applying to every scenario. */
 export interface RetirementProfile {
   currentAge: number;
@@ -356,6 +377,13 @@ export interface RetirementProfile {
   mortgagePayment: number;
   /** `YYYY-MM` the mortgage ends. Empty means it runs the whole projection. */
   mortgagePayoff: string;
+  /**
+   * When set, the two fields above are read from a mortgage scenario instead of
+   * being typed here. Absent on a profile saved before links existed.
+   */
+  mortgageLink?: { source: "mortgage"; scenarioId: string };
+  /** What the freed payment does at payoff. Absent means it is simply spent. */
+  redirect?: MortgageRedirect;
 }
 
 /** One market and spending outlook to test the profile against. */
@@ -396,8 +424,14 @@ export interface Projection {
   balances: number[];
   /** Per-account balances, the outer index matching `profile.accounts`. */
   balancesByAccount: number[][];
-  /** Your own contributions each year, employer match excluded. */
+  /**
+   * Your own contributions each year, employer match excluded. The redirected
+   * mortgage payment is part of this — it is your money going in — and
+   * `redirectedByYear` says how much of it.
+   */
   contributionsByYear: number[];
+  /** The part of `contributionsByYear` that is the freed mortgage payment. */
+  redirectedByYear: number[];
   matchByYear: number[];
   growthByYear: number[];
   withdrawalsByYear: number[];
@@ -409,6 +443,8 @@ export interface Projection {
   /** What's left at `endAge`. Zero when the plan only just works. */
   endingBalance: number;
   totalContributed: number;
+  /** The part of `totalContributed` that came from the mortgage ending. */
+  totalRedirected: number;
   totalMatch: number;
   totalGrowth: number;
   /** Age the money runs out, or null when it lasts through `endAge`. */

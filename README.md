@@ -96,6 +96,9 @@ Contributions, growth, and how long the balance lasts across accounts and outloo
   inflation, returns — each with a withdrawal strategy saying how the portfolio is drawn
   down: proportionally, lowest-return account first, or taxable accounts first, leaving the
   401(k) until it's penalty-free.
+- **The mortgage** can be typed in or taken from a mortgage scenario, and what happens to the
+  payment once the loan ends is a question the tool now asks. See
+  [How the tools connect](#how-the-tools-connect).
 - **Present**, **Edit**, and the same keys as the mortgage tool: `P`, `Esc`, `<-` and `->`.
 
 ## How the tools connect
@@ -121,8 +124,34 @@ Delete the scenario a line came from and the line stays, holding the figures it 
 with and saying where they came from. A stale payment you can see beats a mortgage that
 quietly vanishes from the year.
 
-Links only ever point one way — mortgage to expenses — so resolving them is a single pass and
-no two tools can chase each other.
+**A mortgage scenario, in the retirement projection.** *Mortgage figures from* in the profile
+panel points the payment and payoff month at a scenario instead of at the two fields, which
+then become readouts. The payment includes that scenario's monthly extra principal, without a
+switch to turn it off: the payoff date is the one that scenario's run produces, and it only
+arrives if the extra is actually being paid — counting the earlier payoff without counting
+what buys it would retire you on money you never spent. A yearly extra or a lump sum still
+moves the payoff date but has no place in a monthly figure, so the date accounts for them and
+the monthly outflow doesn't.
+
+**What the payment does when it stops.** The projection has always dropped the mortgage out of
+spending at payoff. *When the mortgage ends* asks the other half: while you are still working,
+that money doesn't have to be absorbed. Switch it on and some or all of it goes into an account
+— named, or spread across the accounts in proportion to what they already receive — and the
+panel says what that is worth, in years and in money:
+
+> $2,575 a month frees up in Nov 2034 — worth retiring 2 years sooner and $786,110 more at 95.
+
+It applies only while you are working. Retired, the payment ending is not new money to save:
+the spending path has already dropped it, which is the same saving seen from the other side.
+Saying what it is worth means running the projection a second time with the redirect off, so
+that only happens while it is switched on.
+
+The payoff year is shared between the two sides and prorated, so a mortgage ending in July puts
+half a year of payments in spending and frees the other half — counted exactly once. A payoff
+landing on a year boundary behaves as it always did.
+
+Links only ever point one way — mortgage to expenses, mortgage to retirement — so resolving
+them is a single pass and no two tools can chase each other.
 
 ## Storage
 
@@ -215,7 +244,9 @@ which is what lets the lines interpolate smoothly instead of rescaling on every 
 
 `lib/retirement.ts` is the same idea for the retirement tool: it steps each account forward a
 year at a time through contributions and growth, inflates what a year of retirement costs,
-then draws the portfolio down the way the outlook's withdrawal strategy asks. It tries each
+then draws the portfolio down the way the outlook's withdrawal strategy asks. The redirected
+mortgage payment is a contribution like any other — it earns the employer match, capped the
+same way, and lands in the middle of the year for growth. It tries each
 retirement year in turn and reports the first one whose money reaches the end of the horizon;
 falling past the last candidate is the shortfall case.
 

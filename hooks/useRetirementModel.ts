@@ -7,23 +7,47 @@ import {
   SEED_MONTH,
   createAccount,
   createDefaultRetirementState,
+  createRedirect,
   createRetirementScenario,
 } from "@/lib/defaults";
-import { addMonths, currentMonthValue, monthsBetween, parseMonth } from "@/lib/dates";
+import {
+  addMonths,
+  currentMonthValue,
+  formatMonthValue,
+  monthsBetween,
+  parseMonth,
+} from "@/lib/dates";
+import { type LinkResolution, type MortgageSource, resolveRetirementMortgage } from "@/lib/links";
 import { useClockDefaults } from "./useClockDefaults";
 import type {
   Account,
+  MortgageRedirect,
   Projection,
   RetirementComparison,
   RetirementProfile,
   RetirementScenario,
   RetirementState,
 } from "@/lib/types";
+import { useMortgageSummary } from "./summaries/useMortgageSummary";
 import { usePersistedState } from "./usePersistedState";
 
 export interface RetirementModel {
   hydrated: boolean;
+  /**
+   * The profile every figure on screen is derived from: the stored one, with
+   * the mortgage filled in from the scenario when it is linked.
+   */
   profile: RetirementProfile;
+  /** How the mortgage link is faring, or null when the figures were typed in. */
+  mortgageResolution: LinkResolution | null;
+  /** The mortgage tool's figures, or null until its stored state has been read. */
+  mortgage: MortgageSource | null;
+  /**
+   * The same outlook with the redirect switched off, for saying what the
+   * redirect is worth. Null unless it is switched on — it costs a third full
+   * projection, and there is nothing to compare against when it is off.
+   */
+  withoutRedirect: Projection | null;
   scenarios: RetirementScenario[];
   activeScenario: RetirementScenario;
   activeId: string;
@@ -35,6 +59,12 @@ export interface RetirementModel {
   setProfileField: <K extends keyof RetirementProfile>(
     field: K,
     value: RetirementProfile[K],
+  ) => void;
+  /** Points the mortgage figures at a scenario, or back at the fields. */
+  linkMortgage: (scenarioId: string | null) => void;
+  setRedirectField: <K extends keyof MortgageRedirect>(
+    field: K,
+    value: MortgageRedirect[K],
   ) => void;
   addAccount: () => void;
   updateAccount: (id: string, patch: Partial<Account>) => void;
@@ -77,12 +107,33 @@ export function useRetirementModel(): RetirementModel {
       profile: {
         ...prev.profile,
         start,
-        mortgagePayoff: `${payoff.year}-${String(payoff.month + 1).padStart(2, "0")}`,
+        mortgagePayoff: formatMonthValue(payoff),
       },
     };
   }, []);
 
   useClockDefaults(hydrated, setValue, onSeedMonth, applyClock);
+
+  const mortgageSummary = useMortgageSummary();
+  // Null until the mortgage tool's own stored state has landed. See the same
+  // guard in `useExpenseModel`.
+  const mortgage = mortgageSummary.hydrated ? mortgageSummary : null;
+
+  const linked = useMemo(
+    () => resolveRetirementMortgage(state.profile, mortgage),
+    [state.profile, mortgage],
+  );
+
+  // Everything downstream runs on this rather than the stored profile, so a
+  // linked mortgage reaches the projection, the charts and the panel as one
+  // set of figures. Unlinked, it is the stored profile unchanged.
+  const profile = useMemo<RetirementProfile>(
+    () =>
+      state.profile.mortgageLink
+        ? { ...state.profile, mortgagePayment: linked.payment, mortgagePayoff: linked.payoff }
+        : state.profile,
+    [state.profile, linked],
+  );
 
   const activeScenario =
     state.scenarios.find((scenario) => scenario.id === state.activeId) ?? state.scenarios[0];
@@ -101,13 +152,24 @@ export function useRetirementModel(): RetirementModel {
   );
 
   const baselineResult = useMemo(
-    () => project(state.profile, baselineScenario),
-    [state.profile, baselineScenario],
+    () => project(profile, baselineScenario),
+    [profile, baselineScenario],
   );
   const currentResult = useMemo(
-    () => project(state.profile, activeScenario),
-    [state.profile, activeScenario],
+    () => project(profile, activeScenario),
+    [profile, activeScenario],
   );
+
+  /*
+   * The same outlook with the redirect off, which is the only way to say what
+   * the redirect is worth. It is a third full projection, so it is computed
+   * only while the redirect is actually switched on.
+   */
+  const withoutRedirect = useMemo(() => {
+    if (!profile.redirect?.enabled) return null;
+    const result = project({ ...profile, redirect: undefined }, activeScenario);
+    return result.ok ? result : null;
+  }, [profile, activeScenario]);
 
   const baseline = baselineResult.ok ? baselineResult : null;
   const current = currentResult.ok ? currentResult : null;
@@ -125,6 +187,36 @@ export function useRetirementModel(): RetirementModel {
   const setProfileField = useCallback<RetirementModel["setProfileField"]>(
     (field, value) =>
       setValue((prev) => ({ ...prev, profile: { ...prev.profile, [field]: value } })),
+    [setValue],
+  );
+
+  const linkMortgage = useCallback<RetirementModel["linkMortgage"]>(
+    (scenarioId) =>
+      setValue((prev) => {
+        if (scenarioId === null) {
+          // Unlinking keeps whatever is on screen, so nothing visibly moves —
+          // only where the next figure comes from.
+          const profile = { ...prev.profile };
+          delete profile.mortgageLink;
+          return { ...prev, profile };
+        }
+        return {
+          ...prev,
+          profile: { ...prev.profile, mortgageLink: { source: "mortgage", scenarioId } },
+        };
+      }),
+    [setValue],
+  );
+
+  const setRedirectField = useCallback<RetirementModel["setRedirectField"]>(
+    (field, value) =>
+      setValue((prev) => ({
+        ...prev,
+        profile: {
+          ...prev.profile,
+          redirect: { ...(prev.profile.redirect ?? createRedirect()), [field]: value },
+        },
+      })),
     [setValue],
   );
 
@@ -226,7 +318,10 @@ export function useRetirementModel(): RetirementModel {
 
   return {
     hydrated,
-    profile: state.profile,
+    profile,
+    mortgageResolution: linked.resolution,
+    mortgage,
+    withoutRedirect,
     scenarios: state.scenarios,
     activeScenario,
     activeId: state.activeId,
@@ -235,6 +330,8 @@ export function useRetirementModel(): RetirementModel {
     comparison,
     error,
     setProfileField,
+    linkMortgage,
+    setRedirectField,
     addAccount,
     updateAccount,
     removeAccount,
