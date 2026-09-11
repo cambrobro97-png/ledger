@@ -2,7 +2,7 @@
 
 import { formatMoney } from "@/lib/format";
 import { formatMonth, parseMonth } from "@/lib/dates";
-import type { LinkResolution, MortgageSource } from "@/lib/links";
+import type { IncomeSource, LinkResolution, MortgageSource } from "@/lib/links";
 import type { RetirementProfile } from "@/lib/types";
 import { Panel } from "../ui/Panel";
 import { MonthField, NumericField, TextSelectField } from "../ui/Field";
@@ -17,9 +17,17 @@ interface ProfilePanelProps {
   mortgage: MortgageSource | null;
   /** How the mortgage link is faring, or null when the figures were typed in. */
   resolution: LinkResolution | null;
+  /** The income tool's sources, or null until its stored state has been read. */
+  income: IncomeSource | null;
+  /** How the salary link is faring, or null when the salary was typed in. */
+  salaryResolution: LinkResolution | null;
   onChange: <K extends keyof RetirementProfile>(field: K, value: RetirementProfile[K]) => void;
   onLink: (scenarioId: string | null) => void;
+  onLinkSalary: (itemId: string | null) => void;
 }
+
+/** The option value standing for "every repeating source", against one named. */
+const EVERY_SOURCE = "__all__";
 
 /** The option value standing for "not linked to anything". */
 const TYPED = "";
@@ -40,8 +48,11 @@ export function ProfilePanel({
   presenting,
   mortgage,
   resolution,
+  income,
+  salaryResolution,
   onChange,
   onLink,
+  onLinkSalary,
 }: ProfilePanelProps) {
   const mortgageEnds = profile.mortgagePayoff
     ? formatMonth(parseMonth(profile.mortgagePayoff))
@@ -80,6 +91,21 @@ export function ProfilePanel({
       : []),
   ];
 
+  const salaryLinkedId = profile.salaryLink?.itemId ?? "";
+  const salaryOptions = [
+    { value: TYPED, label: "Typed in here" },
+    { value: EVERY_SOURCE, label: "Every repeating source" },
+    ...(income?.items ?? []).map((item) => ({
+      value: item.id,
+      label: item.name || "Untitled source",
+    })),
+    ...(profile.salaryLink &&
+    salaryLinkedId &&
+    !(income?.items ?? []).some((item) => item.id === salaryLinkedId)
+      ? [{ value: salaryLinkedId, label: "Deleted source" }]
+      : []),
+  ];
+
   return (
     <Panel className={styles.panel}>
       <div className={styles.head}>
@@ -106,12 +132,28 @@ export function ProfilePanel({
           value={profile.endAge}
           onChange={(value) => onChange("endAge", value)}
         />
+        {/* Only offered once the income tool's own figures have been read. */}
+        {income ? (
+          <TextSelectField
+            id="profile-salary-source"
+            label="Salary from"
+            value={
+              profile.salaryLink ? profile.salaryLink.itemId || EVERY_SOURCE : TYPED
+            }
+            options={salaryOptions}
+            onChange={(value) =>
+              onLinkSalary(value === TYPED ? null : value === EVERY_SOURCE ? "" : value)
+            }
+          />
+        ) : null}
+
         <NumericField
           id="profile-salary"
           label="Gross salary"
           prefix="$"
           step={1000}
           value={profile.salary}
+          disabled={Boolean(profile.salaryLink)}
           onChange={(value) => onChange("salary", value)}
         />
         <MonthField
@@ -150,6 +192,16 @@ export function ProfilePanel({
           onChange={(value) => onChange("mortgagePayoff", value)}
         />
       </div>
+
+      {salaryResolution && salaryResolution.status !== "pending" ? (
+        <p
+          className={`${styles.linkNote} ${salaryResolution.status === "live" ? "" : styles.linkWarning}`}
+        >
+          {salaryResolution.status === "live"
+            ? `Salary from the income tool · ${salaryResolution.note}`
+            : salaryResolution.note}
+        </p>
+      ) : null}
 
       {resolution && resolution.status !== "pending" ? (
         <p

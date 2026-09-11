@@ -64,8 +64,11 @@ export default function Page() {
         presenting={presenting}
         mortgage={model.mortgage}
         resolution={model.mortgageResolution}
+        income={model.income}
+        salaryResolution={model.salaryResolution}
         onChange={model.setProfileField}
         onLink={model.linkMortgage}
+        onLinkSalary={model.linkSalary}
       />
 
       {!presenting ? (

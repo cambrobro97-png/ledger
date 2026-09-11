@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { INCOME_STORAGE_KEY, createDefaultIncomeState } from "@/lib/defaults";
 import { buildYear } from "@/lib/income";
-import type { IncomeState, IncomeYear } from "@/lib/types";
+import type { IncomeItem, IncomeState, IncomeYear } from "@/lib/types";
 import { usePersistedState } from "../usePersistedState";
 
 export interface IncomeSummary {
@@ -14,6 +14,11 @@ export interface IncomeSummary {
    * which is why every widget shows this rather than assuming "now".
    */
   year: number;
+  /**
+   * The sources themselves, for callers that need more than the year's totals —
+   * what a source pays in a full year of its own rhythm.
+   */
+  items: IncomeItem[];
   derived: IncomeYear;
 }
 
@@ -27,5 +32,5 @@ export function useIncomeSummary(): IncomeSummary {
 
   const derived = useMemo(() => buildYear(state.items, state.year), [state.items, state.year]);
 
-  return { hydrated, year: state.year, derived };
+  return { hydrated, year: state.year, items: state.items, derived };
 }

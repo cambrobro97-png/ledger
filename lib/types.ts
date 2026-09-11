@@ -370,6 +370,12 @@ export interface RetirementProfile {
   endAge: number;
   /** Gross salary, used only to size the employer match. */
   salary: number;
+  /**
+   * When set, the salary above is read from the income tool rather than typed.
+   * An empty `itemId` counts every repeating source; naming one counts only it,
+   * which is usually what you want — a bonus doesn't raise the match ceiling.
+   */
+  salaryLink?: { source: "income"; itemId: string };
   /** Month the balances are accurate as of, formatted `YYYY-MM`. */
   start: string;
   accounts: Account[];

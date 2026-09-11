@@ -20,9 +20,11 @@ import {
 import {
   type LinkResolution,
   type MortgageSource,
+  type IncomeSource,
   type RetirementSpend,
   resolveRetirementMortgage,
   resolveRetirementSpend,
+  resolveSalary,
 } from "@/lib/links";
 import { useClockDefaults } from "./useClockDefaults";
 import type {
@@ -36,6 +38,7 @@ import type {
   RetirementState,
 } from "@/lib/types";
 import { useExpenseSummary } from "./summaries/useExpenseSummary";
+import { useIncomeSummary } from "./summaries/useIncomeSummary";
 import { useMortgageSummary } from "./summaries/useMortgageSummary";
 import { usePersistedState } from "./usePersistedState";
 
@@ -48,6 +51,10 @@ export interface RetirementModel {
   profile: RetirementProfile;
   /** How the mortgage link is faring, or null when the figures were typed in. */
   mortgageResolution: LinkResolution | null;
+  /** How the salary link is faring, or null when the salary was typed in. */
+  salaryResolution: LinkResolution | null;
+  /** The income tool's sources, or null until its stored state has been read. */
+  income: IncomeSource | null;
   /** The mortgage tool's figures, or null until its stored state has been read. */
   mortgage: MortgageSource | null;
   /**
@@ -80,6 +87,8 @@ export interface RetirementModel {
   ) => void;
   /** Points the mortgage figures at a scenario, or back at the fields. */
   linkMortgage: (scenarioId: string | null) => void;
+  /** Points the salary at an income source, at all of them, or back at the field. */
+  linkSalary: (itemId: string | null) => void;
   /** Points an outlook's spending at the expense list, or back at the field. */
   linkSpend: (scenarioId: string, link: SpendLink | null) => void;
   setRedirectField: <K extends keyof MortgageRedirect>(
@@ -139,21 +148,31 @@ export function useRetirementModel(): RetirementModel {
   // guard in `useExpenseModel`.
   const mortgage = mortgageSummary.hydrated ? mortgageSummary : null;
 
+  const incomeSummary = useIncomeSummary();
+  const income = useMemo(
+    () => (incomeSummary.hydrated ? { items: incomeSummary.items } : null),
+    [incomeSummary.hydrated, incomeSummary.items],
+  );
+
   const linked = useMemo(
     () => resolveRetirementMortgage(state.profile, mortgage),
     [state.profile, mortgage],
   );
 
+  const salary = useMemo(() => resolveSalary(state.profile, income), [state.profile, income]);
+
   // Everything downstream runs on this rather than the stored profile, so a
   // linked mortgage reaches the projection, the charts and the panel as one
   // set of figures. Unlinked, it is the stored profile unchanged.
-  const profile = useMemo<RetirementProfile>(
-    () =>
-      state.profile.mortgageLink
-        ? { ...state.profile, mortgagePayment: linked.payment, mortgagePayoff: linked.payoff }
-        : state.profile,
-    [state.profile, linked],
-  );
+  const profile = useMemo<RetirementProfile>(() => {
+    const next = { ...state.profile };
+    if (state.profile.mortgageLink) {
+      next.mortgagePayment = linked.payment;
+      next.mortgagePayoff = linked.payoff;
+    }
+    if (state.profile.salaryLink) next.salary = salary.salary;
+    return next;
+  }, [state.profile, linked, salary]);
 
   const expenses = useExpenseSummary();
   // Same guard as the mortgage: nothing resolves until the tool it reads has
@@ -269,6 +288,17 @@ export function useRetirementModel(): RetirementModel {
     [setValue],
   );
 
+  const linkSalary = useCallback<RetirementModel["linkSalary"]>(
+    (itemId) =>
+      setValue((prev) => {
+        const profile = { ...prev.profile };
+        if (itemId === null) delete profile.salaryLink;
+        else profile.salaryLink = { source: "income", itemId };
+        return { ...prev, profile };
+      }),
+    [setValue],
+  );
+
   const setRedirectField = useCallback<RetirementModel["setRedirectField"]>(
     (field, value) =>
       setValue((prev) => ({
@@ -381,7 +411,9 @@ export function useRetirementModel(): RetirementModel {
     hydrated,
     profile,
     mortgageResolution: linked.resolution,
+    salaryResolution: salary.resolution,
     mortgage,
+    income,
     spendByScenario,
     activeSpend,
     expensesReady: expenses.hydrated,
@@ -395,6 +427,7 @@ export function useRetirementModel(): RetirementModel {
     error,
     setProfileField,
     linkMortgage,
+    linkSalary,
     linkSpend,
     setRedirectField,
     addAccount,

@@ -9,12 +9,14 @@ import {
 } from "./dates";
 import { daysInMonth, formatDayValue, parseDay } from "./days";
 import { annualCostOf } from "./expenses";
+import { annualIncomeOf } from "./income";
 import { activeShare } from "./retirement";
 import { formatMoney } from "./format";
 import type {
   AmortizationResult,
   CalendarMonth,
   ExpenseItem,
+  IncomeItem,
   Loan,
   MortgageLink,
   MortgagePart,
@@ -661,5 +663,149 @@ export function resolveRetirementSpend(
       sourceName: "the expense list",
       note: `${formatMoney(base[0])} a year from ${counted.length} repeating ${counted.length === 1 ? "line" : "lines"}${adjusted}, with the mortgage counted separately.${ending}`,
     },
+  };
+}
+
+/* --- Income: the salary, and what is spare ------------------------------ */
+
+/** Everything a link needs from the income tool. */
+export interface IncomeSource {
+  items: IncomeItem[];
+}
+
+/**
+ * The salary a retirement projection sizes its employer match against.
+ *
+ * Naming one source is usually right: the match ceiling is a share of salary,
+ * and a bonus or a side contract doesn't raise it. An empty `itemId` counts
+ * every repeating source instead, for anyone whose pay genuinely is the sum of
+ * several. One-offs never count either way — `annualIncomeOf` reports nothing
+ * for them.
+ */
+export function resolveSalary(
+  profile: RetirementProfile,
+  source: IncomeSource | null,
+): { salary: number; resolution: LinkResolution | null } {
+  const typed = Number(profile.salary) || 0;
+  const link = profile.salaryLink;
+  if (!link) return { salary: typed, resolution: null };
+  if (!source) {
+    return { salary: typed, resolution: { status: "pending", sourceName: "", note: "" } };
+  }
+
+  if (link.itemId) {
+    const item = source.items.find((candidate) => candidate.id === link.itemId);
+    if (!item) {
+      return {
+        salary: typed,
+        resolution: {
+          status: "missing",
+          sourceName: "",
+          note: "The income source this came from has been deleted — this is the figure it was linked with.",
+        },
+      };
+    }
+
+    const salary = annualIncomeOf(item);
+    if (salary <= 0) {
+      return {
+        salary: typed,
+        resolution: unresolved(item.name, "That source doesn't repeat, so it has no yearly figure."),
+      };
+    }
+
+    return {
+      salary,
+      resolution: {
+        status: "live",
+        sourceName: item.name || "an income source",
+        note: `${formatMoney(salary)} a year, from ${item.name || "an income source"}.`,
+      },
+    };
+  }
+
+  const salary = source.items.reduce((total, item) => total + annualIncomeOf(item), 0);
+  if (salary <= 0) {
+    return {
+      salary: typed,
+      resolution: unresolved("the income list", "No repeating income to take a salary from."),
+    };
+  }
+
+  return {
+    salary,
+    resolution: {
+      status: "live",
+      sourceName: "the income list",
+      note: `${formatMoney(salary)} a year, from every repeating source.`,
+    },
+  };
+}
+
+/** What the year's rhythms leave over, before any extra principal. */
+export interface SpareMoney {
+  /** Per month, and negative when the bills already run past the income. */
+  spare: number;
+  incomeAnnual: number;
+  spendAnnual: number;
+  /** Whether anything was found to measure — false when both lists are empty. */
+  known: boolean;
+}
+
+/**
+ * What is left each month once the bills are paid, before any extra principal.
+ *
+ * Extra principal is deliberately left out of the spending side. The question
+ * this answers is how much there is *available* for extra principal, so
+ * counting a scenario's own extra against it would have the answer shrink the
+ * harder you already pay — and a scenario funded entirely out of surplus would
+ * look unaffordable the moment it was entered.
+ *
+ * Annualised rather than taken from either tool's year totals, which is what
+ * lets it ignore the two tools sitting on different years — and means a
+ * three-payday month or a one-off holiday doesn't move it.
+ */
+export function spareEachMonth(
+  income: IncomeSource | null,
+  expenses: ExpenseSource | null,
+  mortgage: Pick<MortgageSource, "loan" | "scenarios"> | null,
+): SpareMoney {
+  if (!income || !expenses) {
+    return { spare: 0, incomeAnnual: 0, spendAnnual: 0, known: false };
+  }
+
+  const incomeAnnual = income.items.reduce((total, item) => total + annualIncomeOf(item), 0);
+
+  let spendAnnual = 0;
+  for (const item of expenses.items) {
+    const part = item.link?.part;
+    // A yearly extra or a lump sum is extra principal outright.
+    if (part === "annual" || part === "lump") continue;
+
+    /*
+     * A mortgage line is costed from the loan rather than from the amount
+     * stored on it. That amount was resolved against whatever the reader's
+     * snapshot of the mortgage held, which on the mortgage page itself is the
+     * loan as it was when the page loaded — so reading it back would have this
+     * figure lag the payment being edited right next to it.
+     */
+    if (part === "payment") {
+      spendAnnual += mortgage ? (Number(mortgage.loan.payment) || 0) * 12 : 0;
+      continue;
+    }
+    if (part === "pmi") {
+      const pmi = mortgage?.loan.pmi;
+      spendAnnual += pmi?.enabled ? (Number(pmi.monthly) || 0) * 12 : 0;
+      continue;
+    }
+
+    spendAnnual += Math.max(0, annualCostOf(item));
+  }
+
+  return {
+    spare: (incomeAnnual - spendAnnual) / 12,
+    incomeAnnual,
+    spendAnnual,
+    known: incomeAnnual > 0 || spendAnnual > 0,
   };
 }

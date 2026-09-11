@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { BASELINE_SCENARIO, compare, project } from "@/lib/retirement";
 import { RETIREMENT_STORAGE_KEY, createDefaultRetirementState } from "@/lib/defaults";
-import { resolveRetirementMortgage, resolveRetirementSpend } from "@/lib/links";
+import { resolveRetirementMortgage, resolveRetirementSpend, resolveSalary } from "@/lib/links";
 import type {
   Projection,
   RetirementComparison,
@@ -11,6 +11,7 @@ import type {
   RetirementState,
 } from "@/lib/types";
 import { useExpenseSummary } from "./useExpenseSummary";
+import { useIncomeSummary } from "./useIncomeSummary";
 import { useMortgageSummary } from "./useMortgageSummary";
 import { usePersistedState } from "../usePersistedState";
 
@@ -51,6 +52,12 @@ export function useRetirementSummary(): RetirementSummary {
     [expenses.hydrated, expenses.items],
   );
 
+  const income = useIncomeSummary();
+  const incomeSource = useMemo(
+    () => (income.hydrated ? { items: income.items } : null),
+    [income.hydrated, income.items],
+  );
+
   return useMemo(() => {
     const scenario =
       state.scenarios.find((candidate) => candidate.id === state.activeId) ?? state.scenarios[0];
@@ -69,9 +76,14 @@ export function useRetirementSummary(): RetirementSummary {
     };
 
     const linked = resolveRetirementMortgage(state.profile, mortgage);
-    const profile: RetirementProfile = state.profile.mortgageLink
-      ? { ...state.profile, mortgagePayment: linked.payment, mortgagePayoff: linked.payoff }
-      : state.profile;
+    const salary = resolveSalary(state.profile, incomeSource);
+
+    const profile: RetirementProfile = { ...state.profile };
+    if (state.profile.mortgageLink) {
+      profile.mortgagePayment = linked.payment;
+      profile.mortgagePayoff = linked.payoff;
+    }
+    if (state.profile.salaryLink) profile.salary = salary.salary;
 
     // The outlook's spending, from the expense list when it is linked there.
     const spendingBase = resolveRetirementSpend(profile, scenario, expenseSource).base ?? undefined;
@@ -96,5 +108,5 @@ export function useRetirementSummary(): RetirementSummary {
           : currentResult.reason
         : baselineResult.reason,
     };
-  }, [state, hydrated, mortgage, expenseSource]);
+  }, [state, hydrated, mortgage, expenseSource, incomeSource]);
 }

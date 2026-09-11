@@ -1,4 +1,5 @@
 import {
+  CADENCE_PER_YEAR,
   largestDayTotal,
   occurrencesFor,
   peakMonthOf,
@@ -21,6 +22,18 @@ export {
   occurrencesFor,
   stackByDay,
 } from "./schedule";
+
+/**
+ * What one source pays across a full year of its own rhythm, regardless of the
+ * year on screen. A one-off has no rhythm to annualise, so it counts as nothing
+ * — this measures the income that comes back, not money received once. The
+ * counterpart to `annualCostOf` on the expense side.
+ */
+export function annualIncomeOf(item: IncomeItem): number {
+  const amount = Number(item.amount) || 0;
+  if (amount <= 0 || item.cadence === "once") return 0;
+  return amount * CADENCE_PER_YEAR[item.cadence];
+}
 
 /**
  * One pass over every item, producing everything the page draws. The timeline,

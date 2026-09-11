@@ -172,8 +172,25 @@ into the expense list by hand is the one case nothing can catch: it would be cou
 A link that has nothing to offer — an empty list, or every line already stopped — falls back to
 the typed figure and says so, rather than projecting a retirement that costs nothing.
 
-Links only ever point one way — mortgage to expenses, mortgage to retirement, expenses to
-retirement — so resolving them is a single pass and no two tools can chase each other. A link
+**The salary the match is sized against.** *Salary from* in the profile panel takes it from the
+income tool. Naming one source is usually right — the employer match ceiling is a share of
+salary, and a bonus or a side contract doesn't raise it — but every repeating source together
+is there for anyone whose pay genuinely is the sum of several.
+
+**What there is to pay a mortgage down with.** Each mortgage scenario says what the income and
+expense lists leave over each month, and offers to put it in: *$2,381 a month is spare once the
+bills are paid.* Ask for more than that and the note says so rather than stopping you — it is a
+plan worth seeing the cost of, not an invalid input.
+
+Extra principal is deliberately left out of the spending side of that sum. The question is how
+much is *available* for extra principal, so counting a scenario's own extra against it would
+have the answer shrink the harder you already pay. The mortgage's own lines are costed from the
+loan rather than from the figures stored on them, so the number moves as the payment being
+edited beside it moves. And it is annualised rather than taken from either tool's year totals,
+which is what lets it ignore the two lists sitting on different years.
+
+Links only ever point one way — income and mortgage into expenses and retirement — so resolving
+them is a single pass and no two tools can chase each other. A link
 that would close the loop, such as retirement contributions appearing as an expense that then
 feeds retirement spending, has to be broken somewhere before it can be added.
 
