@@ -2,6 +2,8 @@
 
 import { MONTH_NAMES } from "@/lib/dates";
 import { describeExtras } from "@/lib/describe";
+import { formatMoney } from "@/lib/format";
+import type { SpareMoney } from "@/lib/links";
 import type { Scenario } from "@/lib/types";
 import { Button } from "./ui/Button";
 import { NumericField, SelectField } from "./ui/Field";
@@ -12,6 +14,8 @@ interface ScenarioCardProps {
   scenario: Scenario;
   active: boolean;
   canDelete: boolean;
+  /** What the income and expense lists leave over each month. */
+  spare: SpareMoney;
   onSelect: () => void;
   onChange: (patch: Partial<Scenario>) => void;
   onAddOneTime: () => void;
@@ -25,6 +29,7 @@ export function ScenarioCard({
   scenario,
   active,
   canDelete,
+  spare,
   onSelect,
   onChange,
   onAddOneTime,
@@ -32,6 +37,16 @@ export function ScenarioCard({
   onRemoveOneTime,
   onDelete,
 }: ScenarioCardProps) {
+  /*
+   * Rounded down to whole dollars, and the same figure is both shown and used:
+   * saying "$2,382 is spare" and then filling the field with 2,381 is a small
+   * lie about a number someone is about to commit money against. Down rather
+   * than to nearest, so the suggestion is never more than there is.
+   */
+  const spareMonthly = Math.max(0, Math.floor(spare.spare));
+  const overspending = spare.known && spareMonthly > 0 && (Number(scenario.monthly) || 0) > spareMonthly;
+  const useSpare = () => onChange({ monthly: spareMonthly });
+
   return (
     <div className={`${styles.card} ${active ? styles.active : ""}`}>
       <div className={styles.top}>
@@ -98,6 +113,29 @@ export function ScenarioCard({
               onRemove={() => onRemoveOneTime(payment.id)}
             />
           ))}
+        </div>
+      ) : null}
+
+      {/* What there is to pay with, from the other two tools. Only once they
+          have something to say: an empty income list would otherwise report
+          every scenario as unaffordable. */}
+      {spare.known ? (
+        <div className={`${styles.note} ${overspending ? styles.warning : ""}`}>
+          {spareMonthly <= 0 ? (
+            <>The bills already run past the income, so there is nothing spare for extra principal.</>
+          ) : overspending ? (
+            <>
+              This asks for {formatMoney(scenario.monthly)} a month;{" "}
+              {formatMoney(spareMonthly)} is spare once the bills are paid.
+            </>
+          ) : (
+            <>
+              {formatMoney(spareMonthly)} a month is spare once the bills are paid.{" "}
+              <button type="button" className={styles.inlineAction} onClick={useSpare}>
+                Use it
+              </button>
+            </>
+          )}
         </div>
       ) : null}
 

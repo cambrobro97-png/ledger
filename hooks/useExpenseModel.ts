@@ -11,11 +11,14 @@ import { buildExpenseYear } from "@/lib/expenses";
 import {
   type LinkResolution,
   type MortgageSource,
+  type RetirementSource,
   mortgageLinkSeed,
   resolveExpenseItems,
+  retirementLinkSeed,
 } from "@/lib/links";
 import type { ExpenseItem, ExpenseState, ExpenseYear, MortgagePart } from "@/lib/types";
 import { useMortgageSummary } from "./summaries/useMortgageSummary";
+import { useRetirementAccounts } from "./summaries/useRetirementAccounts";
 import { usePersistedState } from "./usePersistedState";
 import { useClockDefaults } from "./useClockDefaults";
 
@@ -30,6 +33,8 @@ export interface ExpenseModel {
   resolutions: Map<string, LinkResolution>;
   /** The mortgage tool's figures, or null until its stored state has been read. */
   mortgage: MortgageSource | null;
+  /** The retirement accounts, or null until their stored state has been read. */
+  retirement: RetirementSource | null;
   setYear: (year: number) => void;
   stepYear: (direction: 1 | -1) => void;
   /** Adds a line. `once` starts a one-off, anything else a repeating bill. */
@@ -38,6 +43,8 @@ export interface ExpenseModel {
   removeItem: (id: string) => void;
   /** Puts one piece of a mortgage scenario on the list as a linked line. */
   addMortgageLink: (scenarioId: string, part: MortgagePart, oneTimeId?: string) => void;
+  /** Puts what is going into the retirement accounts on the list as a linked line. */
+  addRetirementLink: (accountId: string) => void;
   /** Keeps the figures, drops the link: the line becomes an ordinary expense. */
   unlinkItem: (id: string) => void;
   resetAll: () => void;
@@ -63,6 +70,17 @@ export function useExpenseModel(): ExpenseModel {
   // then swap it a frame later.
   const mortgage = mortgageSummary.hydrated ? mortgageSummary : null;
 
+  /*
+   * The accounts, read raw. Not `useRetirementSummary`: that hook projects, and
+   * projecting reads this very list — see `useRetirementAccounts` for why that
+   * distinction is the thing keeping this graph acyclic.
+   */
+  const accounts = useRetirementAccounts();
+  const retirement = useMemo(
+    () => (accounts.hydrated ? { accounts: accounts.accounts } : null),
+    [accounts.hydrated, accounts.accounts],
+  );
+
   // A list still sitting on the seed year is untouched seed data, so it can move
   // onto the real year once the clock is safe to read.
   const onSeedYear = useCallback((prev: ExpenseState) => prev.year === SEED_YEAR, []);
@@ -86,8 +104,8 @@ export function useExpenseModel(): ExpenseModel {
   useClockDefaults(hydrated, setValue, onSeedYear, applyClock);
 
   const { items, resolutions } = useMemo(
-    () => resolveExpenseItems(state.items, mortgage),
-    [state.items, mortgage],
+    () => resolveExpenseItems(state.items, mortgage, retirement),
+    [state.items, mortgage, retirement],
   );
 
   const derived = useMemo(() => buildExpenseYear(items, state.year), [items, state.year]);
@@ -138,6 +156,18 @@ export function useExpenseModel(): ExpenseModel {
     [mortgage, setValue],
   );
 
+  const addRetirementLink = useCallback<ExpenseModel["addRetirementLink"]>(
+    (accountId) => {
+      if (!retirement) return;
+      const seed = retirementLinkSeed(retirement, accountId);
+      setValue((prev) => ({
+        ...prev,
+        items: [...prev.items, createExpenseItem(prev.year, seed)],
+      }));
+    },
+    [retirement, setValue],
+  );
+
   const unlinkItem = useCallback(
     (id: string) =>
       setValue((prev) => ({
@@ -163,12 +193,14 @@ export function useExpenseModel(): ExpenseModel {
     derived,
     resolutions,
     mortgage,
+    retirement,
     setYear,
     stepYear,
     addItem,
     updateItem,
     removeItem,
     addMortgageLink,
+    addRetirementLink,
     unlinkItem,
     resetAll: reset,
   };

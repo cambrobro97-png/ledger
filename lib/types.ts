@@ -213,6 +213,26 @@ export interface MortgageLink {
   oneTimeId?: string;
 }
 
+/**
+ * What ties an expense line to the retirement tool: money going into the
+ * accounts, which leaves the bank like any other outgoing.
+ *
+ * Deliberately has no end date. Contributions do stop at retirement, but that
+ * age is something the projection works out — and the projection reads the
+ * expense list. Taking a date from it here would close a loop that currently
+ * has no cycle in it at all. What this line says is what is being put away now.
+ */
+export interface RetirementLink {
+  source: "retirement";
+  /** The only part so far, named so a second can be added without a migration. */
+  part: "contributions";
+  /** Which account, or empty for every account together. */
+  accountId: string;
+}
+
+/** Anything that can drive an expense line from another tool. */
+export type ExpenseLink = MortgageLink | RetirementLink;
+
 /** One outgoing: rent, a utility bill, a subscription, a yearly premium. */
 export interface ExpenseItem extends ScheduledItem {
   category: ExpenseCategory;
@@ -221,7 +241,7 @@ export interface ExpenseItem extends ScheduledItem {
    * Set when another tool drives this line. Absent on every hand-entered
    * expense, and on anything saved before links existed.
    */
-  link?: MortgageLink;
+  link?: ExpenseLink;
 }
 
 export interface ExpenseState {
@@ -342,6 +362,27 @@ export interface Account {
 /** Which account a retired year spends out of first. */
 export type WithdrawalStrategy = "lowest-return-first" | "proportional" | "taxable-first";
 
+/**
+ * What the mortgage payment does once the loan is paid off.
+ *
+ * Only while you are still working. The payment stopping is then a raise you
+ * have already proved you can live without, so it can go straight into savings.
+ * Retired, it is not new money to redirect: the spending path already drops the
+ * payment at payoff, which lowers what has to be withdrawn that year.
+ */
+export interface MortgageRedirect {
+  /** Off by default; the whole feature is opt-in. */
+  enabled: boolean;
+  /** Share of the freed payment that goes into savings, 0 to 100. */
+  share: number;
+  /**
+   * The account it lands in. Anything unrecognised — nothing chosen, or an
+   * account since deleted — spreads it across the accounts already being
+   * contributed to, in proportion.
+   */
+  accountId: string;
+}
+
 /** Shared facts about you and your accounts, applying to every scenario. */
 export interface RetirementProfile {
   currentAge: number;
@@ -349,6 +390,12 @@ export interface RetirementProfile {
   endAge: number;
   /** Gross salary, used only to size the employer match. */
   salary: number;
+  /**
+   * When set, the salary above is read from the income tool rather than typed.
+   * An empty `itemId` counts every repeating source; naming one counts only it,
+   * which is usually what you want — a bonus doesn't raise the match ceiling.
+   */
+  salaryLink?: { source: "income"; itemId: string };
   /** Month the balances are accurate as of, formatted `YYYY-MM`. */
   start: string;
   accounts: Account[];
@@ -356,6 +403,37 @@ export interface RetirementProfile {
   mortgagePayment: number;
   /** `YYYY-MM` the mortgage ends. Empty means it runs the whole projection. */
   mortgagePayoff: string;
+  /**
+   * When set, the two fields above are read from a mortgage scenario instead of
+   * being typed here. Absent on a profile saved before links existed.
+   */
+  mortgageLink?: { source: "mortgage"; scenarioId: string };
+  /** What the freed payment does at payoff. Absent means it is simply spent. */
+  redirect?: MortgageRedirect;
+}
+
+/**
+ * Which expense lines a linked outlook's spending is built from.
+ *
+ * `fixed` is the floor a lean month can't go below; `all` is every repeating
+ * line. One-offs are in neither — a cost paid once this year says nothing about
+ * what a year of retirement costs in 2050.
+ */
+export type SpendBasis = "all" | "fixed";
+
+/**
+ * What ties an outlook's spending to the expense list.
+ *
+ * The result is a path rather than a figure: a bill with a stop date leaves the
+ * budget in the year it stops, so a car loan ending in 2031 stops being
+ * retirement spending in 2031.
+ */
+export interface SpendLink {
+  /** Named rather than assumed, so a second kind of source can be added later. */
+  source: "expenses";
+  basis: SpendBasis;
+  /** Percentage of today's spending you expect to carry on with. 100 keeps it as it is. */
+  adjustPct: number;
 }
 
 /** One market and spending outlook to test the profile against. */
@@ -370,6 +448,11 @@ export interface RetirementScenario {
   colaIncrease: number;
   /** Target annual spend in today's dollars, with the mortgage counted separately. */
   annualSpend: number;
+  /**
+   * When set, the spend above is built from the expense list rather than typed.
+   * Absent on an outlook saved before links existed.
+   */
+  spendLink?: SpendLink;
   withdrawal: WithdrawalStrategy;
 }
 
@@ -396,8 +479,14 @@ export interface Projection {
   balances: number[];
   /** Per-account balances, the outer index matching `profile.accounts`. */
   balancesByAccount: number[][];
-  /** Your own contributions each year, employer match excluded. */
+  /**
+   * Your own contributions each year, employer match excluded. The redirected
+   * mortgage payment is part of this — it is your money going in — and
+   * `redirectedByYear` says how much of it.
+   */
   contributionsByYear: number[];
+  /** The part of `contributionsByYear` that is the freed mortgage payment. */
+  redirectedByYear: number[];
   matchByYear: number[];
   growthByYear: number[];
   withdrawalsByYear: number[];
@@ -409,6 +498,8 @@ export interface Projection {
   /** What's left at `endAge`. Zero when the plan only just works. */
   endingBalance: number;
   totalContributed: number;
+  /** The part of `totalContributed` that came from the mortgage ending. */
+  totalRedirected: number;
   totalMatch: number;
   totalGrowth: number;
   /** Age the money runs out, or null when it lasts through `endAge`. */

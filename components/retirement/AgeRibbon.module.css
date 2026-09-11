@@ -85,3 +85,38 @@
   color: var(--brass);
   text-align: center;
 }
+
+/* Where the mortgage ends, against the same span. Dashed and neutral so it
+   reads as a date marked on the plan rather than a third phase of it. */
+.payoff {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 2px dashed var(--ash);
+  pointer-events: none;
+  transition: left var(--tween) var(--ease);
+}
+
+/* Backed, because it has to stay readable wherever it lands: the hatching to
+   its right is busy, and the retirement divider can fall directly under it. */
+.payoffLabel {
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: clamp(9px, 0.62vw, 11px);
+  letter-spacing: 0.04em;
+  color: var(--ash);
+  background: var(--ink);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Near the right-hand end there is no room to read rightwards, and the track
+   clips anything that runs past it. */
+.payoffLabelLeft {
+  left: auto;
+  right: 5px;
+}

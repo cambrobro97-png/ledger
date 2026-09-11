@@ -1,3 +1,5 @@
+import { decimalMagnitude } from "@/lib/numbers";
+
 /** Plot box for a chart, in the SVG's own viewBox units. */
 export interface Plot {
   width: number;
@@ -22,10 +24,16 @@ export const xAt = (plot: Plot, index: number, length: number) =>
 export const yAt = (plot: Plot, value: number, max: number) =>
   plot.top + innerHeight(plot) - (value / max) * innerHeight(plot);
 
-/** Rounds an axis maximum up to a readable 1 / 2 / 2.5 / 5 step. */
+/**
+ * Rounds an axis maximum up to a readable 1 / 2 / 2.5 / 5 step.
+ *
+ * The magnitude is stepped rather than logged: every coordinate on the chart is
+ * scaled by this, so an answer that differs between the prerender and the
+ * browser would differ everywhere. See `lib/numbers.ts`.
+ */
 export function niceMax(value: number): number {
-  if (value <= 0) return 1;
-  const magnitude = Math.pow(10, Math.floor(Math.log10(value)));
+  if (!Number.isFinite(value) || value <= 0) return 1;
+  const magnitude = decimalMagnitude(value);
   const normalized = value / magnitude;
   const step =
     normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10;

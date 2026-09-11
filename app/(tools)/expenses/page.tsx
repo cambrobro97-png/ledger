@@ -12,6 +12,7 @@ import { useExpenseModel } from "@/hooks/useExpenseModel";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { TWEEN_MS } from "@/hooks/useTween";
 import { MONTH_NAMES } from "@/lib/dates";
+import { parseDay } from "@/lib/days";
 import { CADENCE_LABELS, CATEGORY_LABELS, KIND_LABELS, categoryAccent } from "@/lib/expenses";
 import { formatMoney } from "@/lib/format";
 import monthStyles from "@/components/timeline/MonthDetail.module.css";
@@ -41,6 +42,15 @@ export default function Page() {
   );
 
   const nameOf = useCallback((id: string) => itemsById.get(id)?.name || "Expense", [itemsById]);
+
+  // When the mortgage payment is on the list, the month it stops is worth
+  // saying out loud — it is the one date on the timeline nothing else explains.
+  const mortgageEnds = useMemo(() => {
+    const payment = model.items.find((item) => item.link?.part === "payment");
+    if (!payment?.until) return null;
+    const day = parseDay(payment.until, model.year);
+    return `${MONTH_NAMES[day.month]} ${day.year}`;
+  }, [model.items, model.year]);
 
   const describe = useCallback(
     (id: string) => {
@@ -144,7 +154,11 @@ export default function Page() {
         where there&rsquo;s a decision to make. Recurring expenses repeat from their first payment,
         so a weekly bill produces the occasional five-payment month
         {model.derived.peakMonth === -1 ? "" : `, like ${MONTH_NAMES[model.derived.peakMonth]}`}.
-        Press <kbd>Esc</kbd> to close an open month.
+        {/* Said here rather than drawn on the timeline: the mortgage's own marks
+            already stop on the month it ends, and what a reader wants alongside
+            them is which month that is. */}
+        {mortgageEnds ? ` The mortgage comes off the timeline after ${mortgageEnds}.` : ""} Press{" "}
+        <kbd>Esc</kbd> to close an open month.
       </p>
     </main>
   );

@@ -1,0 +1,35 @@
+.panel {
+  margin-top: clamp(12px, 1.2vw, 18px);
+}
+
+.fields {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  margin-top: 14px;
+}
+
+/* The answer the panel exists for, set apart from the controls that produce
+   it: what the payment stopping is actually worth, in years and in money. */
+.verdict {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font-size: clamp(13px, 1vw, 15px);
+  line-height: 1.6;
+  color: var(--ash);
+}
+
+.verdict strong {
+  color: var(--bone);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+.warning {
+  margin: 14px 0 0;
+  font-size: clamp(11px, 0.85vw, 13px);
+  color: var(--brass);
+  line-height: 1.5;
+}

@@ -22,8 +22,11 @@ export function OutlookEditor({ model }: { model: RetirementModel }) {
             scenario={scenario}
             active={scenario.id === model.activeId}
             canDelete={model.scenarios.length > 1}
+            spend={model.spendByScenario.get(scenario.id) ?? model.activeSpend}
+            expensesReady={model.expensesReady}
             onSelect={() => model.selectScenario(scenario.id)}
             onChange={(patch) => model.updateScenario(scenario.id, patch)}
+            onLinkSpend={(link) => model.linkSpend(scenario.id, link)}
             onDelete={() => model.removeScenario(scenario.id)}
           />
         ))}

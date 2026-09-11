@@ -6,6 +6,7 @@ import { buildExpenseYear } from "@/lib/expenses";
 import { resolveExpenseItems } from "@/lib/links";
 import type { ExpenseItem, ExpenseState, ExpenseYear } from "@/lib/types";
 import { useMortgageSummary } from "./useMortgageSummary";
+import { useRetirementAccounts } from "./useRetirementAccounts";
 import { usePersistedState } from "../usePersistedState";
 
 export interface ExpenseSummary {
@@ -39,9 +40,16 @@ export function useExpenseSummary(): ExpenseSummary {
   const mortgageSummary = useMortgageSummary();
   const mortgage = mortgageSummary.hydrated ? mortgageSummary : null;
 
+  // Raw accounts, never the projection: see `useRetirementAccounts`.
+  const accounts = useRetirementAccounts();
+  const retirement = useMemo(
+    () => (accounts.hydrated ? { accounts: accounts.accounts } : null),
+    [accounts.hydrated, accounts.accounts],
+  );
+
   const items = useMemo(
-    () => resolveExpenseItems(state.items, mortgage).items,
-    [state.items, mortgage],
+    () => resolveExpenseItems(state.items, mortgage, retirement).items,
+    [state.items, mortgage, retirement],
   );
 
   const derived = useMemo(() => buildExpenseYear(items, state.year), [items, state.year]);

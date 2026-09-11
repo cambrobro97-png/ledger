@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSiteChrome } from "@/components/SiteChrome";
 import { RetirementTopBar } from "@/components/retirement/RetirementTopBar";
 import { ProfilePanel } from "@/components/retirement/ProfilePanel";
+import { RedirectPanel } from "@/components/retirement/RedirectPanel";
 import { OutlookTabs } from "@/components/retirement/OutlookTabs";
 import { RetirementHero } from "@/components/retirement/RetirementHero";
 import { AgeRibbon } from "@/components/retirement/AgeRibbon";
@@ -13,6 +14,7 @@ import { AccountsChart } from "@/components/retirement/charts/AccountsChart";
 import { CrossoverChart } from "@/components/retirement/charts/CrossoverChart";
 import { GrowthChart } from "@/components/retirement/charts/GrowthChart";
 import { AccountEditor } from "@/components/retirement/AccountEditor";
+import { createRedirect } from "@/lib/defaults";
 import { OutlookEditor } from "@/components/retirement/OutlookEditor";
 import { useRetirementModel } from "@/hooks/useRetirementModel";
 import { useKeyboardControls } from "@/hooks/useKeyboardControls";
@@ -60,8 +62,24 @@ export default function Page() {
         profile={profile}
         retirementAge={current && !current.shortfall ? current.retirementAge : null}
         presenting={presenting}
+        mortgage={model.mortgage}
+        resolution={model.mortgageResolution}
+        income={model.income}
+        salaryResolution={model.salaryResolution}
         onChange={model.setProfileField}
+        onLink={model.linkMortgage}
+        onLinkSalary={model.linkSalary}
       />
+
+      {!presenting ? (
+        <RedirectPanel
+          profile={profile}
+          redirect={profile.redirect ?? createRedirect()}
+          current={current}
+          withoutRedirect={model.withoutRedirect}
+          onChange={model.setRedirectField}
+        />
+      ) : null}
 
       {model.error ? <p className={styles.warning}>{model.error}</p> : null}
 
@@ -78,6 +96,7 @@ export default function Page() {
             scenario={model.activeScenario}
             profile={profile}
             current={current}
+            annualSpend={model.activeSpend.annual}
             yearsEarlier={comparison.yearsEarlier}
           />
 
@@ -88,6 +107,7 @@ export default function Page() {
             baseline={baseline}
             current={current}
             comparison={comparison}
+            withoutRedirect={model.withoutRedirect}
             duration={duration}
           />
 

@@ -22,6 +22,7 @@ export function ScenarioEditor({ model }: { model: MortgageModel }) {
             scenario={scenario}
             active={scenario.id === model.activeId}
             canDelete={model.scenarios.length > 1}
+            spare={model.spare}
             onSelect={() => model.selectScenario(scenario.id)}
             onChange={(patch) => model.updateScenario(scenario.id, patch)}
             onAddOneTime={() => model.addOneTime(scenario.id)}
