@@ -190,6 +190,13 @@ got yet. Leaving the page ends that wait early rather than cancelling it — on 
 reads it. Read-only consumers also adopt writes from other tabs, which is what keeps two open
 tabs from disagreeing about a number one of them just changed.
 
+Arithmetic that ends up in rendered markup avoids `Math.pow` and `Math.log10` for a related
+reason. IEEE 754 pins down `+`, `-`, `*`, `/` and `sqrt` to the last bit, but leaves the
+transcendental functions to the implementation — and V8 in Node and V8 in Chrome do return
+results an ulp apart for the same inputs. Compounding a return over sixty years that way put an
+SVG bar height one digit apart between the two, which React reports as a hydration mismatch and
+declines to patch. `lib/numbers.ts` does the same work with multiplication instead.
+
 The seed data is written around a fixed month rather than the clock, because a static export
 prerenders on the build machine and hydrates in the visitor's browser — a date read at render
 time can differ between the two and throws. `useClockDefaults` applies the real clock after
@@ -217,6 +224,8 @@ lib/
   retirement.ts         Contribution and drawdown projection, deferral limits
   dates.ts / days.ts    YYYY-MM parsing and calendar arithmetic
   format.ts             Currency, percentage, and duration formatting
+  numbers.ts            Arithmetic that has to agree between the prerender and
+                        the browser, which rules out Math.pow and Math.log10
   describe.ts           Plain-language summary of a scenario's contributions
   describeRetirement.ts The same for accounts, outlooks, and withdrawal strategies
   widgets.ts            The dashboard card registry

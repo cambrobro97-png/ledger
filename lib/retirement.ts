@@ -1,4 +1,5 @@
 import { addMonths, isMonthValue, monthsBetween, parseMonth } from "./dates";
+import { powInt } from "./numbers";
 import type {
   Account,
   Projection,
@@ -216,7 +217,7 @@ function run(
   for (let year = 0; year < years; year += 1) {
     const age = (Number(profile.currentAge) || 0) + year;
     const working = year < retireAt;
-    const salary = (Number(profile.salary) || 0) * Math.pow(1 + inflation, year);
+    const salary = (Number(profile.salary) || 0) * powInt(1 + inflation, year);
 
     let contributed = 0;
     let redirected = 0;
@@ -227,7 +228,7 @@ function run(
     if (working) {
       const planned = accounts.map((account) => {
         const step = (Number(account.contributionGrowth) || 0) / 100;
-        return (Number(account.monthlyContribution) || 0) * 12 * Math.pow(1 + step, year);
+        return (Number(account.monthlyContribution) || 0) * 12 * powInt(1 + step, year);
       });
 
       // Only while working. Retired, the payment ending is not money to save —
@@ -418,7 +419,7 @@ export function project(
     // The one number both sides read, so the payoff year is never counted twice
     // nor missed by both.
     const carrying = activeShare(year, 0, mortgageYears);
-    const base = spendFor(year) * Math.pow(1 + creep, year);
+    const base = spendFor(year) * powInt(1 + creep, year);
     spending.push(base + mortgageYearly * carrying);
     redirect.push(mortgageYearly * (1 - carrying) * redirectShare);
   }

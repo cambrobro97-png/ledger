@@ -4,6 +4,11 @@ import { useEffect, useRef, useState } from "react";
 
 export const TWEEN_MS = 700;
 
+/*
+ * `Math.pow` is fine here, unlike in the projection: easing only ever runs
+ * inside a frame callback, long after hydration, so its answer never reaches
+ * the markup the server rendered. See `lib/numbers.ts` for where that matters.
+ */
 function easeOutCubic(progress: number): number {
   return 1 - Math.pow(1 - progress, 3);
 }
