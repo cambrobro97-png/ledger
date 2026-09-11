@@ -63,6 +63,12 @@ export function ExpenseItemRow({
   const annual = annualCostOf(item);
   const link = item.link;
   const anchorDay = parseDay(item.anchor, year).day;
+  /*
+   * Which fields the other tool actually decides. A mortgage line's dates come
+   * from the loan's own schedule; a contributions line's don't — the retirement
+   * tool has no opinion about the day of the month, so those stay editable.
+   */
+  const datesDerived = link?.source === "mortgage";
 
   return (
     <div
@@ -74,18 +80,24 @@ export function ExpenseItemRow({
       {link ? (
         <div className={styles.linkBar}>
           <Link
-            href="/mortgage"
+            href={link.source === "mortgage" ? "/mortgage" : "/retirement"}
             className={styles.linkBadge}
             title={resolution?.note || undefined}
           >
-            Mortgage &middot; {resolution?.sourceName || "deleted scenario"} &middot;{" "}
-            {MORTGAGE_PART_LABELS[link.part]}
+            {link.source === "mortgage" ? (
+              <>
+                Mortgage &middot; {resolution?.sourceName || "deleted scenario"} &middot;{" "}
+                {MORTGAGE_PART_LABELS[link.part]}
+              </>
+            ) : (
+              <>Retirement &middot; {resolution?.sourceName || "deleted account"} &middot; contributions</>
+            )}
           </Link>
 
           {/* Extra principal is money that genuinely leaves the account, but it
               is a choice rather than a bill — so whether it counts as spending
               is the one thing about this line still worth deciding. */}
-          {link.part === "payment" ? (
+          {link.source === "mortgage" && link.part === "payment" ? (
             <label className={styles.linkToggle}>
               <input
                 type="checkbox"
@@ -164,7 +176,7 @@ export function ExpenseItemRow({
 
         {/* The mortgage tool works in whole months, so the day is the one part
             of a linked line's dates left to decide here. */}
-        {link ? (
+        {datesDerived ? (
           <InputShell prefix="Day">
             <input
               className={fieldStyles.input}
@@ -198,7 +210,7 @@ export function ExpenseItemRow({
             rather than sitting there disabled. */}
         {item.cadence === "once" ? (
           <span className={styles.spacer} />
-        ) : link ? (
+        ) : datesDerived ? (
           <InputShell prefix="Ends">
             <span className={styles.derived}>
               {item.until ? formatMonthOf(item.until) : "not set"}

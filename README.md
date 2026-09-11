@@ -189,6 +189,18 @@ loan rather than from the figures stored on them, so the number moves as the pay
 edited beside it moves. And it is annualised rather than taken from either tool's year totals,
 which is what lets it ignore the two lists sitting on different years.
 
+**What you put away, as the outgoing it is.** *Take contributions from retirement* puts the
+monthly contribution on the expense list — every account together or one of them — because it
+leaves the bank like any other bill, and the cash-flow figures are a fiction without it. Only
+the amount comes from the retirement tool: the day it leaves is the expense list's own.
+
+That line deliberately has no end date. Contributions do stop at retirement, but that age is
+something the projection works out, and the projection reads the expense list — taking a date
+from it here would close a loop that currently has none. For the same reason, contributions
+lines are excluded from an outlook's spending when it is built from the expense list: money
+going *into* the accounts is not a cost of being retired. Putting them on the list therefore
+changes cash flow and what is spare for a mortgage, and moves retirement spending not at all.
+
 **Where the payoff falls against everything else.** The age ribbon marks the month the mortgage
 ends, on the same span as the retirement age — which side of the line it lands on is the whole
 question, and the two dates were previously only ever shown apart from each other. The expense
@@ -262,7 +274,8 @@ hooks/
   useRetirementModel.ts Retirement state and its projections
   useDashboardLayout.ts The dashboard's arrangement, persisted
   summaries/            Read-only reads of each tool's stored state, for the
-                        cards and for the links between tools
+                        cards and for the links between tools. useRetirementAccounts
+                        reads without projecting, which is what keeps the graph acyclic
   usePersistedState.ts  localStorage-backed state, hydration-safe
   useClockDefaults.ts   Applies the real clock after mount
   useTween.ts           Eases numbers and series toward new targets

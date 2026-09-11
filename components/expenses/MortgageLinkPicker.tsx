@@ -44,8 +44,9 @@ export function MortgageLinkPicker({ mortgage, items, onAdd, onClose }: Mortgage
   const alreadyLinked = useMemo(() => {
     const keys = new Set<string>();
     for (const item of items) {
-      if (item.link?.scenarioId === scenarioId) {
-        keys.add(keyOf(item.link.part, item.link.oneTimeId));
+      const link = item.link;
+      if (link?.source === "mortgage" && link.scenarioId === scenarioId) {
+        keys.add(keyOf(link.part, link.oneTimeId));
       }
     }
     return keys;

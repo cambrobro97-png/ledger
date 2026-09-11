@@ -213,6 +213,26 @@ export interface MortgageLink {
   oneTimeId?: string;
 }
 
+/**
+ * What ties an expense line to the retirement tool: money going into the
+ * accounts, which leaves the bank like any other outgoing.
+ *
+ * Deliberately has no end date. Contributions do stop at retirement, but that
+ * age is something the projection works out — and the projection reads the
+ * expense list. Taking a date from it here would close a loop that currently
+ * has no cycle in it at all. What this line says is what is being put away now.
+ */
+export interface RetirementLink {
+  source: "retirement";
+  /** The only part so far, named so a second can be added without a migration. */
+  part: "contributions";
+  /** Which account, or empty for every account together. */
+  accountId: string;
+}
+
+/** Anything that can drive an expense line from another tool. */
+export type ExpenseLink = MortgageLink | RetirementLink;
+
 /** One outgoing: rent, a utility bill, a subscription, a yearly premium. */
 export interface ExpenseItem extends ScheduledItem {
   category: ExpenseCategory;
@@ -221,7 +241,7 @@ export interface ExpenseItem extends ScheduledItem {
    * Set when another tool drives this line. Absent on every hand-entered
    * expense, and on anything saved before links existed.
    */
-  link?: MortgageLink;
+  link?: ExpenseLink;
 }
 
 export interface ExpenseState {

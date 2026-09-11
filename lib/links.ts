@@ -13,6 +13,7 @@ import { annualIncomeOf } from "./income";
 import { activeShare } from "./retirement";
 import { formatMoney } from "./format";
 import type {
+  Account,
   AmortizationResult,
   CalendarMonth,
   ExpenseItem,
@@ -20,6 +21,7 @@ import type {
   Loan,
   MortgageLink,
   MortgagePart,
+  RetirementLink,
   RetirementProfile,
   RetirementScenario,
   Scenario,
@@ -44,6 +46,11 @@ export interface MortgageSource {
   activeId: string;
   /** Each scenario's run, keyed by id. A link's dates come out of these. */
   runs: Map<string, AmortizationResult>;
+}
+
+/** Everything a link needs from the retirement tool. See `useRetirementAccounts`. */
+export interface RetirementSource {
+  accounts: Account[];
 }
 
 export const MORTGAGE_PART_LABELS: Record<MortgagePart, string> = {
@@ -96,12 +103,17 @@ function unresolved(sourceName: string, note: string): LinkResolution {
   return { status: "unresolved", sourceName, note };
 }
 
-/** The derived half of a linked line: everything the mortgage tool decides. */
+/**
+ * The derived half of a linked line: whatever the other tool decides.
+ *
+ * A null date means the other tool has no opinion about it and the expense
+ * list's own value stands — which is every date on a contributions line.
+ */
 interface Derived {
   amount: number;
   cadence: ExpenseItem["cadence"];
-  anchor: string;
-  until: string;
+  anchor: string | null;
+  until: string | null;
 }
 
 /**
@@ -283,6 +295,58 @@ function resolveOne(
 }
 
 /**
+ * A contributions line worked out against the retirement accounts.
+ *
+ * Only the money and the rhythm come from there. The dates stay the expense
+ * list's own: the retirement tool has no opinion about which day of the month
+ * a contribution leaves, and no honest opinion about when it stops — see
+ * `RetirementLink`.
+ */
+function resolveContributions(
+  link: RetirementLink,
+  source: RetirementSource,
+): { derived: Derived | null; resolution: LinkResolution } {
+  const named = link.accountId
+    ? source.accounts.find((candidate) => candidate.id === link.accountId)
+    : null;
+
+  if (link.accountId && !named) {
+    return {
+      derived: null,
+      resolution: {
+        status: "missing",
+        sourceName: "",
+        note: "The account this came from has been deleted — this is the figure it was linked with.",
+      },
+    };
+  }
+
+  const monthly = named
+    ? Number(named.monthlyContribution) || 0
+    : source.accounts.reduce((total, account) => total + (Number(account.monthlyContribution) || 0), 0);
+
+  const sourceName = named ? named.name || "an account" : "every account";
+
+  if (monthly <= 0) {
+    return {
+      derived: null,
+      resolution: unresolved(sourceName, "Nothing is being contributed there yet."),
+    };
+  }
+
+  return {
+    // Cadence and amount only: the anchor and the end date are left exactly as
+    // the expense list has them.
+    derived: { amount: monthly, cadence: "monthly", anchor: null, until: null },
+    resolution: {
+      status: "live",
+      sourceName,
+      note: `${formatMoney(monthly)} a month into ${sourceName}.`,
+    },
+  };
+}
+
+/**
  * Fills in every linked line from the mortgage tool.
  *
  * Pass `null` for the source while the mortgage tool's stored state is still
@@ -292,6 +356,7 @@ function resolveOne(
 export function resolveExpenseItems(
   items: ExpenseItem[],
   source: MortgageSource | null,
+  retirement: RetirementSource | null = null,
 ): ResolvedExpenses {
   const resolutions = new Map<string, LinkResolution>();
   let changed = false;
@@ -300,28 +365,36 @@ export function resolveExpenseItems(
     const link = item.link;
     if (!link) return item;
 
-    if (!source) {
+    const ready = link.source === "mortgage" ? source : retirement;
+    if (!ready) {
       resolutions.set(item.id, { status: "pending", sourceName: "", note: "" });
       return item;
     }
 
-    const { derived, resolution } = resolveOne(item, link, source);
+    const { derived, resolution } =
+      link.source === "mortgage"
+        ? resolveOne(item, link, source as MortgageSource)
+        : resolveContributions(link, retirement as RetirementSource);
+
     resolutions.set(item.id, resolution);
     if (!derived) return item;
+
+    const anchor = derived.anchor ?? item.anchor;
+    const until = derived.until ?? item.until;
 
     // Only a real change earns a new object: an untouched item keeps its
     // identity, and so does the array, so nothing downstream rederives.
     if (
       derived.amount === item.amount &&
       derived.cadence === item.cadence &&
-      derived.anchor === item.anchor &&
-      derived.until === item.until
+      anchor === item.anchor &&
+      until === item.until
     ) {
       return item;
     }
 
     changed = true;
-    return { ...item, ...derived };
+    return { ...item, amount: derived.amount, cadence: derived.cadence, anchor, until };
   });
 
   return { items: changed ? resolved : items, resolutions };
@@ -386,6 +459,12 @@ export function mortgageLinkSeed(
 
   const { derived } = resolveOne(stub, link, source);
 
+  // A mortgage link always decides its own dates, so the nulls `Derived` allows
+  // for a contributions line can't arise here.
+  const dates = derived
+    ? { amount: derived.amount, cadence: derived.cadence, anchor: derived.anchor ?? "", until: derived.until ?? "" }
+    : {};
+
   return {
     name: nameFor(part),
     link,
@@ -395,7 +474,31 @@ export function mortgageLinkSeed(
     // Extra principal is a decision, not a bill — the same distinction the
     // fixed/variable split is there to make.
     kind: part === "annual" || part === "lump" ? "variable" : "fixed",
-    ...(derived ?? {}),
+    ...dates,
+  };
+}
+
+/**
+ * The expense a contributions line starts as.
+ *
+ * Variable rather than fixed, by the expense tool's own definition: a
+ * contribution is something a lean month can go below, however automatic it
+ * feels. Its dates are left as any new line's, since the retirement tool has no
+ * opinion about them.
+ */
+export function retirementLinkSeed(
+  source: RetirementSource,
+  accountId: string,
+): Partial<ExpenseItem> {
+  const link: RetirementLink = { source: "retirement", part: "contributions", accountId };
+  const { derived, resolution } = resolveContributions(link, source);
+
+  return {
+    name: accountId ? `${resolution.sourceName} contributions` : "Retirement contributions",
+    link,
+    category: "other",
+    kind: "variable",
+    ...(derived ? { amount: derived.amount, cadence: derived.cadence } : {}),
   };
 }
 
@@ -609,6 +712,13 @@ export function resolveRetirementSpend(
   const adjust = Math.max(0, Number(link.adjustPct) || 0) / 100;
 
   const counted = source.items.filter((item) => {
+    /*
+     * Money going into the retirement accounts is not a cost of being retired.
+     * It stops when the contributing does — and beyond being wrong, counting it
+     * would be the one link in this file that closes a loop: spending built from
+     * a line that is itself built from the retirement tool.
+     */
+    if (item.link?.source === "retirement") return false;
     // The profile already carries the mortgage payment, and drops it at payoff.
     if (item.link?.part === "payment") return false;
     if (link.basis === "fixed" && item.kind !== "fixed") return false;
