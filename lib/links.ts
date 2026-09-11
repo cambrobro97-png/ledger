@@ -8,6 +8,8 @@ import {
   parseMonth,
 } from "./dates";
 import { daysInMonth, formatDayValue, parseDay } from "./days";
+import { annualCostOf } from "./expenses";
+import { activeShare } from "./retirement";
 import { formatMoney } from "./format";
 import type {
   AmortizationResult,
@@ -17,6 +19,7 @@ import type {
   MortgageLink,
   MortgagePart,
   RetirementProfile,
+  RetirementScenario,
   Scenario,
 } from "./types";
 
@@ -62,7 +65,7 @@ export type LinkStatus = "live" | "pending" | "missing" | "unresolved";
 export interface LinkResolution {
   status: LinkStatus;
   /** The scenario the figures come from. Empty once it's gone. */
-  scenarioName: string;
+  sourceName: string;
   /** What this line is, or why it couldn't be worked out. */
   note: string;
 }
@@ -87,8 +90,8 @@ function dateIn(month: CalendarMonth, day: number): string {
   });
 }
 
-function unresolved(scenarioName: string, note: string): LinkResolution {
-  return { status: "unresolved", scenarioName, note };
+function unresolved(sourceName: string, note: string): LinkResolution {
+  return { status: "unresolved", sourceName, note };
 }
 
 /** The derived half of a linked line: everything the mortgage tool decides. */
@@ -118,7 +121,7 @@ function resolveOne(
       derived: null,
       resolution: {
         status: "missing",
-        scenarioName: "",
+        sourceName: "",
         note: "The scenario this came from has been deleted — these are the figures it was linked with.",
       },
     };
@@ -159,7 +162,7 @@ function resolveOne(
       },
       resolution: {
         status: "live",
-        scenarioName: scenario.name,
+        sourceName: scenario.name,
         note: extra
           ? `${formatMoney(payment)} a month plus ${formatMoney(extra)} of extra principal, until ${formatMonth(payoff)}.`
           : `${formatMoney(payment)} a month until ${formatMonth(payoff)}.`,
@@ -204,7 +207,7 @@ function resolveOne(
       },
       resolution: {
         status: "live",
-        scenarioName: scenario.name,
+        sourceName: scenario.name,
         note:
           dropOff === null
             ? `${formatMoney(Number(pmi.monthly) || 0)} a month — still being paid when the loan finishes in ${formatMonth(payoff)}.`
@@ -236,7 +239,7 @@ function resolveOne(
       },
       resolution: {
         status: "live",
-        scenarioName: scenario.name,
+        sourceName: scenario.name,
         note: `${formatMoney(annual)} every ${MONTH_NAMES[month]}, until ${formatMonth(payoff)}.`,
       },
     };
@@ -248,7 +251,7 @@ function resolveOne(
       derived: null,
       resolution: {
         status: "missing",
-        scenarioName: scenario.name,
+        sourceName: scenario.name,
         note: "That lump sum is no longer in the scenario — this is the figure it was linked with.",
       },
     };
@@ -271,7 +274,7 @@ function resolveOne(
     },
     resolution: {
       status: "live",
-      scenarioName: scenario.name,
+      sourceName: scenario.name,
       note: `${formatMoney(Number(oneTime.amount) || 0)} in ${formatMonth(when)}.`,
     },
   };
@@ -296,7 +299,7 @@ export function resolveExpenseItems(
     if (!link) return item;
 
     if (!source) {
-      resolutions.set(item.id, { status: "pending", scenarioName: "", note: "" });
+      resolutions.set(item.id, { status: "pending", sourceName: "", note: "" });
       return item;
     }
 
@@ -474,7 +477,7 @@ export function resolveRetirementMortgage(
   if (!link) return { ...stored, resolution: null };
 
   if (!source) {
-    return { ...stored, resolution: { status: "pending", scenarioName: "", note: "" } };
+    return { ...stored, resolution: { status: "pending", sourceName: "", note: "" } };
   }
 
   const scenario = source.scenarios.find((candidate) => candidate.id === link.scenarioId);
@@ -483,7 +486,7 @@ export function resolveRetirementMortgage(
       ...stored,
       resolution: {
         status: "missing",
-        scenarioName: "",
+        sourceName: "",
         note: "The scenario this came from has been deleted — these are the figures it was linked with.",
       },
     };
@@ -508,8 +511,155 @@ export function resolveRetirementMortgage(
     payoff,
     resolution: {
       status: "live",
-      scenarioName: scenario.name,
+      sourceName: scenario.name,
       note: `${formatMoney(payment)} a month until ${formatMonth(run.payoffDate)}.`,
+    },
+  };
+}
+
+/* --- An outlook's spending, from the expense list ------------------------ */
+
+/** Everything a spend link needs from the expense tool. */
+export interface ExpenseSource {
+  /** The lines, already resolved — a linked mortgage line arrives filled in. */
+  items: ExpenseItem[];
+}
+
+export interface RetirementSpend {
+  /**
+   * What a year of retirement costs, in today's dollars, for each projected
+   * year. Null when the outlook isn't linked, or when the link has nothing to
+   * offer — the typed figure is then used instead.
+   */
+  base: number[] | null;
+  /** The first year's figure, which is what the outlook's spending field shows. */
+  annual: number;
+  /** How many repeating lines are being counted. */
+  lineCount: number;
+  /** Lines that stop inside the horizon, and what they cost a year today. */
+  endingCount: number;
+  endingAnnual: number;
+  /** How the link is faring, or null when the figure was simply typed in. */
+  resolution: LinkResolution | null;
+}
+
+/**
+ * The span a line covers, in years from the start of the projection.
+ *
+ * Month granularity throughout: the projection steps a year at a time, and
+ * `activeShare` is only accurate to the month either side anyway.
+ *
+ * The end is the month *after* the stop date, because `until` is inclusive —
+ * the schedule engine pays a bill dated on it. Counting to the stop month
+ * instead would quietly drop a line's last month of cost.
+ */
+function spanOf(item: ExpenseItem, start: CalendarMonth, horizon: number): [number, number] {
+  const anchor = parseDay(item.anchor, start.year);
+  // Anything already running is running at year zero; nothing starts in the past.
+  const from = Math.max(0, monthsBetween(start, { year: anchor.year, month: anchor.month }) / 12);
+
+  if (!item.until) return [from, horizon];
+  const end = parseDay(item.until, start.year);
+  const to = (monthsBetween(start, { year: end.year, month: end.month }) + 1) / 12;
+  return [from, Math.max(from, to)];
+}
+
+/**
+ * An outlook's retirement spending, built from the expense list.
+ *
+ * The answer is a path rather than a single figure, which is the point: a line
+ * with a stop date leaves the budget in the year it stops, so a car loan ending
+ * in 2031 stops being retirement spending in 2031 without anyone having to
+ * remember it would.
+ *
+ * The mortgage payment is left out on purpose. `RetirementProfile` carries it
+ * separately, and drops it at payoff already — counting a linked mortgage line
+ * here as well would put the same payment in the budget twice. Anything else
+ * tied to the mortgage (the premium, a yearly extra) is money the profile does
+ * not model, so it stays, and its own stop date takes it out at the right time.
+ *
+ * One-offs never count: `annualCostOf` reports nothing for them, and a cost
+ * paid once this year says nothing about what a year of retirement costs.
+ */
+export function resolveRetirementSpend(
+  profile: RetirementProfile,
+  scenario: RetirementScenario,
+  source: ExpenseSource | null,
+): RetirementSpend {
+  const typed = Number(scenario.annualSpend) || 0;
+  const bare = { base: null, annual: typed, lineCount: 0, endingCount: 0, endingAnnual: 0 };
+
+  const link = scenario.spendLink;
+  if (!link) return { ...bare, resolution: null };
+  if (!source) {
+    return { ...bare, resolution: { status: "pending", sourceName: "", note: "" } };
+  }
+
+  const horizon = (Number(profile.endAge) || 0) - (Number(profile.currentAge) || 0);
+  if (horizon <= 0) {
+    return { ...bare, resolution: unresolved("the expense list", "There is no horizon to spread the spending over.") };
+  }
+  if (!isMonthValue(profile.start)) {
+    return { ...bare, resolution: unresolved("the expense list", "The profile needs a month its balances are accurate as of.") };
+  }
+
+  const start = parseMonth(profile.start);
+  const adjust = Math.max(0, Number(link.adjustPct) || 0) / 100;
+
+  const counted = source.items.filter((item) => {
+    // The profile already carries the mortgage payment, and drops it at payoff.
+    if (item.link?.part === "payment") return false;
+    if (link.basis === "fixed" && item.kind !== "fixed") return false;
+    return annualCostOf(item) > 0;
+  });
+
+  const base = new Array<number>(horizon).fill(0);
+  let endingCount = 0;
+  let endingAnnual = 0;
+
+  for (const item of counted) {
+    const cost = annualCostOf(item);
+    const [from, to] = spanOf(item, start, horizon);
+
+    if (to < horizon) {
+      endingCount += 1;
+      endingAnnual += cost;
+    }
+
+    for (let year = 0; year < horizon; year += 1) {
+      base[year] += cost * adjust * activeShare(year, from, to);
+    }
+  }
+
+  if (base[0] <= 0) {
+    return {
+      ...bare,
+      lineCount: counted.length,
+      resolution: unresolved(
+        "the expense list",
+        counted.length === 0
+          ? "No repeating expenses to build a budget from, so the figure below is being used."
+          : "Those expenses have all stopped by the time the projection starts.",
+      ),
+    };
+  }
+
+  const adjusted = adjust !== 1 ? ` at ${Math.round(adjust * 100)}% of today's` : "";
+  const ending =
+    endingCount > 0
+      ? ` ${formatMoney(endingAnnual)} of it stops before ${profile.endAge}.`
+      : "";
+
+  return {
+    base,
+    annual: base[0],
+    lineCount: counted.length,
+    endingCount,
+    endingAnnual,
+    resolution: {
+      status: "live",
+      sourceName: "the expense list",
+      note: `${formatMoney(base[0])} a year from ${counted.length} repeating ${counted.length === 1 ? "line" : "lines"}${adjusted}, with the mortgage counted separately.${ending}`,
     },
   };
 }

@@ -13,6 +13,7 @@ import type {
   RetirementScenario,
   RetirementState,
   Scenario,
+  SpendLink,
 } from "./types";
 
 export const STORAGE_KEY = "mortgage-payoff:v1";
@@ -314,6 +315,15 @@ export function createAccount(overrides: Partial<Account> = {}): Account {
  */
 export function createRedirect(overrides: Partial<MortgageRedirect> = {}): MortgageRedirect {
   return { enabled: false, share: 100, accountId: "", ...overrides };
+}
+
+/**
+ * Spend-link defaults: every repeating line, at today's cost. Narrowing it to
+ * the fixed lines, or to a share of today's spending, is the adjustment to make
+ * after seeing what the whole list comes to.
+ */
+export function createSpendLink(overrides: Partial<SpendLink> = {}): SpendLink {
+  return { source: "expenses", basis: "all", adjustPct: 100, ...overrides };
 }
 
 export function createRetirementScenario(

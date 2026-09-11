@@ -3,13 +3,14 @@
 import { useMemo } from "react";
 import { BASELINE_SCENARIO, compare, project } from "@/lib/retirement";
 import { RETIREMENT_STORAGE_KEY, createDefaultRetirementState } from "@/lib/defaults";
-import { resolveRetirementMortgage } from "@/lib/links";
+import { resolveRetirementMortgage, resolveRetirementSpend } from "@/lib/links";
 import type {
   Projection,
   RetirementComparison,
   RetirementProfile,
   RetirementState,
 } from "@/lib/types";
+import { useExpenseSummary } from "./useExpenseSummary";
 import { useMortgageSummary } from "./useMortgageSummary";
 import { usePersistedState } from "../usePersistedState";
 
@@ -44,6 +45,12 @@ export function useRetirementSummary(): RetirementSummary {
   const mortgageSummary = useMortgageSummary();
   const mortgage = mortgageSummary.hydrated ? mortgageSummary : null;
 
+  const expenses = useExpenseSummary();
+  const expenseSource = useMemo(
+    () => (expenses.hydrated ? { items: expenses.items } : null),
+    [expenses.hydrated, expenses.items],
+  );
+
   return useMemo(() => {
     const scenario =
       state.scenarios.find((candidate) => candidate.id === state.activeId) ?? state.scenarios[0];
@@ -57,6 +64,7 @@ export function useRetirementSummary(): RetirementSummary {
       inflation: scenario.inflation,
       colaIncrease: scenario.colaIncrease,
       annualSpend: scenario.annualSpend,
+      spendLink: scenario.spendLink,
       withdrawal: scenario.withdrawal,
     };
 
@@ -65,8 +73,11 @@ export function useRetirementSummary(): RetirementSummary {
       ? { ...state.profile, mortgagePayment: linked.payment, mortgagePayoff: linked.payoff }
       : state.profile;
 
-    const baselineResult = project(profile, baselineScenario);
-    const currentResult = project(profile, scenario);
+    // The outlook's spending, from the expense list when it is linked there.
+    const spendingBase = resolveRetirementSpend(profile, scenario, expenseSource).base ?? undefined;
+
+    const baselineResult = project(profile, baselineScenario, spendingBase);
+    const currentResult = project(profile, scenario, spendingBase);
 
     const baseline = baselineResult.ok ? baselineResult : null;
     const current = currentResult.ok ? currentResult : null;
@@ -85,5 +96,5 @@ export function useRetirementSummary(): RetirementSummary {
           : currentResult.reason
         : baselineResult.reason,
     };
-  }, [state, hydrated, mortgage]);
+  }, [state, hydrated, mortgage, expenseSource]);
 }

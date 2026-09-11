@@ -5,7 +5,14 @@ import {
   WITHDRAWAL_OPTIONS,
   describeScenario,
 } from "@/lib/describeRetirement";
-import type { RetirementScenario, WithdrawalStrategy } from "@/lib/types";
+import { createSpendLink } from "@/lib/defaults";
+import type { RetirementSpend } from "@/lib/links";
+import type {
+  RetirementScenario,
+  SpendBasis,
+  SpendLink,
+  WithdrawalStrategy,
+} from "@/lib/types";
 import { Button } from "../ui/Button";
 import { NumericField, TextSelectField } from "../ui/Field";
 import styles from "./OutlookCard.module.css";
@@ -14,20 +21,44 @@ interface OutlookCardProps {
   scenario: RetirementScenario;
   active: boolean;
   canDelete: boolean;
+  /** This outlook's spending, worked out against the expense list. */
+  spend: RetirementSpend;
+  /** False until the expense tool's stored state has been read. */
+  expensesReady: boolean;
   onSelect: () => void;
   onChange: (patch: Partial<RetirementScenario>) => void;
+  onLinkSpend: (link: SpendLink | null) => void;
   onDelete: () => void;
 }
+
+/** The option value standing for "not linked to anything". */
+const TYPED = "typed";
+
+const SOURCE_OPTIONS = [
+  { value: TYPED, label: "Typed in here" },
+  { value: "expenses", label: "The expense list" },
+];
+
+const BASIS_OPTIONS: { value: SpendBasis; label: string }[] = [
+  { value: "all", label: "Every repeating bill" },
+  { value: "fixed", label: "Only the fixed ones" },
+];
 
 /** Editor for a single saved outlook. */
 export function OutlookCard({
   scenario,
   active,
   canDelete,
+  spend,
+  expensesReady,
   onSelect,
   onChange,
+  onLinkSpend,
   onDelete,
 }: OutlookCardProps) {
+  const link = scenario.spendLink;
+  const resolution = spend.resolution;
+
   return (
     <div className={`${styles.card} ${active ? styles.active : ""}`}>
       <div className={styles.top}>
@@ -66,7 +97,8 @@ export function OutlookCard({
           label="Spending a year"
           prefix="$"
           step={1000}
-          value={scenario.annualSpend}
+          value={link ? Math.round(spend.annual) : scenario.annualSpend}
+          disabled={Boolean(link)}
           onChange={(value) => onChange({ annualSpend: value })}
         />
       </div>
@@ -100,8 +132,48 @@ export function OutlookCard({
         />
       </div>
 
+      {/* Only offered once the expense tool's own figures have been read:
+          until then there is no list to build a budget from. */}
+      {expensesReady ? (
+        <div className={styles.spaced}>
+          <TextSelectField
+            id={`${scenario.id}-spend-source`}
+            label="Spending comes from"
+            value={link ? "expenses" : TYPED}
+            options={SOURCE_OPTIONS}
+            onChange={(value) => onLinkSpend(value === TYPED ? null : createSpendLink())}
+          />
+        </div>
+      ) : null}
+
+      {link ? (
+        <div className={`${styles.pair} ${styles.spaced}`}>
+          <TextSelectField<SpendBasis>
+            id={`${scenario.id}-spend-basis`}
+            label="Which lines"
+            value={link.basis}
+            options={BASIS_OPTIONS}
+            onChange={(basis) => onLinkSpend({ ...link, basis })}
+          />
+          <NumericField
+            id={`${scenario.id}-spend-adjust`}
+            label="Of today's spending"
+            suffix="%"
+            step={5}
+            value={link.adjustPct}
+            onChange={(adjustPct) => onLinkSpend({ ...link, adjustPct })}
+          />
+        </div>
+      ) : null}
+
+      {resolution && resolution.status !== "pending" ? (
+        <div className={`${styles.note} ${resolution.status === "live" ? "" : styles.warning}`}>
+          {resolution.note}
+        </div>
+      ) : null}
+
       <div className={styles.note}>{WITHDRAWAL_NOTES[scenario.withdrawal]}</div>
-      <div className={styles.note}>{describeScenario(scenario)}</div>
+      <div className={styles.note}>{describeScenario(scenario, spend.annual)}</div>
     </div>
   );
 }

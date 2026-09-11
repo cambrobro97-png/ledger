@@ -52,8 +52,18 @@ export function describeAccount(account: Account): string {
   return joinParts(parts);
 }
 
-/** Plain-language summary of an outlook, e.g. "3 points off returns, 3.5% inflation, $85,000 a year". */
-export function describeScenario(scenario: RetirementScenario): string {
+/**
+ * Plain-language summary of an outlook, e.g. "3 points off returns, 3.5%
+ * inflation, $85,000 a year".
+ *
+ * The spend is passed in rather than read off the outlook: a linked outlook's
+ * figure comes from the expense list, and the field it would otherwise read is
+ * only the fallback for unlinking.
+ */
+export function describeScenario(
+  scenario: RetirementScenario,
+  annualSpend: number = scenario.annualSpend,
+): string {
   const parts: string[] = [];
   const shift = Number(scenario.marketShift) || 0;
 
@@ -67,7 +77,7 @@ export function describeScenario(scenario: RetirementScenario): string {
       ? `${Number(scenario.inflation) || 0}% inflation plus ${creep}% creep`
       : `${Number(scenario.inflation) || 0}% inflation`,
   );
-  parts.push(`${formatMoney(scenario.annualSpend)} a year`);
+  parts.push(`${formatMoney(annualSpend)} a year`);
 
   return joinParts(parts);
 }

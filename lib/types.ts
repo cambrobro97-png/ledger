@@ -386,6 +386,30 @@ export interface RetirementProfile {
   redirect?: MortgageRedirect;
 }
 
+/**
+ * Which expense lines a linked outlook's spending is built from.
+ *
+ * `fixed` is the floor a lean month can't go below; `all` is every repeating
+ * line. One-offs are in neither — a cost paid once this year says nothing about
+ * what a year of retirement costs in 2050.
+ */
+export type SpendBasis = "all" | "fixed";
+
+/**
+ * What ties an outlook's spending to the expense list.
+ *
+ * The result is a path rather than a figure: a bill with a stop date leaves the
+ * budget in the year it stops, so a car loan ending in 2031 stops being
+ * retirement spending in 2031.
+ */
+export interface SpendLink {
+  /** Named rather than assumed, so a second kind of source can be added later. */
+  source: "expenses";
+  basis: SpendBasis;
+  /** Percentage of today's spending you expect to carry on with. 100 keeps it as it is. */
+  adjustPct: number;
+}
+
 /** One market and spending outlook to test the profile against. */
 export interface RetirementScenario {
   id: string;
@@ -398,6 +422,11 @@ export interface RetirementScenario {
   colaIncrease: number;
   /** Target annual spend in today's dollars, with the mortgage counted separately. */
   annualSpend: number;
+  /**
+   * When set, the spend above is built from the expense list rather than typed.
+   * Absent on an outlook saved before links existed.
+   */
+  spendLink?: SpendLink;
   withdrawal: WithdrawalStrategy;
 }
 

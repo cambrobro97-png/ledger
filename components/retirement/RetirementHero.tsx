@@ -10,6 +10,8 @@ interface RetirementHeroProps {
   scenario: RetirementScenario;
   profile: RetirementProfile;
   current: Projection;
+  /** What a year costs on this outlook — from the expense list when it's linked. */
+  annualSpend: number;
   /** Years sooner than the baseline outlook allows. Negative means later. */
   yearsEarlier: number;
 }
@@ -19,6 +21,7 @@ export function RetirementHero({
   scenario,
   profile,
   current,
+  annualSpend,
   yearsEarlier,
 }: RetirementHeroProps) {
   const yearsAway = Math.max(0, current.retirementAge - profile.currentAge);
@@ -32,7 +35,7 @@ export function RetirementHero({
         </p>
         <p className={styles.sub}>
           Working all the way to {profile.endAge} still leaves the money short of{" "}
-          {describeScenario(scenario)}. Saving more, spending less, or a kinder market would
+          {describeScenario(scenario, annualSpend)}. Saving more, spending less, or a kinder market would
           change it &mdash; the charts below show the path as it stands.
         </p>
       </section>

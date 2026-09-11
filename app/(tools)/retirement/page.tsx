@@ -93,6 +93,7 @@ export default function Page() {
             scenario={model.activeScenario}
             profile={profile}
             current={current}
+            annualSpend={model.activeSpend.annual}
             yearsEarlier={comparison.yearsEarlier}
           />
 

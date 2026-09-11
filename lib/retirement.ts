@@ -68,16 +68,20 @@ function effectiveReturn(account: Account, scenario: RetirementScenario): number
 const SOLVE_STEPS = 40;
 
 /**
- * How much of one projected year still carries the mortgage, from 0 to 1.
+ * How much of one projected year something is actually running, from 0 to 1 —
+ * the overlap between the year and the span it covers, both measured in years
+ * from the start of the projection.
  *
- * A payoff rarely lands on a year boundary. Treating it as all-or-nothing puts
- * a whole year of payments on one side of the line, which is up to twelve
- * months of spending in the wrong place — and once the freed payment starts
- * being saved, the same error appears again with the opposite sign. Both read
- * this, so the year the mortgage ends can only ever be counted once.
+ * Things rarely start or stop on a year boundary. Treating an ending as
+ * all-or-nothing puts a whole year of cost on one side of the line, which is up
+ * to twelve months in the wrong place — and where the money freed by an ending
+ * is then put to work, the same error appears again with the opposite sign.
+ * Everything that starts or stops mid-projection reads this: the mortgage here,
+ * and a bill with a stop date in `lib/links.ts`. So an ending is counted once,
+ * by both sides of it.
  */
-function mortgageShareOfYear(year: number, mortgageYears: number): number {
-  return Math.min(1, Math.max(0, mortgageYears - year));
+export function activeShare(year: number, startsAfter: number, endsAfter: number): number {
+  return Math.max(0, Math.min(year + 1, endsAfter) - Math.max(year, startsAfter));
 }
 
 /**
@@ -347,6 +351,16 @@ function affordableSpend(
 export function project(
   profile: RetirementProfile,
   scenario: RetirementScenario,
+  /**
+   * What a year of retirement costs, in today's dollars, for each projected
+   * year — from the expense list, when the outlook is linked to it. Omitted,
+   * the outlook's own `annualSpend` is used and held flat in real terms.
+   *
+   * Inflation and the mortgage are applied on top either way, so a path only
+   * ever says what the spending is *before* those: it replaces one number, not
+   * the model around it.
+   */
+  spendingBase?: number[],
 ): ProjectionResult {
   const currentAge = Number(profile.currentAge) || 0;
   const endAge = Number(profile.endAge) || 0;
@@ -374,7 +388,12 @@ export function project(
       reason: "Give an account a balance or a monthly contribution to see a projection.",
     };
   }
-  if ((Number(scenario.annualSpend) || 0) <= 0) {
+  const spendFor = (year: number) =>
+    spendingBase && spendingBase.length > 0
+      ? spendingBase[Math.min(year, spendingBase.length - 1)] ?? 0
+      : Number(scenario.annualSpend) || 0;
+
+  if (spendFor(0) <= 0) {
     return { ok: false, reason: "Enter what you expect a year of retirement to cost." };
   }
 
@@ -398,8 +417,8 @@ export function project(
   for (let year = 0; year < years; year += 1) {
     // The one number both sides read, so the payoff year is never counted twice
     // nor missed by both.
-    const carrying = mortgageShareOfYear(year, mortgageYears);
-    const base = (Number(scenario.annualSpend) || 0) * Math.pow(1 + creep, year);
+    const carrying = activeShare(year, 0, mortgageYears);
+    const base = spendFor(year) * Math.pow(1 + creep, year);
     spending.push(base + mortgageYearly * carrying);
     redirect.push(mortgageYearly * (1 - carrying) * redirectShare);
   }

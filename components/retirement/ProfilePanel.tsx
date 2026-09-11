@@ -156,7 +156,7 @@ export function ProfilePanel({
           className={`${styles.linkNote} ${resolution.status === "live" ? "" : styles.linkWarning}`}
         >
           {resolution.status === "live"
-            ? `From the mortgage tool · ${resolution.scenarioName} · ${resolution.note} The payment includes that scenario's extra principal, because the payoff date assumes you are paying it.`
+            ? `From the mortgage tool · ${resolution.sourceName} · ${resolution.note} The payment includes that scenario's extra principal, because the payoff date assumes you are paying it.`
             : resolution.note}
         </p>
       ) : null}

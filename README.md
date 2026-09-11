@@ -95,7 +95,8 @@ Contributions, growth, and how long the balance lasts across accounts and outloo
 - **Outlooks** work like the mortgage's scenarios: tabs that swap the assumptions — spend,
   inflation, returns — each with a withdrawal strategy saying how the portfolio is drawn
   down: proportionally, lowest-return account first, or taxable accounts first, leaving the
-  401(k) until it's penalty-free.
+  401(k) until it's penalty-free. An outlook's spending can be typed in or built from the
+  expense list.
 - **The mortgage** can be typed in or taken from a mortgage scenario, and what happens to the
   payment once the loan ends is a question the tool now asks. See
   [How the tools connect](#how-the-tools-connect).
@@ -150,8 +151,31 @@ The payoff year is shared between the two sides and prorated, so a mortgage endi
 half a year of payments in spending and frees the other half — counted exactly once. A payoff
 landing on a year boundary behaves as it always did.
 
-Links only ever point one way — mortgage to expenses, mortgage to retirement — so resolving
-them is a single pass and no two tools can chase each other.
+**The expense list, as a retirement budget.** *Spending comes from* on an outlook builds its
+yearly spend out of the expense list instead of a number you typed. What it produces is a path
+rather than a figure, which is the point: a line with a stop date leaves the budget in the year
+it stops, so a car loan ending in 2031 stops being retirement spending in 2031 without anyone
+having to remember it would. A line that hasn't started yet is counted from the year it
+begins, the same rule read from the other end.
+
+Choose every repeating bill or only the fixed ones, and scale the lot to a share of today's
+spending. One-offs never count — a cost paid once this year says nothing about what a year of
+retirement costs in 2050 — which is the same rule the expense tool's own "a year" figures use.
+
+The mortgage payment is deliberately left out of that total, because the profile above already
+carries it and already drops it at payoff. Putting the mortgage on the expense list therefore
+changes the timeline and the cash-flow figures without moving retirement spending at all.
+Anything else tied to the mortgage — the premium, a yearly extra — is money the profile does
+not model, so it stays, and its own stop date takes it out at the right time. A mortgage typed
+into the expense list by hand is the one case nothing can catch: it would be counted twice.
+
+A link that has nothing to offer — an empty list, or every line already stopped — falls back to
+the typed figure and says so, rather than projecting a retirement that costs nothing.
+
+Links only ever point one way — mortgage to expenses, mortgage to retirement, expenses to
+retirement — so resolving them is a single pass and no two tools can chase each other. A link
+that would close the loop, such as retirement contributions appearing as an expense that then
+feeds retirement spending, has to be broken somewhere before it can be added.
 
 ## Storage
 
@@ -187,8 +211,9 @@ lib/
   schedule.ts           Cadences expanded into dated occurrences, shared by the two lists
   income.ts             The income year derived from those occurrences
   expenses.ts           The expense year, plus categories and the fixed/variable split
-  links.ts              What one tool takes from another: the link shapes, and
-                        the resolvers that fill a linked line in
+  links.ts              What one tool takes from another: the link shapes, the
+                        resolvers that fill a linked line in, and the expense
+                        list read as a retirement budget
   retirement.ts         Contribution and drawdown projection, deferral limits
   dates.ts / days.ts    YYYY-MM parsing and calendar arithmetic
   format.ts             Currency, percentage, and duration formatting

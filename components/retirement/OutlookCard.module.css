@@ -52,3 +52,9 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* A spend link that couldn't be worked out. The figure below it is the typed
+   fallback, so this says why rather than leaving it looking authoritative. */
+.warning {
+  color: var(--brass);
+}

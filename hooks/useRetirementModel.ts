@@ -17,17 +17,25 @@ import {
   monthsBetween,
   parseMonth,
 } from "@/lib/dates";
-import { type LinkResolution, type MortgageSource, resolveRetirementMortgage } from "@/lib/links";
+import {
+  type LinkResolution,
+  type MortgageSource,
+  type RetirementSpend,
+  resolveRetirementMortgage,
+  resolveRetirementSpend,
+} from "@/lib/links";
 import { useClockDefaults } from "./useClockDefaults";
 import type {
   Account,
   MortgageRedirect,
   Projection,
+  SpendLink,
   RetirementComparison,
   RetirementProfile,
   RetirementScenario,
   RetirementState,
 } from "@/lib/types";
+import { useExpenseSummary } from "./summaries/useExpenseSummary";
 import { useMortgageSummary } from "./summaries/useMortgageSummary";
 import { usePersistedState } from "./usePersistedState";
 
@@ -42,6 +50,16 @@ export interface RetirementModel {
   mortgageResolution: LinkResolution | null;
   /** The mortgage tool's figures, or null until its stored state has been read. */
   mortgage: MortgageSource | null;
+  /**
+   * Each outlook's spending worked out against the expense list, keyed by id.
+   * Every outlook is resolved, not just the active one, so each card can show
+   * what its own link produces.
+   */
+  spendByScenario: Map<string, RetirementSpend>;
+  /** The active outlook's spending, for the figures the page shows once. */
+  activeSpend: RetirementSpend;
+  /** Whether the expense tool's stored state has been read yet. */
+  expensesReady: boolean;
   /**
    * The same outlook with the redirect switched off, for saying what the
    * redirect is worth. Null unless it is switched on — it costs a third full
@@ -62,6 +80,8 @@ export interface RetirementModel {
   ) => void;
   /** Points the mortgage figures at a scenario, or back at the fields. */
   linkMortgage: (scenarioId: string | null) => void;
+  /** Points an outlook's spending at the expense list, or back at the field. */
+  linkSpend: (scenarioId: string, link: SpendLink | null) => void;
   setRedirectField: <K extends keyof MortgageRedirect>(
     field: K,
     value: MortgageRedirect[K],
@@ -135,8 +155,30 @@ export function useRetirementModel(): RetirementModel {
     [state.profile, linked],
   );
 
+  const expenses = useExpenseSummary();
+  // Same guard as the mortgage: nothing resolves until the tool it reads has
+  // actually been read. Memoised, or every render would hand the resolution
+  // below a new object and rebuild every outlook's spending for nothing.
+  const expenseSource = useMemo(
+    () => (expenses.hydrated ? { items: expenses.items } : null),
+    [expenses.hydrated, expenses.items],
+  );
+
   const activeScenario =
     state.scenarios.find((scenario) => scenario.id === state.activeId) ?? state.scenarios[0];
+
+  const spendByScenario = useMemo(() => {
+    const resolved = new Map<string, RetirementSpend>();
+    for (const scenario of state.scenarios) {
+      resolved.set(scenario.id, resolveRetirementSpend(profile, scenario, expenseSource));
+    }
+    return resolved;
+  }, [profile, state.scenarios, expenseSource]);
+
+  const activeSpend =
+    spendByScenario.get(activeScenario.id) ??
+    resolveRetirementSpend(profile, activeScenario, expenseSource);
+  const spendingBase = activeSpend.base ?? undefined;
 
   // The baseline keeps the active outlook's spending and inflation, so the
   // comparison isolates what the market shift alone is worth.
@@ -146,18 +188,19 @@ export function useRetirementModel(): RetirementModel {
       inflation: activeScenario.inflation,
       colaIncrease: activeScenario.colaIncrease,
       annualSpend: activeScenario.annualSpend,
+      spendLink: activeScenario.spendLink,
       withdrawal: activeScenario.withdrawal,
     }),
     [activeScenario],
   );
 
   const baselineResult = useMemo(
-    () => project(profile, baselineScenario),
-    [profile, baselineScenario],
+    () => project(profile, baselineScenario, spendingBase),
+    [profile, baselineScenario, spendingBase],
   );
   const currentResult = useMemo(
-    () => project(profile, activeScenario),
-    [profile, activeScenario],
+    () => project(profile, activeScenario, spendingBase),
+    [profile, activeScenario, spendingBase],
   );
 
   /*
@@ -167,9 +210,9 @@ export function useRetirementModel(): RetirementModel {
    */
   const withoutRedirect = useMemo(() => {
     if (!profile.redirect?.enabled) return null;
-    const result = project({ ...profile, redirect: undefined }, activeScenario);
+    const result = project({ ...profile, redirect: undefined }, activeScenario, spendingBase);
     return result.ok ? result : null;
-  }, [profile, activeScenario]);
+  }, [profile, activeScenario, spendingBase]);
 
   const baseline = baselineResult.ok ? baselineResult : null;
   const current = currentResult.ok ? currentResult : null;
@@ -205,6 +248,24 @@ export function useRetirementModel(): RetirementModel {
           profile: { ...prev.profile, mortgageLink: { source: "mortgage", scenarioId } },
         };
       }),
+    [setValue],
+  );
+
+  const linkSpend = useCallback<RetirementModel["linkSpend"]>(
+    (scenarioId, link) =>
+      setValue((prev) => ({
+        ...prev,
+        activeId: scenarioId,
+        scenarios: prev.scenarios.map((scenario) => {
+          if (scenario.id !== scenarioId) return scenario;
+          if (link) return { ...scenario, spendLink: link };
+          // Unlinking keeps whatever the field was last showing, so nothing
+          // visibly moves — only where the next figure comes from.
+          const next = { ...scenario };
+          delete next.spendLink;
+          return next;
+        }),
+      })),
     [setValue],
   );
 
@@ -321,6 +382,9 @@ export function useRetirementModel(): RetirementModel {
     profile,
     mortgageResolution: linked.resolution,
     mortgage,
+    spendByScenario,
+    activeSpend,
+    expensesReady: expenses.hydrated,
     withoutRedirect,
     scenarios: state.scenarios,
     activeScenario,
@@ -331,6 +395,7 @@ export function useRetirementModel(): RetirementModel {
     error,
     setProfileField,
     linkMortgage,
+    linkSpend,
     setRedirectField,
     addAccount,
     updateAccount,

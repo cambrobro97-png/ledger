@@ -78,7 +78,7 @@ export function ExpenseItemRow({
             className={styles.linkBadge}
             title={resolution?.note || undefined}
           >
-            Mortgage &middot; {resolution?.scenarioName || "deleted scenario"} &middot;{" "}
+            Mortgage &middot; {resolution?.sourceName || "deleted scenario"} &middot;{" "}
             {MORTGAGE_PART_LABELS[link.part]}
           </Link>
 
