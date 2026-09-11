@@ -33,9 +33,11 @@ refuses and points at `serve` instead. The `out/` directory is the whole site.
 The site root: a grid of cards summarising the other four tools, each reading the same
 `localStorage` the tool itself writes. Nothing is entered here.
 
-- **Ten cards** to choose from — payoff date, interest avoided, the year's income and
+- **Thirteen cards** to choose from — payoff date, interest avoided, the year's income and
   expenses, retirement age and crossover, monthly surplus, cash flow, where the spending
-  goes, and which months run hot. Five are placed by default.
+  goes, which months run hot, what the mortgage payoff frees up, what a retired year costs
+  against a year now, and which figures are taken from another tool rather than typed. Five are
+  placed by default.
 - **Arrange it.** Drag a card to reorder it, cycle it between small, medium, and wide,
   or remove it. Anything not placed waits in the catalogue below the grid, and **Reset**
   restores the default set.
@@ -206,6 +208,12 @@ ends, on the same span as the retirement age — which side of the line it lands
 question, and the two dates were previously only ever shown apart from each other. The expense
 page says the month in its footnote instead of drawing a second marker: the mortgage's own marks
 already stop there, and what a reader wants alongside them is which month that is.
+
+**Seeing what is connected.** A linked figure looks exactly like a typed one, which is right on
+the page — the row says where it came from — but leaves no way to ask what is actually wired up
+without opening all four tools. The **Connections** card answers that in one place, and is also
+where the one mismatch worth reporting shows up: the income and expense lists sitting on
+different years, which everything annualised ignores but the cash-flow cards do not.
 
 Links only ever point one way — income and mortgage into expenses and retirement — so resolving
 them is a single pass and no two tools can chase each other. A link

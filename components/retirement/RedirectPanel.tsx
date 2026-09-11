@@ -133,7 +133,9 @@ export function RedirectPanel({
                     </>
                   ) : null}
                   {yearsEarlier <= 0 && extraAtEnd === 0
-                    ? "nothing yet on this outlook — the money runs out before the mortgage does."
+                    ? current && current.totalRedirected <= 0
+                      ? "nothing on this outlook — retirement arrives first, so there are no working years left for it to go into."
+                      : "nothing this outlook can make use of."
                     : null}
                 </>
               )}

@@ -23,6 +23,12 @@ export interface RetirementSummary {
   currentAge: number;
   /** The age the projection runs to, for "…left at N". */
   endAge: number;
+  /** The profile every figure is derived from, links already resolved. */
+  profile: RetirementProfile;
+  /** What a year of retirement costs in today's dollars, from the list when linked. */
+  annualSpend: number;
+  /** How many outlooks take their spending from the expense list. */
+  scenariosWithSpendLink: number;
   baseline: Projection | null;
   current: Projection | null;
   comparison: RetirementComparison | null;
@@ -86,7 +92,8 @@ export function useRetirementSummary(): RetirementSummary {
     if (state.profile.salaryLink) profile.salary = salary.salary;
 
     // The outlook's spending, from the expense list when it is linked there.
-    const spendingBase = resolveRetirementSpend(profile, scenario, expenseSource).base ?? undefined;
+    const spend = resolveRetirementSpend(profile, scenario, expenseSource);
+    const spendingBase = spend.base ?? undefined;
 
     const baselineResult = project(profile, baselineScenario, spendingBase);
     const currentResult = project(profile, scenario, spendingBase);
@@ -99,6 +106,9 @@ export function useRetirementSummary(): RetirementSummary {
       outlookName: scenario?.name ?? "",
       currentAge: state.profile.currentAge,
       endAge: state.profile.endAge,
+      profile,
+      annualSpend: spend.annual,
+      scenariosWithSpendLink: state.scenarios.filter((candidate) => candidate.spendLink).length,
       baseline,
       current,
       comparison: baseline && current ? compare(baseline, current) : null,

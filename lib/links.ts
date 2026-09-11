@@ -670,6 +670,28 @@ function spanOf(item: ExpenseItem, start: CalendarMonth, horizon: number): [numb
 }
 
 /**
+ * Whether a line counts toward a retirement budget at all.
+ *
+ * Shared with anything comparing today's spending against a retired year's, so
+ * the two sides of that comparison can't be drawn on different rules. The
+ * reasons for each exclusion are in `resolveRetirementSpend` below.
+ */
+export function countsTowardRetirement(item: ExpenseItem): boolean {
+  if (item.link?.source === "retirement") return false;
+  if (item.link?.part === "payment") return false;
+  return annualCostOf(item) > 0;
+}
+
+/** What a year of today's repeating bills comes to, on a retirement budget's terms. */
+export function comparableSpendToday(expenses: ExpenseSource | null): number {
+  if (!expenses) return 0;
+  return expenses.items.reduce(
+    (total, item) => total + (countsTowardRetirement(item) ? annualCostOf(item) : 0),
+    0,
+  );
+}
+
+/**
  * An outlook's retirement spending, built from the expense list.
  *
  * The answer is a path rather than a single figure, which is the point: a line
@@ -713,16 +735,18 @@ export function resolveRetirementSpend(
 
   const counted = source.items.filter((item) => {
     /*
+     * `countsTowardRetirement` holds the two exclusions:
+     *
      * Money going into the retirement accounts is not a cost of being retired.
      * It stops when the contributing does — and beyond being wrong, counting it
      * would be the one link in this file that closes a loop: spending built from
      * a line that is itself built from the retirement tool.
+     *
+     * And the profile already carries the mortgage payment, dropping it at
+     * payoff, so counting a linked payment line here would bill it twice.
      */
-    if (item.link?.source === "retirement") return false;
-    // The profile already carries the mortgage payment, and drops it at payoff.
-    if (item.link?.part === "payment") return false;
-    if (link.basis === "fixed" && item.kind !== "fixed") return false;
-    return annualCostOf(item) > 0;
+    if (!countsTowardRetirement(item)) return false;
+    return link.basis === "all" || item.kind === "fixed";
   });
 
   const base = new Array<number>(horizon).fill(0);
