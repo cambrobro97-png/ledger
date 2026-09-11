@@ -189,6 +189,12 @@ loan rather than from the figures stored on them, so the number moves as the pay
 edited beside it moves. And it is annualised rather than taken from either tool's year totals,
 which is what lets it ignore the two lists sitting on different years.
 
+**Where the payoff falls against everything else.** The age ribbon marks the month the mortgage
+ends, on the same span as the retirement age — which side of the line it lands on is the whole
+question, and the two dates were previously only ever shown apart from each other. The expense
+page says the month in its footnote instead of drawing a second marker: the mortgage's own marks
+already stop there, and what a reader wants alongside them is which month that is.
+
 Links only ever point one way — income and mortgage into expenses and retirement — so resolving
 them is a single pass and no two tools can chase each other. A link
 that would close the loop, such as retirement contributions appearing as an expense that then
