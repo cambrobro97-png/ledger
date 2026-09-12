@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/cn";
 import styles from "./Panel.module.css";
 
 /** The card shell shared by the loan panel, chart cards, and the editor. */
@@ -11,10 +12,7 @@ export function Panel({
   bare?: boolean;
   className?: string;
 }) {
-  const classes = [styles.panel, bare ? styles.bare : "", className ?? ""]
-    .filter(Boolean)
-    .join(" ");
-  return <section className={classes}>{children}</section>;
+  return <section className={cn(styles.panel, bare && styles.bare, className)}>{children}</section>;
 }
 
 export function PanelHead({
@@ -34,5 +32,3 @@ export function PanelHead({
     </div>
   );
 }
-
-export const panelStyles = styles;

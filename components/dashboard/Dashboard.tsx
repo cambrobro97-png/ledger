@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import headStyles from "@/components/TopBar.module.css";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { cn } from "@/lib/cn";
 import { SIZE_LABELS, type WidgetSize } from "@/lib/dashboardLayout";
 import { TOOLS, type ToolId } from "@/lib/tools";
 import { WIDGETS, widgetById, type WidgetDefinition } from "@/lib/widgets";
@@ -144,14 +145,12 @@ export function Dashboard() {
             return (
               <li
                 key={placed.id}
-                className={[
+                className={cn(
                   styles.cell,
                   sizeClass,
-                  draggingId === placed.id ? styles.dragging : "",
-                  overId === placed.id && draggingId !== placed.id ? styles.dropTarget : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
+                  draggingId === placed.id && styles.dragging,
+                  overId === placed.id && draggingId !== placed.id && styles.dropTarget,
+                )}
                 onDragOver={
                   editing
                     ? (event) => {

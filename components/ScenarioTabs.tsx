@@ -2,6 +2,7 @@
 
 import { isBaselineLike } from "@/lib/describe";
 import type { Scenario } from "@/lib/types";
+import { cn } from "@/lib/cn";
 import styles from "./ScenarioTabs.module.css";
 
 interface ScenarioTabsProps {
@@ -16,13 +17,11 @@ export function ScenarioTabs({ scenarios, activeId, presenting, onSelect }: Scen
   return (
     <nav className={styles.tabs} role="tablist" aria-label="Scenarios">
       {scenarios.map((scenario) => {
-        const classes = [
+        const classes = cn(
           styles.tab,
-          isBaselineLike(scenario) ? styles.baseline : "",
-          presenting ? styles.presenting : "",
-        ]
-          .filter(Boolean)
-          .join(" ");
+          isBaselineLike(scenario) && styles.baseline,
+          presenting && styles.presenting,
+        );
 
         return (
           <button

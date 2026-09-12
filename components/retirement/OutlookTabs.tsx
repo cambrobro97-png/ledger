@@ -2,6 +2,7 @@
 
 import { isBaselineOutlook } from "@/lib/describeRetirement";
 import type { RetirementScenario } from "@/lib/types";
+import { cn } from "@/lib/cn";
 import styles from "../ScenarioTabs.module.css";
 
 interface OutlookTabsProps {
@@ -16,13 +17,11 @@ export function OutlookTabs({ scenarios, activeId, presenting, onSelect }: Outlo
   return (
     <nav className={styles.tabs} role="tablist" aria-label="Outlooks">
       {scenarios.map((scenario) => {
-        const classes = [
+        const classes = cn(
           styles.tab,
-          isBaselineOutlook(scenario) ? styles.baseline : "",
-          presenting ? styles.presenting : "",
-        ]
-          .filter(Boolean)
-          .join(" ");
+          isBaselineOutlook(scenario) && styles.baseline,
+          presenting && styles.presenting,
+        );
 
         return (
           <button
