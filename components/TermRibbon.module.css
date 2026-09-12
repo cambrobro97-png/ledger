@@ -1,15 +1,11 @@
-.ribbon {
-  margin-top: clamp(26px, 3vw, 42px);
-}
-
-.track {
-  position: relative;
-  height: clamp(46px, 4.2vw, 74px);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--panel);
-  border: 1px solid var(--rule);
-}
+/*
+ * What is left of this module, and what is meant to stay.
+ *
+ * The ribbon is a chart drawn in CSS: two multi-stop gradients and a scale of
+ * `<i>` ticks. As arbitrary values those become one unreadable class string per
+ * element, which is worse than the CSS, not better. Everything here that was
+ * layout and text now lives in TermRibbon.tsx.
+ */
 
 .fill {
   position: absolute;
@@ -35,6 +31,7 @@
   transition: width var(--tween) var(--ease);
 }
 
+/* The scale is an unstyled run of <i> elements, ruled off from each other. */
 .scale {
   position: absolute;
   inset: 0;
@@ -49,37 +46,4 @@
 
 .scale i:last-child {
   border-right: 0;
-}
-
-.cap {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  padding: 0 14px;
-  font-family: var(--mono);
-  font-size: var(--text-base);
-  color: var(--bone);
-}
-
-.capRight {
-  right: 0;
-  color: var(--brass);
-  justify-content: flex-end;
-}
-
-.labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  gap: 12px;
-  font-family: var(--mono);
-  font-size: var(--text-base);
-  color: var(--ash);
-}
-
-.middle {
-  color: var(--brass);
-  text-align: center;
 }

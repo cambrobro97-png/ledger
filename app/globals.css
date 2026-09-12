@@ -101,6 +101,19 @@
   --breakpoint-2xl: 1500px; /* the body size steps up */
 }
 
+/* The bold runs inside a generated sentence are figures, not emphasis: mono and
+   tabular so they line up with the numbers elsewhere on the page. Four modules
+   wrote this out; the two that want a different weight or colour say so with
+   their own utility on top. */
+@utility inline-figures {
+  & strong {
+    color: var(--color-bone);
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+}
+
 /* Hides the scrollbar on a deliberately scrollable strip, without losing the
    scrolling. The vendor pseudo-element is why this is a utility and not two
    tokens on the element. */
