@@ -69,11 +69,19 @@
   --tracking-eyebrow: 0.18em;
   --tracking-title: -0.01em;
 
+  /* The card inset, shared by every panel. */
+  --spacing-panel: clamp(16px, 1.5vw, 26px);
+
   --radius-panel: 14px;
   --radius-control: 9px;
   --radius-chip: 8px;
 
   --ease-tween: cubic-bezier(0.22, 0.75, 0.25, 1);
+
+  /* Interface transitions in this design are plain `ease`; the tween curve
+     above is for the 700ms figure animations only. Tailwind would otherwise
+     default every `transition-*` to its own curve. */
+  --default-transition-timing-function: ease;
 
   /*
    * This app's own breakpoint ladder, deliberately not Tailwind's. Every value
@@ -109,92 +117,105 @@
 }
 
 /*
- * The short names every CSS Module still reads. Aliases rather than values, so
- * the tokens above stay the only place a colour is written down, and a module
- * converted to utilities tomorrow keeps the same one today.
+ * The handful of element-level rules everything else builds on, in Tailwind's
+ * `base` layer rather than unlayered.
+ *
+ * That ordering is the whole point: unlayered CSS beats every layer, so an
+ * unlayered `button { font-family: inherit }` silently outranks `font-mono` on
+ * a button and the utility does nothing. In `base` these sit below the
+ * utilities, which is where element defaults belong. CSS Modules stay
+ * unlayered and so still win over utilities, which is what keeps the
+ * half-converted components predictable.
  */
-:root {
-  --ink: var(--color-ink);
-  --panel: var(--color-panel);
-  --panel-2: var(--color-panel-2);
-  --rule: var(--color-rule);
-  --bone: var(--color-bone);
-  --ash: var(--color-ash);
-
-  --crimson: var(--color-crimson);
-  --jade: var(--color-jade);
-  --brass: var(--color-brass);
-
-  --display: var(--font-display);
-  --sans: var(--font-sans);
-  --mono: var(--font-mono);
-
-  --radius: var(--radius-panel);
-  --ease: var(--ease-tween);
-
-  /* Not theme values: `--pad` is redefined inside a media query below, which a
-     static `@theme` entry cannot do, and `--tween` pairs with TWEEN_MS in
-     hooks/useTween.ts rather than with any utility. */
-  --pad-bar: clamp(16px, 2.2vw, 40px);
-  --pad: var(--pad-bar);
-  --tween: 700ms;
-}
-
-/* The handful of element-level rules everything else builds on. */
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background: var(--ink);
-  color: var(--bone);
-  font-family: var(--sans);
-  line-height: 1.45;
-  -webkit-font-smoothing: antialiased;
-}
-
-button {
-  font-family: inherit;
-}
-
-:focus-visible {
-  outline: 2px solid var(--brass);
-  outline-offset: 2px;
-}
-
-kbd {
-  font-family: var(--mono);
-  font-size: var(--text-sm);
-  background: var(--panel-2);
-  border: 1px solid var(--rule);
-  border-radius: 5px;
-  padding: 2px 6px;
-}
-
-/* Desktop screens get breathing room on either side of the page content. */
-@media (min-width: 1100px) {
+@layer base {
+  /*
+   * The short names every CSS Module still reads. Aliases rather than values, so
+   * the tokens above stay the only place a colour is written down, and a module
+   * converted to utilities tomorrow keeps the same one today.
+   */
   :root {
-    --pad: clamp(48px, 6vw, 120px);
-  }
-}
+    --ink: var(--color-ink);
+    --panel: var(--color-panel);
+    --panel-2: var(--color-panel-2);
+    --rule: var(--color-rule);
+    --bone: var(--color-bone);
+    --ash: var(--color-ash);
 
-@media (min-width: 1500px) {
+    --crimson: var(--color-crimson);
+    --jade: var(--color-jade);
+    --brass: var(--color-brass);
+
+    --display: var(--font-display);
+    --sans: var(--font-sans);
+    --mono: var(--font-mono);
+
+    --radius: var(--radius-panel);
+    --ease: var(--ease-tween);
+
+    /* Not theme values: `--pad` is redefined inside a media query below, which a
+       static `@theme` entry cannot do, and `--tween` pairs with TWEEN_MS in
+       hooks/useTween.ts rather than with any utility. */
+    --pad-bar: clamp(16px, 2.2vw, 40px);
+    --pad: var(--pad-bar);
+    --tween: 700ms;
+  }
+
+  /* The handful of element-level rules everything else builds on. */
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
   body {
-    font-size: 17px;
+    margin: 0;
+    padding: 0;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0ms !important;
-    animation-duration: 0ms !important;
+  body {
+    background: var(--ink);
+    color: var(--bone);
+    font-family: var(--sans);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+  }
+
+  kbd {
+    font-family: var(--mono);
+    font-size: var(--text-sm);
+    background: var(--panel-2);
+    border: 1px solid var(--rule);
+    border-radius: 5px;
+    padding: 2px 6px;
+  }
+
+  /* Desktop screens get breathing room on either side of the page content. */
+  @media (min-width: 1100px) {
+    :root {
+      --pad: clamp(48px, 6vw, 120px);
+    }
+  }
+
+  @media (min-width: 1500px) {
+    body {
+      font-size: 17px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
   }
 }

@@ -167,6 +167,38 @@ before-and-after shots. Worth knowing if it is ever picked up: its
 `svg { display: block }` would have hidden the timeline bug that the phase 0
 audit found, rather than fixing it.
 
+## Cascade layers, and the two ways they bite
+
+Tailwind's utilities sit in a `utilities` cascade layer. Unlayered CSS beats
+every layer regardless of specificity, so the arrangement in `globals.css` is
+load-bearing in both directions:
+
+| Where a rule lives | Beats | Beaten by |
+| --- | --- | --- |
+| `@theme` (theme layer) | nothing here | everything below |
+| `@layer base` — the element rules and the token aliases | theme | utilities, modules |
+| Tailwind utilities | base | CSS Modules |
+| CSS Modules (unlayered) | everything | nothing |
+
+Modules outranking utilities is deliberate and is what keeps a half-converted
+component predictable: adding a utility cannot silently override a module rule
+that is still there. Phase 3 was caught by the same ordering twice, in both
+directions, and both are worth knowing before phases 4 and 5:
+
+- **An element rule outranking a utility.** `button { font-family: inherit }`
+  was unlayered, so `font-mono` on an icon button did nothing and the button
+  quietly rendered in the sans face. Element defaults belong in `@layer base`,
+  which is where they are now.
+- **Half a rule left behind.** Moving the element rules into `base` but leaving
+  the `:root` token aliases unlayered put `--pad: var(--pad-bar)` above the
+  `@media (min-width: 1100px)` override that widens it, which is in `base`. The
+  desktop page gutter silently stopped applying and every wide layout reflowed.
+  A token and the media query that overrides it have to be in the same layer.
+
+The second one is the instructive failure: nothing errored, the build was
+green, and the type scale and colours were all correct. It showed up as four
+scenario cards fitting on one row where there had been three.
+
 ## One repeated block becomes a utility
 
 Beyond the scale, one rule really is written out verbatim across the tree, and
