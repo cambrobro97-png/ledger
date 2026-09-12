@@ -112,6 +112,36 @@ The page gutter keeps its current shape rather than becoming a theme value: it
 is redefined inside a media query (`--pad` widens past 1100px), which a static
 `@theme` entry cannot do. It stays a plain custom property in `globals.css`.
 
+## Breakpoints
+
+This app's own ladder, set in `@theme` so the variants match the design instead
+of Tailwind's defaults. Every one is a width something already breaks at:
+
+| Variant | Width | What breaks here |
+| --- | --- | --- |
+| `sm` | `640px` | Dashboard grid goes to two columns |
+| `md` | `760px` | `MonthDetail` switches layout |
+| `lg` | `900px` | Scenario, account and outlook cards stack; income and expense rows stack |
+| `xl` | `1100px` | Dashboard grid goes to four columns; the page gutter widens |
+| `2xl` | `1500px` | Body size steps up to 17px |
+
+`lg` is the one to notice: Tailwind's default puts it at 1024px, which is not a
+width anything in this design cares about, while 900px is where six different
+modules already stack.
+
+## Preflight is not installed
+
+`@import "tailwindcss"` would bring in Preflight, Tailwind's reset. It unstyles
+headings, strips list markers, re-fonts `kbd`, and makes `svg` a block — all
+changes to how the site looks, which is not what installing a toolchain should
+do. `globals.css` takes the theme and the utilities individually instead, and
+keeps the small reset the app already had.
+
+Adopting Preflight later is a real option, but it is its own change with its own
+before-and-after shots. Worth knowing if it is ever picked up: its
+`svg { display: block }` would have hidden the timeline bug that the phase 0
+audit found, rather than fixing it.
+
 ## Two repeated blocks become utilities
 
 Beyond the scale, two rules are written out verbatim across the tree. Phase 2

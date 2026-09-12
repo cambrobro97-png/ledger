@@ -1,32 +1,126 @@
-/* Design tokens and the handful of element-level rules everything else builds on. */
-:root {
-  --ink: #0f1620;
-  --panel: #18212e;
-  --panel-2: #1e2937;
-  --rule: #273345;
-  --bone: #edf1f6;
-  --ash: #8698ae;
+/*
+ * Tailwind, minus Preflight.
+ *
+ * `@import "tailwindcss"` would also pull in Preflight, Tailwind's reset, which
+ * unstyles headings, strips list markers, re-fonts `kbd`, and turns `svg` into a
+ * block. This app already carries the small reset it needs (below), and adopting
+ * Preflight would change how the site looks — a decision on its own, not a side
+ * effect of installing the toolchain. So the theme and the utilities are taken
+ * individually, in the layer order Tailwind expects.
+ */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/*
+ * The design tokens, and the single place they are written down. Tailwind
+ * generates utilities from these (`--color-brass` gives `text-brass`,
+ * `bg-brass`, `border-brass`), and emits them as custom properties on `:root`,
+ * so the CSS Modules that have not been converted yet keep reading them through
+ * the short aliases further down. See docs/design-tokens.md.
+ */
+@theme {
+  /* Tailwind's stock palette is dropped: this app has nine colours and a
+     `bg-red-500` in a diff should read as a mistake, not an option. `current`
+     and `transparent` are not colours in that sense and stay. */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-ink: #0f1620;
+  --color-panel: #18212e;
+  --color-panel-2: #1e2937;
+  --color-rule: #273345;
+  --color-bone: #edf1f6;
+  --color-ash: #8698ae;
 
   /* Semantic colours: interest is money lost, principal is money kept,
      brass marks what a scenario claws back. */
-  --crimson: #e4525f;
-  --jade: #3ecfa0;
-  --brass: #e8b14c;
+  --color-crimson: #e4525f;
+  --color-jade: #3ecfa0;
+  --color-brass: #e8b14c;
 
-  --display: "Fraunces", Georgia, serif;
-  --sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
-  /* Gutter on the page wrappers. The site header keeps the narrower
-     --pad-bar so the bar still spans the full width; the margin below
-     widens it for the content on desktop screens. */
-  --pad-bar: clamp(16px, 2.2vw, 40px);
-  --pad: var(--pad-bar);
-  --radius: 14px;
-  --tween: 700ms;
-  --ease: cubic-bezier(0.22, 0.75, 0.25, 1);
+  /*
+   * Eleven steps replacing the 51 font sizes the tools had drifted into.
+   * Declared here in phase 1; applied across the modules in phase 2, which is
+   * where the sizes actually move. Tailwind's fixed `text-sm`/`text-lg` scale is
+   * dropped outright — every size in this design is fluid, and inheriting a
+   * static ladder would flatten that the first time someone reached for it.
+   */
+  --text-*: initial;
+  --text-micro: clamp(9.5px, 0.65vw, 11px);
+  --text-label: clamp(10px, 0.72vw, 12px);
+  --text-eyebrow: clamp(10px, 0.72vw, 13px);
+  --text-sm: clamp(11px, 0.85vw, 13px);
+  --text-base: clamp(11.5px, 0.85vw, 14px);
+  --text-body: clamp(13px, 0.95vw, 15px);
+  --text-lg: clamp(14px, 1.05vw, 19px);
+  --text-title: clamp(17px, 1.35vw, 25px);
+  --text-figure: clamp(23px, 2.2vw, 38px);
+  --text-display: clamp(26px, 2.6vw, 48px);
+  --text-hero: clamp(30px, 4.4vw, 76px);
+
+  --tracking-eyebrow: 0.18em;
+  --tracking-title: -0.01em;
+
+  --radius-panel: 14px;
+  --radius-control: 9px;
+  --radius-chip: 8px;
+
+  --ease-tween: cubic-bezier(0.22, 0.75, 0.25, 1);
+
+  /*
+   * This app's own breakpoint ladder, deliberately not Tailwind's. Every value
+   * here is a width the design already breaks at: 640 and 1100 are the
+   * dashboard grid, 760 the month panel, 900 the card and row stacking, 1500
+   * the body size bump. Tailwind's defaults would put `lg` at 1024, which is
+   * not a width anything in this design cares about.
+   */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 760px;
+  --breakpoint-lg: 900px;
+  --breakpoint-xl: 1100px;
+  --breakpoint-2xl: 1500px;
 }
 
+/*
+ * The short names every CSS Module still reads. Aliases rather than values, so
+ * the tokens above stay the only place a colour is written down, and a module
+ * converted to utilities tomorrow keeps the same one today.
+ */
+:root {
+  --ink: var(--color-ink);
+  --panel: var(--color-panel);
+  --panel-2: var(--color-panel-2);
+  --rule: var(--color-rule);
+  --bone: var(--color-bone);
+  --ash: var(--color-ash);
+
+  --crimson: var(--color-crimson);
+  --jade: var(--color-jade);
+  --brass: var(--color-brass);
+
+  --display: var(--font-display);
+  --sans: var(--font-sans);
+  --mono: var(--font-mono);
+
+  --radius: var(--radius-panel);
+  --ease: var(--ease-tween);
+
+  /* Not theme values: `--pad` is redefined inside a media query below, which a
+     static `@theme` entry cannot do, and `--tween` pairs with TWEEN_MS in
+     hooks/useTween.ts rather than with any utility. */
+  --pad-bar: clamp(16px, 2.2vw, 40px);
+  --pad: var(--pad-bar);
+  --tween: 700ms;
+}
+
+/* The handful of element-level rules everything else builds on. */
 * {
   box-sizing: border-box;
 }
