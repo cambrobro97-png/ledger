@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import headStyles from "@/components/TopBar.module.css";
+import { ToolHeading } from "@/components/ToolHead";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/cn";
@@ -82,10 +82,11 @@ export function Dashboard() {
   return (
     <div className={styles.wrap}>
       <header className={styles.head}>
-        <div className={styles.headText}>
-          <div className={headStyles.eyebrow}>Everything at a glance</div>
-          <h1 className={headStyles.title}>The big picture</h1>
-        </div>
+        <ToolHeading
+          eyebrow="Everything at a glance"
+          title="The big picture"
+          className={styles.headText}
+        />
 
         <div className={styles.actions}>
           {editing ? (

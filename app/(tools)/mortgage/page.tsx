@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSiteChrome } from "@/components/SiteChrome";
-import { TopBar } from "@/components/TopBar";
+import { ToolHead } from "@/components/ToolHead";
 import { LoanPanel } from "@/components/LoanPanel";
 import { ScenarioTabs } from "@/components/ScenarioTabs";
 import { Hero } from "@/components/Hero";
@@ -46,7 +46,12 @@ export default function Page() {
 
   return (
     <main className={`${styles.wrap} ${presenting ? styles.wrapPresenting : ""}`}>
-      <TopBar presenting={presenting} onModeChange={setPresenting} />
+      <ToolHead
+        eyebrow="Extra principal &mdash; what it actually buys"
+        title="Paying it down early"
+        presenting={presenting}
+        onExitPresenting={() => setPresenting(false)}
+      />
 
       <LoanPanel
         loan={model.loan}

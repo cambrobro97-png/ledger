@@ -16,7 +16,7 @@ import { parseDay } from "@/lib/days";
 import { CADENCE_LABELS, CATEGORY_LABELS, KIND_LABELS, categoryAccent } from "@/lib/expenses";
 import { formatMoney } from "@/lib/format";
 import monthStyles from "@/components/timeline/MonthDetail.module.css";
-import headStyles from "@/components/TopBar.module.css";
+import { ToolHead } from "@/components/ToolHead";
 import styles from "../tool-page.module.css";
 
 export default function Page() {
@@ -82,12 +82,11 @@ export default function Page() {
 
   return (
     <main className={styles.wrap}>
-      <header className={`${headStyles.bar} ${styles.head}`}>
-        <div>
-          <div className={headStyles.eyebrow}>Every bill &mdash; what the year really costs</div>
-          <h1 className={headStyles.title}>Where the money goes</h1>
-        </div>
-      </header>
+      <ToolHead
+        eyebrow="Every bill &mdash; what the year really costs"
+        title="Where the money goes"
+        className={styles.head}
+      />
 
       <Panel>
         <YearSwitcher

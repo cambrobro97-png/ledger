@@ -15,7 +15,7 @@ import { MONTH_NAMES } from "@/lib/dates";
 import { CADENCE_LABELS, accentFor } from "@/lib/income";
 import { formatMoney } from "@/lib/format";
 import monthStyles from "@/components/timeline/MonthDetail.module.css";
-import headStyles from "@/components/TopBar.module.css";
+import { ToolHead } from "@/components/ToolHead";
 import styles from "../tool-page.module.css";
 
 const BAND_SCALE: BandScale = { kind: "share" };
@@ -60,12 +60,11 @@ export default function Page() {
 
   return (
     <main className={styles.wrap}>
-      <header className={`${headStyles.bar} ${styles.head}`}>
-        <div>
-          <div className={headStyles.eyebrow}>Every payday &mdash; where the year lands</div>
-          <h1 className={headStyles.title}>What the year pays</h1>
-        </div>
-      </header>
+      <ToolHead
+        eyebrow="Every payday &mdash; where the year lands"
+        title="What the year pays"
+        className={styles.head}
+      />
 
       <Panel>
         <YearSwitcher

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSiteChrome } from "@/components/SiteChrome";
-import { RetirementTopBar } from "@/components/retirement/RetirementTopBar";
+import { ToolHead } from "@/components/ToolHead";
 import { ProfilePanel } from "@/components/retirement/ProfilePanel";
 import { RedirectPanel } from "@/components/retirement/RedirectPanel";
 import { OutlookTabs } from "@/components/retirement/OutlookTabs";
@@ -56,7 +56,12 @@ export default function Page() {
 
   return (
     <main className={`${styles.wrap} ${presenting ? styles.wrapPresenting : ""}`}>
-      <RetirementTopBar presenting={presenting} onModeChange={setPresenting} />
+      <ToolHead
+        eyebrow="Contributions and growth &mdash; when they add up"
+        title="The year work becomes optional"
+        presenting={presenting}
+        onExitPresenting={() => setPresenting(false)}
+      />
 
       <ProfilePanel
         profile={profile}
