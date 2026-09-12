@@ -16,7 +16,7 @@ import { CADENCE_LABELS, accentFor } from "@/lib/income";
 import { formatMoney } from "@/lib/format";
 import monthStyles from "@/components/timeline/MonthDetail.module.css";
 import { ToolHead } from "@/components/ToolHead";
-import styles from "../tool-page.module.css";
+import { ToolPage, ToolFootnote } from "@/components/ToolPage";
 
 const BAND_SCALE: BandScale = { kind: "share" };
 
@@ -59,11 +59,11 @@ export default function Page() {
   );
 
   return (
-    <main className={styles.wrap}>
+    <ToolPage>
       <ToolHead
         eyebrow="Every payday &mdash; where the year lands"
         title="What the year pays"
-        className={styles.head}
+        className="mb-[clamp(16px,1.8vw,26px)]"
       />
 
       <Panel>
@@ -120,14 +120,14 @@ export default function Page() {
 
       <IncomeEditor model={model} hoveredItemId={hoveredItemId} onHoverItem={setHoveredItemId} />
 
-      <p className={styles.footnote}>
+      <ToolFootnote>
         Figures are gross &mdash; taxes, deductions, and withholding aren&rsquo;t modelled here.
         Recurring income repeats from its first payment, so pay that lands every two weeks
         produces the occasional three-payday month
         {model.derived.peakMonth === -1 ? "" : `, like ${MONTH_NAMES[model.derived.peakMonth]}`}.
         Press <kbd>Esc</kbd> to close an open month.
-      </p>
-    </main>
+      </ToolFootnote>
+    </ToolPage>
   );
 }
 

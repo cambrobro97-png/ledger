@@ -4,7 +4,6 @@ import Link from "next/link";
 import { KOFI_URL, SPONSORS_URL, SUPPORT_ENABLED } from "@/lib/support";
 import { HOME_HREF } from "@/lib/tools";
 import { useSiteChrome } from "./SiteChrome";
-import styles from "./SiteFooter.module.css";
 
 /**
  * Fixed at build time on purpose. The site is a static export, so calling
@@ -28,24 +27,24 @@ export function SiteFooter() {
   if (!chromeVisible) return null;
 
   return (
-    <footer className={styles.bar}>
-      <Link href={HOME_HREF} className={styles.brand}>
-        <span className={styles.mark} aria-hidden="true" />
-        <span className={styles.wordmark}>Ledger 1</span>
+    <footer className="mt-auto grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-[clamp(20px,3vw,56px)] gap-y-3.5 border-t border-rule bg-panel px-(--pad-bar) py-[clamp(24px,2.6vw,36px)] max-xs:grid-cols-[minmax(0,1fr)]">
+      <Link href={HOME_HREF} className="inline-flex items-center gap-2.5 text-bone no-underline">
+        <span className="size-2.5 rotate-45 rounded-[3px] bg-brass" aria-hidden="true" />
+        <span className="font-display text-lg font-bold tracking-title">Ledger 1</span>
       </Link>
 
-      <p className={styles.disclosure}>
+      <p className="m-0 max-w-[92ch] text-sm leading-[1.55] text-ash">
         Ledger 1 is an arithmetic tool, not financial advice. Every figure here is an
         estimate worked out from the numbers you enter, and it makes no assumptions
         about your circumstances. Talk to a qualified financial, tax, or legal
         professional before acting on anything you see here.
       </p>
 
-      <p className={styles.source}>
+      <p className="col-start-2 m-0 max-w-[92ch] text-sm leading-[1.55] text-ash max-xs:col-start-1">
         Ledger 1 is open source under the MIT License. Read the code, report a bug,
         or send a pull request on{" "}
         <a
-          className={styles.link}
+          className="text-bone underline decoration-rule underline-offset-[3px] transition-colors duration-[180ms] hover:text-brass hover:decoration-brass"
           href={REPO_URL}
           target="_blank"
           rel="noreferrer"
@@ -56,10 +55,10 @@ export function SiteFooter() {
       </p>
 
       {SUPPORT_ENABLED && (
-        <p className={styles.support}>
+        <p className="col-start-2 m-0 flex flex-wrap items-center gap-2.5 max-xs:col-start-1">
           {KOFI_URL && (
             <a
-              className={styles.coffee}
+              className="flex-none whitespace-nowrap rounded-full border border-brass bg-transparent px-3 py-1.5 text-sm font-medium text-brass no-underline transition-colors duration-[180ms] hover:bg-brass hover:text-ink"
               href={KOFI_URL}
               target="_blank"
               rel="noreferrer"
@@ -67,7 +66,7 @@ export function SiteFooter() {
               Buy me a coffee
             </a>
           )}
-          <span className={styles.supportNote}>
+          <span className="max-w-[92ch] text-sm leading-[1.55] text-ash">
             The tools are free and stay that way. A coffee helps cover the
             hosting.
             {SPONSORS_URL && (
@@ -75,7 +74,7 @@ export function SiteFooter() {
                 {" "}
                 Developers can also{" "}
                 <a
-                  className={styles.link}
+                  className="text-bone underline decoration-rule underline-offset-[3px] transition-colors duration-[180ms] hover:text-brass hover:decoration-brass"
                   href={SPONSORS_URL}
                   target="_blank"
                   rel="noreferrer"
@@ -89,7 +88,7 @@ export function SiteFooter() {
         </p>
       )}
 
-      <p className={styles.copyright}>
+      <p className="col-start-2 m-0 pt-0.5 font-mono text-sm text-ash max-xs:col-start-1">
         © {COPYRIGHT_YEAR} Ledger 1. All rights reserved.
       </p>
     </footer>

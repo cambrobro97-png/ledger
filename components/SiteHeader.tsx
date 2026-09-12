@@ -4,7 +4,6 @@ import Link from "next/link";
 import { HOME_HREF } from "@/lib/tools";
 import { useSiteChrome } from "./SiteChrome";
 import { ToolsMenu } from "./ToolsMenu";
-import styles from "./SiteHeader.module.css";
 
 /** Site title plus the tool switcher. Hidden while a tool takes over the screen. */
 export function SiteHeader() {
@@ -13,10 +12,10 @@ export function SiteHeader() {
   if (!chromeVisible) return null;
 
   return (
-    <header className={styles.bar}>
-      <Link href={HOME_HREF} className={styles.brand}>
-        <span className={styles.mark} aria-hidden="true" />
-        <span className={styles.wordmark}>Ledger 1</span>
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-[clamp(16px,3vw,48px)] border-b border-rule bg-ink/72 px-(--pad-bar) py-3.5 backdrop-blur-[10px]">
+      <Link href={HOME_HREF} className="inline-flex flex-none items-center gap-2.5 text-bone no-underline">
+        <span className="size-2.5 rotate-45 rounded-[3px] bg-brass" aria-hidden="true" />
+        <span className="font-display text-lg font-bold tracking-title">Ledger 1</span>
       </Link>
 
       <nav aria-label="Tools">

@@ -17,7 +17,7 @@ import { CADENCE_LABELS, CATEGORY_LABELS, KIND_LABELS, categoryAccent } from "@/
 import { formatMoney } from "@/lib/format";
 import monthStyles from "@/components/timeline/MonthDetail.module.css";
 import { ToolHead } from "@/components/ToolHead";
-import styles from "../tool-page.module.css";
+import { ToolPage, ToolFootnote } from "@/components/ToolPage";
 
 export default function Page() {
   const model = useExpenseModel();
@@ -81,11 +81,11 @@ export default function Page() {
   );
 
   return (
-    <main className={styles.wrap}>
+    <ToolPage>
       <ToolHead
         eyebrow="Every bill &mdash; what the year really costs"
         title="Where the money goes"
-        className={styles.head}
+        className="mb-[clamp(16px,1.8vw,26px)]"
       />
 
       <Panel>
@@ -148,7 +148,7 @@ export default function Page() {
 
       <ExpenseEditor model={model} hoveredItemId={hoveredItemId} onHoverItem={setHoveredItemId} />
 
-      <p className={styles.footnote}>
+      <ToolFootnote>
         Fixed lines are the ones a lean month can&rsquo;t go below; everything marked variable is
         where there&rsquo;s a decision to make. Recurring expenses repeat from their first payment,
         so a weekly bill produces the occasional five-payment month
@@ -158,8 +158,8 @@ export default function Page() {
             them is which month that is. */}
         {mortgageEnds ? ` The mortgage comes off the timeline after ${mortgageEnds}.` : ""} Press{" "}
         <kbd>Esc</kbd> to close an open month.
-      </p>
-    </main>
+      </ToolFootnote>
+    </ToolPage>
   );
 }
 

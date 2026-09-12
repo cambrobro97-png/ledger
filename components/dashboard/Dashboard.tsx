@@ -80,7 +80,7 @@ export function Dashboard() {
   const isEmpty = layout.widgets.length === 0;
 
   return (
-    <div className={styles.wrap}>
+    <main className={styles.wrap}>
       <header className={styles.head}>
         <ToolHeading
           eyebrow="Everything at a glance"
@@ -284,6 +284,6 @@ export function Dashboard() {
           ) : null}
         </section>
       ) : null}
-    </div>
+    </main>
   );
 }

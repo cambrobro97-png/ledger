@@ -139,20 +139,42 @@ is redefined inside a media query (`--pad` widens past 1100px), which a static
 
 ## Breakpoints
 
-This app's own ladder, set in `@theme` so the variants match the design instead
-of Tailwind's defaults. Every one is a width something already breaks at:
+This app's own ladder, set in `@theme`. Where the design breaks with
+`max-width: N` the token is **N + 1**, because Tailwind's `max-*` variant
+compiles to `width < token` — so `max-lg` at 901px reproduces
+`max-width: 900px` exactly, boundary pixel included. Where it breaks with
+`min-width: N` the token is N.
 
-| Variant | Width | What breaks here |
-| --- | --- | --- |
-| `sm` | `640px` | Dashboard grid goes to two columns |
-| `md` | `760px` | `MonthDetail` switches layout |
-| `lg` | `900px` | Scenario, account and outlook cards stack; income and expense rows stack |
-| `xl` | `1100px` | Dashboard grid goes to four columns; the page gutter widens |
-| `2xl` | `1500px` | Body size steps up to 17px |
+| Variant | Token | Reproduces | What breaks here |
+| --- | --- | --- | --- |
+| `max-xs` | `621px` | `max-width: 620px` | The footer stacks to one column |
+| `sm` | `640px` | `min-width: 640px` | Dashboard grid goes to two columns |
+| `max-md` | `761px` | `max-width: 760px` | `MonthDetail` switches layout |
+| `lg` / `max-lg` | `901px` | `min-width: 901px` / `max-width: 900px` | Cards and chart pairs stack |
+| `xl` | `1100px` | `min-width: 1100px` | Dashboard to four columns; the gutter widens |
+| `2xl` | `1500px` | `min-width: 1500px` | Body size steps up to 17px |
 
-`lg` is the one to notice: Tailwind's default puts it at 1024px, which is not a
-width anything in this design cares about, while 900px is where six different
-modules already stack.
+Verified in the built stylesheet rather than assumed: `max-xs` emits
+`@media not all and (min-width: 621px)` and `lg` emits
+`@media (min-width: 901px)`.
+
+`xl` is the one place the convention cannot hold both ways. The design uses
+1100px as a `min-width` (the page gutter, the dashboard grid) *and* as a
+`max-width` (`ExpenseItemRow`), which overlap at exactly 1100px in the original
+CSS. When that module converts in phase 5 it will need an exact arbitrary
+variant rather than `max-xl`.
+
+## Two behaviour changes worth knowing
+
+Neither shows in a screenshot, and both came free with the utilities:
+
+- **Hover is now gated on a device that hovers.** Tailwind wraps `hover:` in
+  `@media (hover: hover)`, which the hand-written rules did not do. On a
+  touchscreen a tapped button no longer keeps its hover state until something
+  else is tapped. That is the behaviour you want, but it is a change.
+- **Spacing is in rem, not px.** `py-2.5` is `0.625rem`, where the CSS said
+  `10px`. Identical at a default root size, and it now scales with a reader who
+  has set a larger one.
 
 ## Preflight is not installed
 

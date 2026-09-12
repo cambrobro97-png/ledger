@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSiteChrome } from "@/components/SiteChrome";
 import { ToolHead } from "@/components/ToolHead";
+import { ToolPage, ToolFootnote, Warning } from "@/components/ToolPage";
 import { ProfilePanel } from "@/components/retirement/ProfilePanel";
 import { RedirectPanel } from "@/components/retirement/RedirectPanel";
 import { OutlookTabs } from "@/components/retirement/OutlookTabs";
@@ -21,7 +22,6 @@ import { useKeyboardControls } from "@/hooks/useKeyboardControls";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { TWEEN_MS } from "@/hooks/useTween";
 import { parseMonth } from "@/lib/dates";
-import styles from "./page.module.css";
 
 export default function Page() {
   const model = useRetirementModel();
@@ -55,7 +55,7 @@ export default function Page() {
   const startYear = parseMonth(profile.start).year;
 
   return (
-    <main className={`${styles.wrap} ${presenting ? styles.wrapPresenting : ""}`}>
+    <ToolPage presenting={presenting}>
       <ToolHead
         eyebrow="Contributions and growth &mdash; when they add up"
         title="The year work becomes optional"
@@ -86,7 +86,7 @@ export default function Page() {
         />
       ) : null}
 
-      {model.error ? <p className={styles.warning}>{model.error}</p> : null}
+      {model.error ? <Warning>{model.error}</Warning> : null}
 
       {ready ? (
         <>
@@ -116,7 +116,7 @@ export default function Page() {
             duration={duration}
           />
 
-          <div className={styles.charts}>
+          <div className="mt-3.5 grid grid-cols-1 gap-3.5 lg:grid-cols-2">
             <PortfolioChart
               baseline={baseline}
               current={current}
@@ -133,7 +133,7 @@ export default function Page() {
               duration={duration}
             />
             <AccountsChart
-              className={styles.chartsWide}
+              className="col-span-full"
               accounts={profile.accounts}
               current={current}
               length={horizon}
@@ -142,7 +142,7 @@ export default function Page() {
               duration={duration}
             />
             <GrowthChart
-              className={styles.chartsWide}
+              className="col-span-full"
               current={current}
               length={horizon}
               startYear={startYear}
@@ -157,15 +157,15 @@ export default function Page() {
         <>
           <AccountEditor model={model} />
           <OutlookEditor model={model} />
-          <p className={styles.footnote}>
+          <ToolFootnote>
             Taxes and Social Security are not modelled yet &mdash; contributions and withdrawals are
             counted gross, and 401(k) limits are flagged but never enforced. Retirement age is the
             earliest one whose money still reaches the age you set, and every outlook is measured
             against the market exactly as it stands today. Press <kbd>P</kbd> to present,{" "}
             <kbd>&larr;</kbd> <kbd>&rarr;</kbd> to move between outlooks.
-          </p>
+          </ToolFootnote>
         </>
       ) : null}
-    </main>
+    </ToolPage>
   );
 }
