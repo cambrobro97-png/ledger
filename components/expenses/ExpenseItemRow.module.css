@@ -38,7 +38,7 @@
 }
 
 .note {
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   color: var(--ash);
 }
 
@@ -52,14 +52,14 @@
 .annual {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
-  font-size: clamp(10.5px, 0.78vw, 12px);
+  font-size: var(--text-label);
   color: var(--ash);
 }
 
 .total {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   color: var(--accent, var(--bone));
 }
 
@@ -119,7 +119,7 @@
   align-items: center;
   gap: 6px;
   font-family: var(--mono);
-  font-size: clamp(10px, 0.72vw, 12px);
+  font-size: var(--text-label);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ash);
@@ -142,7 +142,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   color: var(--ash);
   cursor: pointer;
 }
@@ -157,7 +157,7 @@
 /* Said out loud only when the link can't be worked out — a live one is
    already describing itself in the foot. */
 .linkWarning {
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   color: var(--brass);
   flex-basis: 100%;
 }
@@ -168,7 +168,7 @@
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
   color: var(--ash);
-  font-size: clamp(14px, 1vw, 17px);
+  font-size: var(--text-lg);
   padding: 10px 6px;
   width: 100%;
   min-width: 0;

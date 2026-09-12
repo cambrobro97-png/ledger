@@ -25,7 +25,7 @@
 .hint {
   margin: 10px 0 0;
   color: var(--ash);
-  font-size: clamp(12px, 0.9vw, 15px);
+  font-size: var(--text-body);
   max-width: 62ch;
 }
 
@@ -138,7 +138,7 @@
   border-radius: 8px;
   color: var(--bone);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--text-sm);
   cursor: pointer;
   transition: border-color 140ms var(--ease), color 140ms var(--ease);
 }
@@ -198,14 +198,14 @@
 .catalogTitle {
   font-family: var(--display);
   font-weight: 500;
-  font-size: clamp(17px, 1.35vw, 25px);
+  font-size: var(--text-title);
   margin: 0;
 }
 
 .catalogHint {
   margin: 6px 0 0;
   color: var(--ash);
-  font-size: clamp(12px, 0.85vw, 14px);
+  font-size: var(--text-base);
 }
 
 .catalogList {
@@ -253,17 +253,17 @@
 .catalogName {
   font-family: var(--sans);
   font-weight: 600;
-  font-size: clamp(13px, 0.95vw, 15px);
+  font-size: var(--text-body);
 }
 
 .catalogBlurb {
   color: var(--ash);
-  font-size: clamp(11px, 0.8vw, 13px);
+  font-size: var(--text-sm);
 }
 
 .catalogOwner {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--text-micro);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ash);
@@ -281,14 +281,14 @@
 .emptyTitle {
   font-family: var(--display);
   font-weight: 500;
-  font-size: clamp(17px, 1.35vw, 25px);
+  font-size: var(--text-title);
   margin: 0;
 }
 
 .emptyHint {
   margin: 8px 0 16px;
   color: var(--ash);
-  font-size: clamp(12px, 0.9vw, 14px);
+  font-size: var(--text-base);
 }
 
 /* Announcements for the reorder buttons; visible to screen readers only. */

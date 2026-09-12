@@ -19,7 +19,7 @@ are near-duplicates rather than distinct steps:
     clamp(11px, 0.82vw, 13px)   ×1
 
 Nobody chose four sizes a hundredth of a viewport-width apart; each was typed
-fresh because there was nothing to reach for. Eleven steps cover every use.
+fresh because there was nothing to reach for. Twelve steps cover every use.
 
 ## Type scale
 
@@ -29,10 +29,11 @@ fresh because there was nothing to reach for. Eleven steps cover every use.
 | `--text-label` | `clamp(10px, 0.72vw, 12px)` | Mono metadata above a value. `MetricCard.key`, `WidgetShell.eyebrow`/`note`, `ExpenseItemRow.linkBadge`/`annual`, `MonthDetail.eyebrow`/`meta`/`share`, `ExpenseEditor.groupTitle`/`groupMeta`, `MortgageLinkPicker.title`, `ExpenseMetrics.categoriesHead`/`noteLabel` |
 | `--text-eyebrow` | `clamp(10px, 0.72vw, 13px)` | The section eyebrow, already identical in 7 files: `Hero`, `LoanPanel`, `ToolPlaceholder`, `TopBar`, `ProfilePanel`, `RetirementHero`, `Panel` |
 | `--text-sm` | `clamp(11px, 0.85vw, 13px)` | Notes and hints under a control. The 13-use cluster, its three near-twins, and the fixed `11.5px` / `12px` / `12.5px` small text |
-| `--text-base` | `clamp(11.5px, 0.85vw, 14px)` | Supporting text with a job. `TermRibbon`/`AgeRibbon.labels`, `charts.readout`, `Dashboard.catalogHint`/`emptyHint`, `ExpenseMetrics.legendItem`, `WidgetShell.detail`, `YearSwitcher.hint` |
-| `--text-body` | `clamp(13px, 0.95vw, 15px)` | Default reading size. `MonthDetail.name`, the `empty` states, `RedirectPanel.verdict`, `ScenarioCard.name`, `AccountCard.name`, `Field.affix`/`toggleLabel`, and the fixed `13px` / `14px` / `14.5px` / `15px` body text |
-| `--text-lg` | `clamp(14px, 1.05vw, 19px)` | Lead-in prose and wordmarks. `Hero.sub`, `RetirementHero.sub`, `ToolPlaceholder.blurb`, `SiteHeader.wordmark`, `SiteFooter.wordmark`, `WidgetShell.title`, `Field.select`, `ExpenseItemRow.derived` |
+| `--text-base` | `clamp(11.5px, 0.85vw, 14px)` | Supporting text with a job. `TermRibbon`/`AgeRibbon` `.labels` and `.cap`, `charts.readout`, `Dashboard.catalogHint`/`emptyHint`, `ExpenseMetrics.legendItem`, `WidgetShell.detail`, `YearSwitcher.hint` |
+| `--text-body` | `clamp(13px, 0.95vw, 15px)` | Default reading size. `MonthDetail.name`, the `empty` states, `RedirectPanel.verdict`, `Field.affix`/`toggleLabel`, and the fixed `13px` / `14px` / `14.5px` body text |
+| `--text-lg` | `clamp(14px, 1.05vw, 19px)` | Lead-in prose and wordmarks. `Hero.sub`, `RetirementHero.sub`, `ToolPlaceholder.blurb`, `SiteHeader.wordmark`, `SiteFooter.wordmark`, `WidgetShell.title`, `Field.select`, `ExpenseItemRow.derived`, and the card names (`ScenarioCard`, `AccountCard`, `OutlookCard`) |
 | `--text-title` | `clamp(17px, 1.35vw, 25px)` | Panel and card headings. `Panel.title`, `Dashboard.catalogTitle`/`emptyTitle`, `LoanPanel.chipValue`, `ProfilePanel.chipValue`, `OccurrenceCard.amount`, `ExpenseMetrics.noteValue` |
+| `--text-amount` | `clamp(18px, 1.55vw, 25px)` | A figure inside a card, smaller than the card's own headline. `OccurrenceCard.amount`, `ExpenseMetrics.noteValue` |
 | `--text-figure` | `clamp(23px, 2.2vw, 38px)` | A number that is the point of its card. `WidgetShell.value`, `MonthDetail.total`, `YearSwitcher.year` |
 | `--text-display` | `clamp(26px, 2.6vw, 48px)` | Page and metric headlines. `TopBar.title`, `MetricCard.value`, `ToolPlaceholder.title` |
 | `--text-hero` | `clamp(30px, 4.4vw, 76px)` | The verdict, unchanged. `Hero.verdict`, `RetirementHero.verdict` |
@@ -48,23 +49,47 @@ it is intentional; none of it changes which step a piece of text belongs to:
   slopes catch up, by at most 1.0px at 1440px.
 - Fixed `12px` and `12.5px` small text becomes fluid (`--text-sm`), so it now
   shrinks on a phone and grows slightly on a wide screen instead of sitting
-  still. This is the biggest single change in the scale and the one to look at
-  first in the phase 2 shots.
-- `ToolPlaceholder.title` drops from `clamp(28px, 3.2vw, 52px)` to
-  `--text-display`, and `TopBar.title` rises to it from
-  `clamp(26px, 2.4vw, 44px)`. They are the same role and were never meant to
-  differ.
+  still. At 390px a footnote drops from 12.5px to 11px. This is the biggest
+  deliberate change in the scale.
+- `TopBar.title` grows about 2.9px at 1440px, joining `MetricCard.value` on
+  `--text-display`. The two were a designed pair that had drifted apart.
+
+### Where the scale is lossiest
+
+The small end of this design was genuinely duplicated — four slopes for one
+size — and collapses cleanly. The large end was not: above about 17px nearly
+every value is used once, for one role, and merging those destroys a hierarchy
+rather than removing a duplicate. The steps above `--text-lg` are therefore
+deliberately close to the values they replace, and `--text-amount` exists
+because folding two card figures into `--text-title` cost them 2.2px and 3.6px
+at 1440px and flattened them against the panel headings.
+
+Three assignments were wrong on the first pass and are worth recording, because
+they are the failure mode to watch for in phases 3 to 5 — a step that is close
+in size but wrong in role:
+
+- The card names (`ScenarioCard`, `AccountCard`, `OutlookCard`) were put on
+  `--text-body`, which put them at 13px on a phone against their own 11px note.
+  A name has to outrank its note; `--text-lg` keeps the 1.25 ratio they had.
+- The ribbon caps were put on `--text-body`, which *grew* them from 11px to 13px
+  at 390px — in the one place on the page with least room. `--text-base` matches
+  what they were to within half a pixel.
+- `ToolPlaceholder.title` loses 8.6px at 1440px on `--text-display`. Left as is:
+  `ToolPlaceholder` is imported by nothing, since every tool in the registry is
+  built, so the component is unreachable.
 
 ### SVG text is not on this scale
 
-Seven of the 51 values sit on `<text>` inside an SVG `viewBox`, where `px` is a
+Six of the 51 values sit on `<text>` inside an SVG `viewBox`, where `px` is a
 *user unit* that scales with the chart, not a CSS pixel. Putting a `vw`-based
 clamp on them would scale them twice and break at both ends. They stay literal,
-in the modules listed as permanent in the migration plan:
+in the two modules listed as permanent in the migration plan:
 
 `charts.axisLabel` · `charts.markerLabel` · `TimelineChrome.bandLabel` ·
-`TimelineChrome.railLabel` · `TimelineChrome.dayLabel` · `TimelineChrome.empty` ·
-`MonthTicks.tick`
+`TimelineChrome.railLabel` · `TimelineChrome.dayLabel` · `TimelineChrome.empty`
+
+`MonthTicks.tick` reads like one of these and is not: its ticks are `<span>`s in
+a flex row, not SVG text, so it takes `--text-micro` like any other label.
 
 ## Colour
 
@@ -142,13 +167,21 @@ before-and-after shots. Worth knowing if it is ever picked up: its
 `svg { display: block }` would have hidden the timeline bug that the phase 0
 audit found, rather than fixing it.
 
-## Two repeated blocks become utilities
+## One repeated block becomes a utility
 
-Beyond the scale, two rules are written out verbatim across the tree. Phase 2
-hoists them with Tailwind's `@utility`, so they are usable from JSX and from the
-modules that remain:
+Beyond the scale, one rule really is written out verbatim across the tree, and
+phase 2 hoists it with Tailwind's `@utility` so it is usable from JSX as the
+components convert:
 
-- **`eyebrow`** — mono, uppercase, `0.18em` tracking, `--color-ash`,
-  `--text-eyebrow`. Defined in 9 files, 8 of them byte-identical.
-- **`display-title`** — `--font-display`, weight 500, `-0.01em` tracking.
-  Defined in 9 files.
+- **`eyebrow`** — mono, uppercase, `--tracking-eyebrow`, `--color-ash`,
+  `--text-eyebrow`. Byte-identical in eight modules.
+
+The display headings looked like a second one and are not. Nine modules use
+`--font-display`, but they share only the family: weights split 500/700, sizes
+land on five different steps, and leading and tracking vary per use. There is no
+common block to hoist, so they compose from `font-display` plus a size step —
+which is what utilities are for.
+
+The nine `.eyebrow` definitions are not deleted in phase 2, because removing one
+means changing `styles.eyebrow` to `className="eyebrow"` in its component, and
+phase 2 touches no JSX. They go as each component converts in phases 3 to 5.

@@ -27,13 +27,13 @@
   background: rgba(228, 82, 95, 0.12);
   border: 1px solid rgba(228, 82, 95, 0.45);
   color: #ffc9cd;
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 
 .footnote {
   margin-top: 34px;
   color: var(--ash);
-  font-size: 12.5px;
+  font-size: var(--text-sm);
   max-width: 80ch;
 }
 

@@ -12,7 +12,7 @@
 
 .eyebrow {
   font-family: var(--mono);
-  font-size: clamp(10px, 0.72vw, 13px);
+  font-size: var(--text-eyebrow);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ash);
@@ -39,7 +39,7 @@
 
 .chipKey {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--text-label);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ash);
@@ -48,6 +48,6 @@
 .chipValue {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
-  font-size: clamp(16px, 1.35vw, 24px);
+  font-size: var(--text-title);
   font-weight: 500;
 }

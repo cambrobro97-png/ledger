@@ -8,13 +8,13 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   color: var(--ash);
 }
 
 .from {
   font-family: var(--mono);
-  font-size: clamp(9.5px, 0.68vw, 11px);
+  font-size: var(--text-micro);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--bone);
@@ -34,7 +34,7 @@
 }
 
 .none {
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   color: var(--ash);
   line-height: 1.5;
 }

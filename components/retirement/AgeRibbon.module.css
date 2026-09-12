@@ -61,7 +61,7 @@
   align-items: center;
   padding: 0 14px;
   font-family: var(--mono);
-  font-size: clamp(11px, 0.85vw, 15px);
+  font-size: var(--text-base);
   color: var(--bone);
 }
 
@@ -77,7 +77,7 @@
   margin-top: 10px;
   gap: 12px;
   font-family: var(--mono);
-  font-size: clamp(11px, 0.8vw, 14px);
+  font-size: var(--text-base);
   color: var(--ash);
 }
 
@@ -106,7 +106,7 @@
   left: 5px;
   white-space: nowrap;
   font-family: var(--mono);
-  font-size: clamp(9px, 0.62vw, 11px);
+  font-size: var(--text-micro);
   letter-spacing: 0.04em;
   color: var(--ash);
   background: var(--ink);

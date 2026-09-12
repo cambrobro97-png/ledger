@@ -4,7 +4,7 @@
 
 .eyebrow {
   font-family: var(--mono);
-  font-size: clamp(10px, 0.72vw, 13px);
+  font-size: var(--text-eyebrow);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ash);
@@ -13,7 +13,7 @@
 .verdict {
   font-family: var(--display);
   font-weight: 700;
-  font-size: clamp(30px, 4.4vw, 76px);
+  font-size: var(--text-hero);
   line-height: 1.02;
   letter-spacing: -0.02em;
   margin: 8px 0 0;
@@ -30,6 +30,6 @@
 .sub {
   color: var(--ash);
   margin-top: 14px;
-  font-size: clamp(14px, 1.05vw, 19px);
+  font-size: var(--text-lg);
   max-width: 60ch;
 }

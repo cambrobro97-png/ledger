@@ -5,6 +5,9 @@
   touch-action: pan-y;
 }
 
+/* Sizes on SVG <text> are viewBox user units, not CSS pixels — they scale
+   with the drawing. They stay off the fluid type scale, which is in vw and
+   would scale them a second time. */
 .axisLabel {
   font-family: var(--mono);
   font-size: 15px;
@@ -27,7 +30,7 @@
 
 .readout {
   font-family: var(--mono);
-  font-size: clamp(11px, 0.82vw, 14px);
+  font-size: var(--text-base);
   color: var(--ash);
   display: flex;
   gap: 16px;
@@ -44,7 +47,7 @@
   gap: 16px;
   flex-wrap: wrap;
   font-family: var(--mono);
-  font-size: clamp(11px, 0.78vw, 13px);
+  font-size: var(--text-sm);
   color: var(--ash);
   margin-top: 10px;
 }

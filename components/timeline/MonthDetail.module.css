@@ -18,7 +18,7 @@
 
 .eyebrow {
   font-family: var(--mono);
-  font-size: clamp(10px, 0.72vw, 12px);
+  font-size: var(--text-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ash);
@@ -27,7 +27,7 @@
 .total {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
-  font-size: clamp(24px, 2.4vw, 40px);
+  font-size: var(--text-figure);
   line-height: 1.1;
   letter-spacing: -0.02em;
   margin-top: 6px;
@@ -38,7 +38,7 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   color: var(--ash);
 }
 
@@ -102,14 +102,14 @@
 }
 
 .name {
-  font-size: clamp(13px, 1vw, 15px);
+  font-size: var(--text-body);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .meta {
-  font-size: clamp(10.5px, 0.78vw, 12.5px);
+  font-size: var(--text-label);
   color: var(--ash);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -141,20 +141,20 @@
   gap: 8px;
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
-  font-size: clamp(12px, 0.95vw, 15px);
+  font-size: var(--text-body);
 }
 
 .share {
   min-width: 4ch;
   text-align: right;
-  font-size: clamp(10px, 0.75vw, 12px);
+  font-size: var(--text-label);
   color: var(--ash);
 }
 
 .empty {
   margin: 0;
   color: var(--ash);
-  font-size: clamp(13px, 1vw, 15px);
+  font-size: var(--text-body);
 }
 
 @keyframes open {

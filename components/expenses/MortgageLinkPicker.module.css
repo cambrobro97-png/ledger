@@ -18,7 +18,7 @@
 .title {
   font-family: var(--mono);
   font-weight: 400;
-  font-size: clamp(10px, 0.72vw, 12px);
+  font-size: var(--text-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ash);
@@ -26,7 +26,7 @@
 }
 
 .hint {
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   color: var(--ash);
 }
 
@@ -71,13 +71,13 @@
 
 .partLabel {
   color: var(--bone);
-  font-size: clamp(13px, 1vw, 15px);
+  font-size: var(--text-body);
 }
 
 .partDetail {
   display: block;
   color: var(--ash);
-  font-size: clamp(11px, 0.85vw, 13px);
+  font-size: var(--text-sm);
   margin-top: 2px;
 }
 
@@ -90,5 +90,5 @@
 .empty {
   margin: 0 0 14px;
   color: var(--ash);
-  font-size: clamp(13px, 1vw, 15px);
+  font-size: var(--text-body);
 }

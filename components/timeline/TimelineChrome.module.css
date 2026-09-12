@@ -41,6 +41,9 @@
   cursor: pointer;
 }
 
+/* Sizes on SVG <text> are viewBox user units, not CSS pixels — they scale
+   with the drawing. They stay off the fluid type scale, which is in vw and
+   would scale them a second time. */
 .bandLabel {
   font-family: var(--mono);
   font-size: 11px;

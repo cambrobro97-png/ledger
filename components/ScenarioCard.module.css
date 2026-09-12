@@ -25,7 +25,7 @@
   border-radius: 8px;
   padding: 9px 10px;
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: var(--text-lg);
   color: var(--bone);
 }
 
@@ -52,7 +52,7 @@
 }
 
 .note {
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--ash);
   margin-top: 12px;
   font-family: var(--mono);

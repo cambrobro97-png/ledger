@@ -6,7 +6,7 @@
 }
 
 .label {
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--ash);
   letter-spacing: 0.02em;
 }
@@ -28,7 +28,7 @@
 .affix {
   color: var(--ash);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: var(--text-body);
 }
 
 .input,
@@ -42,7 +42,7 @@
   outline: none;
   box-shadow: none;
   color: var(--bone);
-  font-size: clamp(14px, 1vw, 17px);
+  font-size: var(--text-lg);
   padding: 10px 6px;
   width: 100%;
   min-width: 0;
@@ -159,12 +159,12 @@
 }
 
 .toggleLabel {
-  font-size: 13px;
+  font-size: var(--text-body);
   color: var(--bone);
 }
 
 .toggleHint {
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--ash);
 }
 
