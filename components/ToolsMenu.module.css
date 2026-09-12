@@ -10,7 +10,10 @@
   background: none;
   border: 1px solid transparent;
   color: var(--ash);
-  font: 500 clamp(13px, 0.92vw, 15px) / 1 var(--sans);
+  font-family: var(--sans);
+  font-size: var(--text-body);
+  font-weight: 500;
+  line-height: 1;
   padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
@@ -107,13 +110,19 @@
 
 .name {
   display: block;
-  font: 500 14px / 1.2 var(--sans);
+  font-family: var(--sans);
+  font-size: var(--text-body);
+  font-weight: 500;
+  line-height: 1.2;
   color: inherit;
 }
 
 .blurb {
   display: block;
   margin-top: 3px;
-  font: 400 12px / 1.35 var(--sans);
+  font-family: var(--sans);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: 1.35;
   color: var(--ash);
 }

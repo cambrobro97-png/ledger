@@ -1,5 +1,8 @@
 .button {
-  font: 500 13px/1 var(--sans);
+  font-family: var(--sans);
+  font-size: var(--text-body);
+  font-weight: 500;
+  line-height: 1;
   color: var(--bone);
   background: var(--ink);
   border: 1px solid var(--rule);
