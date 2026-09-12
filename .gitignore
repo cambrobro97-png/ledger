@@ -10,3 +10,8 @@ next-env.d.ts
 # CDK build output. cdk.context.json is deliberately NOT ignored: it pins the
 # hosted zone lookup so CI synthesizes the same template every time.
 cdk/cdk.out/
+
+# Baseline screenshots from scripts/shoot.mjs. Regenerate rather than commit:
+# the PNGs are large, and they only compare against others taken on the same
+# platform and browser build.
+shots/
