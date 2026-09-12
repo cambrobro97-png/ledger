@@ -1,3 +1,23 @@
+/* The chart itself ---------------------------------------------------- */
+
+/* The horizontal chart scales with its width; the vertical one is given an
+   explicit pixel height inline (see VerticalTimeline) and just fills the width. */
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+/* Sized in real pixels rather than by aspect ratio, and clipped to itself:
+   without this the marks' rounded caps and the rail's labels can spill past
+   the measured box and over whatever follows the timeline. */
+.svgVertical {
+  height: auto; /* overridden inline by the measured pixel height */
+  overflow: hidden;
+}
+
 /* Month band --------------------------------------------------------- */
 
 .band {
