@@ -1,8 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { InputShell, TextSelectField, fieldStyles } from "@/components/ui/Field";
+import { MONTH_NAMES } from "@/lib/dates";
+import { formatDayValue, parseDay } from "@/lib/days";
 import { formatMoney } from "@/lib/format";
+import { MORTGAGE_PART_LABELS, type LinkResolution } from "@/lib/links";
 import {
   CADENCE_LABELS,
   CADENCE_ORDER,
@@ -23,8 +27,12 @@ interface ExpenseItemRowProps {
   /** What this expense costs across the year on screen. */
   total: number;
   hovered: boolean;
+  /** How the link is faring, for a line another tool drives. */
+  resolution?: LinkResolution;
   onChange: (patch: Partial<ExpenseItem>) => void;
   onRemove: () => void;
+  /** Keeps the figures, drops the link. Only called for a linked line. */
+  onUnlink: () => void;
   onHover: (hovered: boolean) => void;
 }
 
@@ -46,11 +54,21 @@ export function ExpenseItemRow({
   year,
   total,
   hovered,
+  resolution,
   onChange,
   onRemove,
+  onUnlink,
   onHover,
 }: ExpenseItemRowProps) {
   const annual = annualCostOf(item);
+  const link = item.link;
+  const anchorDay = parseDay(item.anchor, year).day;
+  /*
+   * Which fields the other tool actually decides. A mortgage line's dates come
+   * from the loan's own schedule; a contributions line's don't — the retirement
+   * tool has no opinion about the day of the month, so those stay editable.
+   */
+  const datesDerived = link?.source === "mortgage";
 
   return (
     <div
@@ -59,6 +77,51 @@ export function ExpenseItemRow({
       onPointerEnter={() => onHover(true)}
       onPointerLeave={() => onHover(false)}
     >
+      {link ? (
+        <div className={styles.linkBar}>
+          <Link
+            href={link.source === "mortgage" ? "/mortgage" : "/retirement"}
+            className={styles.linkBadge}
+            title={resolution?.note || undefined}
+          >
+            {link.source === "mortgage" ? (
+              <>
+                Mortgage &middot; {resolution?.sourceName || "deleted scenario"} &middot;{" "}
+                {MORTGAGE_PART_LABELS[link.part]}
+              </>
+            ) : (
+              <>Retirement &middot; {resolution?.sourceName || "deleted account"} &middot; contributions</>
+            )}
+          </Link>
+
+          {/* Extra principal is money that genuinely leaves the account, but it
+              is a choice rather than a bill — so whether it counts as spending
+              is the one thing about this line still worth deciding. */}
+          {link.source === "mortgage" && link.part === "payment" ? (
+            <label className={styles.linkToggle}>
+              <input
+                type="checkbox"
+                checked={link.includeExtra}
+                onChange={(event) =>
+                  onChange({ link: { ...link, includeExtra: event.target.checked } })
+                }
+              />
+              Count the extra principal
+            </label>
+          ) : null}
+
+          <span className={styles.linkActions}>
+            <Button variant="ghost" onClick={onUnlink} title="Keep these figures, drop the link">
+              Unlink
+            </Button>
+          </span>
+
+          {resolution && resolution.status !== "live" && resolution.status !== "pending" ? (
+            <span className={styles.linkWarning}>{resolution.note}</span>
+          ) : null}
+        </div>
+      ) : null}
+
       <div className={styles.grid}>
         <InputShell>
           <input
@@ -71,18 +134,26 @@ export function ExpenseItemRow({
           />
         </InputShell>
 
-        <InputShell prefix="$">
-          <input
-            className={fieldStyles.input}
-            type="number"
-            min={0}
-            step={10}
-            inputMode="decimal"
-            aria-label="Amount per payment"
-            value={item.amount}
-            onChange={(event) => onChange({ amount: Number(event.target.value) || 0 })}
-          />
-        </InputShell>
+        {link ? (
+          <InputShell prefix="$">
+            <span className={styles.derived} title={resolution?.note || undefined}>
+              {formatMoney(item.amount)}
+            </span>
+          </InputShell>
+        ) : (
+          <InputShell prefix="$">
+            <input
+              className={fieldStyles.input}
+              type="number"
+              min={0}
+              step={10}
+              inputMode="decimal"
+              aria-label="Amount per payment"
+              value={item.amount}
+              onChange={(event) => onChange({ amount: Number(event.target.value) || 0 })}
+            />
+          </InputShell>
+        )}
 
         <TextSelectField<ExpenseCategory>
           ariaLabel="Category"
@@ -91,26 +162,60 @@ export function ExpenseItemRow({
           onChange={(category) => onChange({ category })}
         />
 
-        <TextSelectField<Cadence>
-          value={item.cadence}
-          options={CADENCE_OPTIONS}
-          onChange={(cadence) => onChange({ cadence })}
-        />
-
-        <InputShell>
-          <input
-            className={fieldStyles.input}
-            type="date"
-            aria-label={item.cadence === "once" ? "Date" : "First payment"}
-            value={item.anchor}
-            onChange={(event) => onChange({ anchor: event.target.value })}
+        {link ? (
+          <InputShell>
+            <span className={styles.derived}>{CADENCE_LABELS[item.cadence]}</span>
+          </InputShell>
+        ) : (
+          <TextSelectField<Cadence>
+            value={item.cadence}
+            options={CADENCE_OPTIONS}
+            onChange={(cadence) => onChange({ cadence })}
           />
-        </InputShell>
+        )}
+
+        {/* The mortgage tool works in whole months, so the day is the one part
+            of a linked line's dates left to decide here. */}
+        {datesDerived ? (
+          <InputShell prefix="Day">
+            <input
+              className={fieldStyles.input}
+              type="number"
+              min={1}
+              max={31}
+              step={1}
+              inputMode="numeric"
+              aria-label="Day of the month"
+              value={anchorDay}
+              onChange={(event) => {
+                const parsed = parseDay(item.anchor, year);
+                const day = Math.min(31, Math.max(1, Number(event.target.value) || 1));
+                onChange({ anchor: formatDayValue({ ...parsed, day }) });
+              }}
+            />
+          </InputShell>
+        ) : (
+          <InputShell>
+            <input
+              className={fieldStyles.input}
+              type="date"
+              aria-label={item.cadence === "once" ? "Date" : "First payment"}
+              value={item.anchor}
+              onChange={(event) => onChange({ anchor: event.target.value })}
+            />
+          </InputShell>
+        )}
 
         {/* A one-off has nothing to stop, so the end date gives up its cell
             rather than sitting there disabled. */}
         {item.cadence === "once" ? (
           <span className={styles.spacer} />
+        ) : datesDerived ? (
+          <InputShell prefix="Ends">
+            <span className={styles.derived}>
+              {item.until ? formatMonthOf(item.until) : "not set"}
+            </span>
+          </InputShell>
         ) : (
           <InputShell>
             <input
@@ -156,4 +261,10 @@ export function ExpenseItemRow({
       </div>
     </div>
   );
+}
+
+/** `YYYY-MM-DD` as "Mar 2039" — a linked line ends on a month, not a day. */
+function formatMonthOf(value: string): string {
+  const day = parseDay(value, 0);
+  return `${MONTH_NAMES[day.month]} ${day.year}`;
 }

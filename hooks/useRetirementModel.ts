@@ -7,23 +7,72 @@ import {
   SEED_MONTH,
   createAccount,
   createDefaultRetirementState,
+  createRedirect,
   createRetirementScenario,
 } from "@/lib/defaults";
-import { addMonths, currentMonthValue, monthsBetween, parseMonth } from "@/lib/dates";
+import {
+  addMonths,
+  currentMonthValue,
+  formatMonthValue,
+  monthsBetween,
+  parseMonth,
+} from "@/lib/dates";
+import {
+  type LinkResolution,
+  type MortgageSource,
+  type IncomeSource,
+  type RetirementSpend,
+  resolveRetirementMortgage,
+  resolveRetirementSpend,
+  resolveSalary,
+} from "@/lib/links";
 import { useClockDefaults } from "./useClockDefaults";
 import type {
   Account,
+  MortgageRedirect,
   Projection,
+  SpendLink,
   RetirementComparison,
   RetirementProfile,
   RetirementScenario,
   RetirementState,
 } from "@/lib/types";
+import { useExpenseSummary } from "./summaries/useExpenseSummary";
+import { useIncomeSummary } from "./summaries/useIncomeSummary";
+import { useMortgageSummary } from "./summaries/useMortgageSummary";
 import { usePersistedState } from "./usePersistedState";
 
 export interface RetirementModel {
   hydrated: boolean;
+  /**
+   * The profile every figure on screen is derived from: the stored one, with
+   * the mortgage filled in from the scenario when it is linked.
+   */
   profile: RetirementProfile;
+  /** How the mortgage link is faring, or null when the figures were typed in. */
+  mortgageResolution: LinkResolution | null;
+  /** How the salary link is faring, or null when the salary was typed in. */
+  salaryResolution: LinkResolution | null;
+  /** The income tool's sources, or null until its stored state has been read. */
+  income: IncomeSource | null;
+  /** The mortgage tool's figures, or null until its stored state has been read. */
+  mortgage: MortgageSource | null;
+  /**
+   * Each outlook's spending worked out against the expense list, keyed by id.
+   * Every outlook is resolved, not just the active one, so each card can show
+   * what its own link produces.
+   */
+  spendByScenario: Map<string, RetirementSpend>;
+  /** The active outlook's spending, for the figures the page shows once. */
+  activeSpend: RetirementSpend;
+  /** Whether the expense tool's stored state has been read yet. */
+  expensesReady: boolean;
+  /**
+   * The same outlook with the redirect switched off, for saying what the
+   * redirect is worth. Null unless it is switched on — it costs a third full
+   * projection, and there is nothing to compare against when it is off.
+   */
+  withoutRedirect: Projection | null;
   scenarios: RetirementScenario[];
   activeScenario: RetirementScenario;
   activeId: string;
@@ -35,6 +84,16 @@ export interface RetirementModel {
   setProfileField: <K extends keyof RetirementProfile>(
     field: K,
     value: RetirementProfile[K],
+  ) => void;
+  /** Points the mortgage figures at a scenario, or back at the fields. */
+  linkMortgage: (scenarioId: string | null) => void;
+  /** Points the salary at an income source, at all of them, or back at the field. */
+  linkSalary: (itemId: string | null) => void;
+  /** Points an outlook's spending at the expense list, or back at the field. */
+  linkSpend: (scenarioId: string, link: SpendLink | null) => void;
+  setRedirectField: <K extends keyof MortgageRedirect>(
+    field: K,
+    value: MortgageRedirect[K],
   ) => void;
   addAccount: () => void;
   updateAccount: (id: string, patch: Partial<Account>) => void;
@@ -77,15 +136,68 @@ export function useRetirementModel(): RetirementModel {
       profile: {
         ...prev.profile,
         start,
-        mortgagePayoff: `${payoff.year}-${String(payoff.month + 1).padStart(2, "0")}`,
+        mortgagePayoff: formatMonthValue(payoff),
       },
     };
   }, []);
 
   useClockDefaults(hydrated, setValue, onSeedMonth, applyClock);
 
+  const mortgageSummary = useMortgageSummary();
+  // Null until the mortgage tool's own stored state has landed. See the same
+  // guard in `useExpenseModel`.
+  const mortgage = mortgageSummary.hydrated ? mortgageSummary : null;
+
+  const incomeSummary = useIncomeSummary();
+  const income = useMemo(
+    () => (incomeSummary.hydrated ? { items: incomeSummary.items } : null),
+    [incomeSummary.hydrated, incomeSummary.items],
+  );
+
+  const linked = useMemo(
+    () => resolveRetirementMortgage(state.profile, mortgage),
+    [state.profile, mortgage],
+  );
+
+  const salary = useMemo(() => resolveSalary(state.profile, income), [state.profile, income]);
+
+  // Everything downstream runs on this rather than the stored profile, so a
+  // linked mortgage reaches the projection, the charts and the panel as one
+  // set of figures. Unlinked, it is the stored profile unchanged.
+  const profile = useMemo<RetirementProfile>(() => {
+    const next = { ...state.profile };
+    if (state.profile.mortgageLink) {
+      next.mortgagePayment = linked.payment;
+      next.mortgagePayoff = linked.payoff;
+    }
+    if (state.profile.salaryLink) next.salary = salary.salary;
+    return next;
+  }, [state.profile, linked, salary]);
+
+  const expenses = useExpenseSummary();
+  // Same guard as the mortgage: nothing resolves until the tool it reads has
+  // actually been read. Memoised, or every render would hand the resolution
+  // below a new object and rebuild every outlook's spending for nothing.
+  const expenseSource = useMemo(
+    () => (expenses.hydrated ? { items: expenses.items } : null),
+    [expenses.hydrated, expenses.items],
+  );
+
   const activeScenario =
     state.scenarios.find((scenario) => scenario.id === state.activeId) ?? state.scenarios[0];
+
+  const spendByScenario = useMemo(() => {
+    const resolved = new Map<string, RetirementSpend>();
+    for (const scenario of state.scenarios) {
+      resolved.set(scenario.id, resolveRetirementSpend(profile, scenario, expenseSource));
+    }
+    return resolved;
+  }, [profile, state.scenarios, expenseSource]);
+
+  const activeSpend =
+    spendByScenario.get(activeScenario.id) ??
+    resolveRetirementSpend(profile, activeScenario, expenseSource);
+  const spendingBase = activeSpend.base ?? undefined;
 
   // The baseline keeps the active outlook's spending and inflation, so the
   // comparison isolates what the market shift alone is worth.
@@ -95,19 +207,31 @@ export function useRetirementModel(): RetirementModel {
       inflation: activeScenario.inflation,
       colaIncrease: activeScenario.colaIncrease,
       annualSpend: activeScenario.annualSpend,
+      spendLink: activeScenario.spendLink,
       withdrawal: activeScenario.withdrawal,
     }),
     [activeScenario],
   );
 
   const baselineResult = useMemo(
-    () => project(state.profile, baselineScenario),
-    [state.profile, baselineScenario],
+    () => project(profile, baselineScenario, spendingBase),
+    [profile, baselineScenario, spendingBase],
   );
   const currentResult = useMemo(
-    () => project(state.profile, activeScenario),
-    [state.profile, activeScenario],
+    () => project(profile, activeScenario, spendingBase),
+    [profile, activeScenario, spendingBase],
   );
+
+  /*
+   * The same outlook with the redirect off, which is the only way to say what
+   * the redirect is worth. It is a third full projection, so it is computed
+   * only while the redirect is actually switched on.
+   */
+  const withoutRedirect = useMemo(() => {
+    if (!profile.redirect?.enabled) return null;
+    const result = project({ ...profile, redirect: undefined }, activeScenario, spendingBase);
+    return result.ok ? result : null;
+  }, [profile, activeScenario, spendingBase]);
 
   const baseline = baselineResult.ok ? baselineResult : null;
   const current = currentResult.ok ? currentResult : null;
@@ -125,6 +249,65 @@ export function useRetirementModel(): RetirementModel {
   const setProfileField = useCallback<RetirementModel["setProfileField"]>(
     (field, value) =>
       setValue((prev) => ({ ...prev, profile: { ...prev.profile, [field]: value } })),
+    [setValue],
+  );
+
+  const linkMortgage = useCallback<RetirementModel["linkMortgage"]>(
+    (scenarioId) =>
+      setValue((prev) => {
+        if (scenarioId === null) {
+          // Unlinking keeps whatever is on screen, so nothing visibly moves —
+          // only where the next figure comes from.
+          const profile = { ...prev.profile };
+          delete profile.mortgageLink;
+          return { ...prev, profile };
+        }
+        return {
+          ...prev,
+          profile: { ...prev.profile, mortgageLink: { source: "mortgage", scenarioId } },
+        };
+      }),
+    [setValue],
+  );
+
+  const linkSpend = useCallback<RetirementModel["linkSpend"]>(
+    (scenarioId, link) =>
+      setValue((prev) => ({
+        ...prev,
+        activeId: scenarioId,
+        scenarios: prev.scenarios.map((scenario) => {
+          if (scenario.id !== scenarioId) return scenario;
+          if (link) return { ...scenario, spendLink: link };
+          // Unlinking keeps whatever the field was last showing, so nothing
+          // visibly moves — only where the next figure comes from.
+          const next = { ...scenario };
+          delete next.spendLink;
+          return next;
+        }),
+      })),
+    [setValue],
+  );
+
+  const linkSalary = useCallback<RetirementModel["linkSalary"]>(
+    (itemId) =>
+      setValue((prev) => {
+        const profile = { ...prev.profile };
+        if (itemId === null) delete profile.salaryLink;
+        else profile.salaryLink = { source: "income", itemId };
+        return { ...prev, profile };
+      }),
+    [setValue],
+  );
+
+  const setRedirectField = useCallback<RetirementModel["setRedirectField"]>(
+    (field, value) =>
+      setValue((prev) => ({
+        ...prev,
+        profile: {
+          ...prev.profile,
+          redirect: { ...(prev.profile.redirect ?? createRedirect()), [field]: value },
+        },
+      })),
     [setValue],
   );
 
@@ -226,7 +409,15 @@ export function useRetirementModel(): RetirementModel {
 
   return {
     hydrated,
-    profile: state.profile,
+    profile,
+    mortgageResolution: linked.resolution,
+    salaryResolution: salary.resolution,
+    mortgage,
+    income,
+    spendByScenario,
+    activeSpend,
+    expensesReady: expenses.hydrated,
+    withoutRedirect,
     scenarios: state.scenarios,
     activeScenario,
     activeId: state.activeId,
@@ -235,6 +426,10 @@ export function useRetirementModel(): RetirementModel {
     comparison,
     error,
     setProfileField,
+    linkMortgage,
+    linkSalary,
+    linkSpend,
+    setRedirectField,
     addAccount,
     updateAccount,
     removeAccount,

@@ -11,6 +11,17 @@ export function currentMonthValue(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
+/**
+ * Whether a stored `YYYY-MM` is one `parseMonth` can read.
+ *
+ * Worth asking before parsing anything during render: the fallback below reads
+ * the clock, and a value that differs between the prerender and the browser
+ * throws at hydration.
+ */
+export function isMonthValue(value: string | undefined): boolean {
+  return /^\d{4}-\d{2}$/.test(value ?? "");
+}
+
 /** Parses `YYYY-MM`, falling back to the current month when the value is empty or malformed. */
 export function parseMonth(value: string | undefined): CalendarMonth {
   const match = /^(\d{4})-(\d{2})$/.exec(value ?? "");
@@ -28,6 +39,11 @@ export function addMonths(base: CalendarMonth, count: number): CalendarMonth {
 
 export function monthsBetween(from: CalendarMonth, to: CalendarMonth): number {
   return to.year * 12 + to.month - (from.year * 12 + from.month);
+}
+
+/** Serialises back to `YYYY-MM`, the format the month inputs and links store. */
+export function formatMonthValue(value: CalendarMonth): string {
+  return `${value.year}-${String(value.month + 1).padStart(2, "0")}`;
 }
 
 export function formatMonth(value: CalendarMonth): string {

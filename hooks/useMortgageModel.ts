@@ -11,6 +11,9 @@ import {
   createScenario,
 } from "@/lib/defaults";
 import { currentMonthValue } from "@/lib/dates";
+import { type SpareMoney, spareEachMonth } from "@/lib/links";
+import { useExpenseSummary } from "./summaries/useExpenseSummary";
+import { useIncomeSummary } from "./summaries/useIncomeSummary";
 import { useClockDefaults } from "./useClockDefaults";
 import type {
   Amortization,
@@ -33,6 +36,11 @@ export interface MortgageModel {
   current: Amortization | null;
   comparison: Comparison | null;
   error: string | null;
+  /**
+   * What the income and expense lists leave over each month, before any extra
+   * principal — which is the budget a scenario's extra has to come out of.
+   */
+  spare: SpareMoney;
   setLoanField: <K extends keyof Loan>(field: K, value: Loan[K]) => void;
   /** PMI settings, always present here even when the stored loan predates them. */
   pmi: Pmi;
@@ -89,6 +97,31 @@ export function useMortgageModel(): MortgageModel {
   const comparison = useMemo(
     () => (baseline && current ? compare(baseline, current) : null),
     [baseline, current],
+  );
+
+  /*
+   * Read-only, like every cross-tool read. The loan handed to `spareEachMonth`
+   * is this hook's own live state rather than the expense summary's snapshot of
+   * it, so the figure moves as the payment beside it is edited.
+   */
+  const incomeSummary = useIncomeSummary();
+  const expenseSummary = useExpenseSummary();
+
+  const spare = useMemo(
+    () =>
+      spareEachMonth(
+        incomeSummary.hydrated ? { items: incomeSummary.items } : null,
+        expenseSummary.hydrated ? { items: expenseSummary.items } : null,
+        { loan: state.loan, scenarios: state.scenarios },
+      ),
+    [
+      incomeSummary.hydrated,
+      incomeSummary.items,
+      expenseSummary.hydrated,
+      expenseSummary.items,
+      state.loan,
+      state.scenarios,
+    ],
   );
 
   const setLoanField = useCallback<MortgageModel["setLoanField"]>(
@@ -220,6 +253,7 @@ export function useMortgageModel(): MortgageModel {
     current,
     comparison,
     error,
+    spare,
     setLoanField,
     pmi,
     setPmiField,

@@ -33,9 +33,11 @@ refuses and points at `serve` instead. The `out/` directory is the whole site.
 The site root: a grid of cards summarising the other four tools, each reading the same
 `localStorage` the tool itself writes. Nothing is entered here.
 
-- **Ten cards** to choose from — payoff date, interest avoided, the year's income and
+- **Thirteen cards** to choose from — payoff date, interest avoided, the year's income and
   expenses, retirement age and crossover, monthly surplus, cash flow, where the spending
-  goes, and which months run hot. Five are placed by default.
+  goes, which months run hot, what the mortgage payoff frees up, what a retired year costs
+  against a year now, and which figures are taken from another tool rather than typed. Five are
+  placed by default.
 - **Arrange it.** Drag a card to reorder it, cycle it between small, medium, and wide,
   or remove it. Anything not placed waits in the catalogue below the grid, and **Reset**
   restores the default set.
@@ -70,6 +72,9 @@ it and see the bills that make it up, grouped by line rather than listed per pay
 - **Fixed or variable** marks what a lean month can't go below, which is what the headline
   figures and the lighter timeline bars are measured against.
 - **Categories** colour the timeline and drive the split of where the money goes.
+- **Take a line from the mortgage.** A scenario can be put straight on the timeline — its
+  payment, its PMI premium, its yearly extra principal, and any lump sums, each as its own
+  line with its own dates. See [How the tools connect](#how-the-tools-connect).
 
 ### Income
 
@@ -92,8 +97,128 @@ Contributions, growth, and how long the balance lasts across accounts and outloo
 - **Outlooks** work like the mortgage's scenarios: tabs that swap the assumptions — spend,
   inflation, returns — each with a withdrawal strategy saying how the portfolio is drawn
   down: proportionally, lowest-return account first, or taxable accounts first, leaving the
-  401(k) until it's penalty-free.
+  401(k) until it's penalty-free. An outlook's spending can be typed in or built from the
+  expense list.
+- **The mortgage** can be typed in or taken from a mortgage scenario, and what happens to the
+  payment once the loan ends is a question the tool now asks. See
+  [How the tools connect](#how-the-tools-connect).
 - **Present**, **Edit**, and the same keys as the mortgage tool: `P`, `Esc`, `<-` and `->`.
+
+## How the tools connect
+
+A tool can take a figure from another rather than being told it twice. The link is live: the
+line's money and dates are worked out from the source every time the page renders, so
+changing the mortgage payment changes what the expense timeline draws.
+
+**A mortgage scenario, on the expense list.** *Take a line from the mortgage* in the expense
+editor offers a scenario a piece at a time — the payment every month, the premium until it
+drops off, the extra principal once a year, each lump sum on its own date. They arrive as
+separate lines because that is what they are: one line averaging them together is a payment
+nobody makes. The dates come from the scenario's own run, so the mortgage stops on the month
+the amortization finishes it, and PMI stops when the balance clears the threshold.
+
+A linked line shows its source, and its money and dates become readouts rather than inputs.
+What stays yours: its name, its category, whether it counts as fixed or variable, which day of
+the month it lands on, and whether the extra principal counts as spending at all — it is money
+that leaves the account, but it is a choice rather than a bill. **Unlink** keeps the figures
+and drops the connection, leaving an ordinary expense behind.
+
+Delete the scenario a line came from and the line stays, holding the figures it was linked
+with and saying where they came from. A stale payment you can see beats a mortgage that
+quietly vanishes from the year.
+
+**A mortgage scenario, in the retirement projection.** *Mortgage figures from* in the profile
+panel points the payment and payoff month at a scenario instead of at the two fields, which
+then become readouts. The payment includes that scenario's monthly extra principal, without a
+switch to turn it off: the payoff date is the one that scenario's run produces, and it only
+arrives if the extra is actually being paid — counting the earlier payoff without counting
+what buys it would retire you on money you never spent. A yearly extra or a lump sum still
+moves the payoff date but has no place in a monthly figure, so the date accounts for them and
+the monthly outflow doesn't.
+
+**What the payment does when it stops.** The projection has always dropped the mortgage out of
+spending at payoff. *When the mortgage ends* asks the other half: while you are still working,
+that money doesn't have to be absorbed. Switch it on and some or all of it goes into an account
+— named, or spread across the accounts in proportion to what they already receive — and the
+panel says what that is worth, in years and in money:
+
+> $2,575 a month frees up in Nov 2034 — worth retiring 2 years sooner and $786,110 more at 95.
+
+It applies only while you are working. Retired, the payment ending is not new money to save:
+the spending path has already dropped it, which is the same saving seen from the other side.
+Saying what it is worth means running the projection a second time with the redirect off, so
+that only happens while it is switched on.
+
+The payoff year is shared between the two sides and prorated, so a mortgage ending in July puts
+half a year of payments in spending and frees the other half — counted exactly once. A payoff
+landing on a year boundary behaves as it always did.
+
+**The expense list, as a retirement budget.** *Spending comes from* on an outlook builds its
+yearly spend out of the expense list instead of a number you typed. What it produces is a path
+rather than a figure, which is the point: a line with a stop date leaves the budget in the year
+it stops, so a car loan ending in 2031 stops being retirement spending in 2031 without anyone
+having to remember it would. A line that hasn't started yet is counted from the year it
+begins, the same rule read from the other end.
+
+Choose every repeating bill or only the fixed ones, and scale the lot to a share of today's
+spending. One-offs never count — a cost paid once this year says nothing about what a year of
+retirement costs in 2050 — which is the same rule the expense tool's own "a year" figures use.
+
+The mortgage payment is deliberately left out of that total, because the profile above already
+carries it and already drops it at payoff. Putting the mortgage on the expense list therefore
+changes the timeline and the cash-flow figures without moving retirement spending at all.
+Anything else tied to the mortgage — the premium, a yearly extra — is money the profile does
+not model, so it stays, and its own stop date takes it out at the right time. A mortgage typed
+into the expense list by hand is the one case nothing can catch: it would be counted twice.
+
+A link that has nothing to offer — an empty list, or every line already stopped — falls back to
+the typed figure and says so, rather than projecting a retirement that costs nothing.
+
+**The salary the match is sized against.** *Salary from* in the profile panel takes it from the
+income tool. Naming one source is usually right — the employer match ceiling is a share of
+salary, and a bonus or a side contract doesn't raise it — but every repeating source together
+is there for anyone whose pay genuinely is the sum of several.
+
+**What there is to pay a mortgage down with.** Each mortgage scenario says what the income and
+expense lists leave over each month, and offers to put it in: *$2,381 a month is spare once the
+bills are paid.* Ask for more than that and the note says so rather than stopping you — it is a
+plan worth seeing the cost of, not an invalid input.
+
+Extra principal is deliberately left out of the spending side of that sum. The question is how
+much is *available* for extra principal, so counting a scenario's own extra against it would
+have the answer shrink the harder you already pay. The mortgage's own lines are costed from the
+loan rather than from the figures stored on them, so the number moves as the payment being
+edited beside it moves. And it is annualised rather than taken from either tool's year totals,
+which is what lets it ignore the two lists sitting on different years.
+
+**What you put away, as the outgoing it is.** *Take contributions from retirement* puts the
+monthly contribution on the expense list — every account together or one of them — because it
+leaves the bank like any other bill, and the cash-flow figures are a fiction without it. Only
+the amount comes from the retirement tool: the day it leaves is the expense list's own.
+
+That line deliberately has no end date. Contributions do stop at retirement, but that age is
+something the projection works out, and the projection reads the expense list — taking a date
+from it here would close a loop that currently has none. For the same reason, contributions
+lines are excluded from an outlook's spending when it is built from the expense list: money
+going *into* the accounts is not a cost of being retired. Putting them on the list therefore
+changes cash flow and what is spare for a mortgage, and moves retirement spending not at all.
+
+**Where the payoff falls against everything else.** The age ribbon marks the month the mortgage
+ends, on the same span as the retirement age — which side of the line it lands on is the whole
+question, and the two dates were previously only ever shown apart from each other. The expense
+page says the month in its footnote instead of drawing a second marker: the mortgage's own marks
+already stop there, and what a reader wants alongside them is which month that is.
+
+**Seeing what is connected.** A linked figure looks exactly like a typed one, which is right on
+the page — the row says where it came from — but leaves no way to ask what is actually wired up
+without opening all four tools. The **Connections** card answers that in one place, and is also
+where the one mismatch worth reporting shows up: the income and expense lists sitting on
+different years, which everything annualised ignores but the cash-flow cards do not.
+
+Links only ever point one way — income and mortgage into expenses and retirement — so resolving
+them is a single pass and no two tools can chase each other. A link
+that would close the loop, such as retirement contributions appearing as an expense that then
+feeds retirement spending, has to be broken somewhere before it can be added.
 
 ## Storage
 
@@ -101,6 +226,19 @@ Each tool persists to its own `localStorage` key: `mortgage-payoff:v1`, `expense
 `income:v1`, and `retirement:v1`, plus `dashboard:v1` for the arrangement of the cards on
 the site root. Nothing leaves the browser, and the seed values are placeholders meant to be
 replaced with your own.
+
+Writes are debounced, so at any moment there may be a figure on screen that storage hasn't
+got yet. Leaving the page ends that wait early rather than cancelling it — on unmount and on
+`pagehide` — so an edit made a moment before navigating away is still there when another tool
+reads it. Read-only consumers also adopt writes from other tabs, which is what keeps two open
+tabs from disagreeing about a number one of them just changed.
+
+Arithmetic that ends up in rendered markup avoids `Math.pow` and `Math.log10` for a related
+reason. IEEE 754 pins down `+`, `-`, `*`, `/` and `sqrt` to the last bit, but leaves the
+transcendental functions to the implementation — and V8 in Node and V8 in Chrome do return
+results an ulp apart for the same inputs. Compounding a return over sixty years that way put an
+SVG bar height one digit apart between the two, which React reports as a hydration mismatch and
+declines to patch. `lib/numbers.ts` does the same work with multiplication instead.
 
 The seed data is written around a fixed month rather than the clock, because a static export
 prerenders on the build machine and hydrates in the visitor's browser — a date read at render
@@ -123,9 +261,14 @@ lib/
   schedule.ts           Cadences expanded into dated occurrences, shared by the two lists
   income.ts             The income year derived from those occurrences
   expenses.ts           The expense year, plus categories and the fixed/variable split
+  links.ts              What one tool takes from another: the link shapes, the
+                        resolvers that fill a linked line in, and the expense
+                        list read as a retirement budget
   retirement.ts         Contribution and drawdown projection, deferral limits
   dates.ts / days.ts    YYYY-MM parsing and calendar arithmetic
   format.ts             Currency, percentage, and duration formatting
+  numbers.ts            Arithmetic that has to agree between the prerender and
+                        the browser, which rules out Math.pow and Math.log10
   describe.ts           Plain-language summary of a scenario's contributions
   describeRetirement.ts The same for accounts, outlooks, and withdrawal strategies
   widgets.ts            The dashboard card registry
@@ -138,7 +281,9 @@ hooks/
   useExpenseModel.ts    Expense state and the year's occurrences
   useRetirementModel.ts Retirement state and its projections
   useDashboardLayout.ts The dashboard's arrangement, persisted
-  summaries/            Read-only reads of each tool's stored state, for the cards
+  summaries/            Read-only reads of each tool's stored state, for the
+                        cards and for the links between tools. useRetirementAccounts
+                        reads without projecting, which is what keeps the graph acyclic
   usePersistedState.ts  localStorage-backed state, hydration-safe
   useClockDefaults.ts   Applies the real clock after mount
   useTween.ts           Eases numbers and series toward new targets
@@ -177,7 +322,9 @@ which is what lets the lines interpolate smoothly instead of rescaling on every 
 
 `lib/retirement.ts` is the same idea for the retirement tool: it steps each account forward a
 year at a time through contributions and growth, inflates what a year of retirement costs,
-then draws the portfolio down the way the outlook's withdrawal strategy asks. It tries each
+then draws the portfolio down the way the outlook's withdrawal strategy asks. The redirected
+mortgage payment is a contribution like any other — it earns the employer match, capped the
+same way, and lands in the middle of the year for growth. It tries each
 retirement year in turn and reports the first one whose money reaches the end of the horizon;
 falling past the last candidate is the shortfall case.
 

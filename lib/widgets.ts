@@ -1,10 +1,13 @@
 import type { ComponentType } from "react";
 import { CashFlowWidget } from "@/components/dashboard/widgets/CashFlowWidget";
+import { ConnectionsWidget } from "@/components/dashboard/widgets/ConnectionsWidget";
+import { FreedByPayoffWidget } from "@/components/dashboard/widgets/FreedByPayoffWidget";
 import { ExpensesYearWidget } from "@/components/dashboard/widgets/ExpensesYearWidget";
 import { IncomeYearWidget } from "@/components/dashboard/widgets/IncomeYearWidget";
 import { InterestAvoidedWidget } from "@/components/dashboard/widgets/InterestAvoidedWidget";
 import { MonthlySurplusWidget } from "@/components/dashboard/widgets/MonthlySurplusWidget";
 import { MortgagePayoffWidget } from "@/components/dashboard/widgets/MortgagePayoffWidget";
+import { RetirementSpendWidget } from "@/components/dashboard/widgets/RetirementSpendWidget";
 import { RetirementAgeWidget } from "@/components/dashboard/widgets/RetirementAgeWidget";
 import { RetirementCrossoverWidget } from "@/components/dashboard/widgets/RetirementCrossoverWidget";
 import { SpendingHeatWidget } from "@/components/dashboard/widgets/SpendingHeatWidget";
@@ -155,6 +158,39 @@ export const WIDGETS: WidgetDefinition[] = [
     defaultSize: "wide",
     inDefaultLayout: false,
     Component: InterestAvoidedWidget,
+  },
+  {
+    id: "retirement-freed-by-payoff",
+    title: "Freed by the payoff",
+    blurb: "What the mortgage ending puts into savings, once the redirect is on.",
+    owner: "retirement",
+    href: "/retirement",
+    sizes: ["small", "medium", "wide"],
+    defaultSize: "medium",
+    inDefaultLayout: false,
+    Component: FreedByPayoffWidget,
+  },
+  {
+    id: "retirement-spend",
+    title: "A year retired",
+    blurb: "What a retired year is planned to cost, against what a year costs now.",
+    owner: "cross",
+    href: "/retirement",
+    sizes: ["small", "medium", "wide"],
+    defaultSize: "medium",
+    inDefaultLayout: false,
+    Component: RetirementSpendWidget,
+  },
+  {
+    id: "connections",
+    title: "Connections",
+    blurb: "Which figures are taken from another tool rather than typed.",
+    owner: "cross",
+    href: "/",
+    sizes: ["small", "medium", "wide"],
+    defaultSize: "medium",
+    inDefaultLayout: false,
+    Component: ConnectionsWidget,
   },
   {
     id: "retirement-crossover",
