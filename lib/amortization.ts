@@ -44,9 +44,7 @@ function oneTimesByMonth(loan: Loan, scenario: Scenario): Map<number, number> {
   for (const payment of scenario.oneTimes) {
     const amount = Number(payment.amount) || 0;
     if (amount <= 0) continue;
-    const index = payment.month
-      ? Math.max(1, monthsBetween(start, parseMonth(payment.month)))
-      : 1;
+    const index = payment.month ? Math.max(1, monthsBetween(start, parseMonth(payment.month))) : 1;
     byMonth.set(index, (byMonth.get(index) ?? 0) + amount);
   }
 
@@ -130,7 +128,10 @@ export function simulate(loan: Loan, scenario: Scenario): AmortizationResult {
 
     let extra = Number(scenario.monthly) || 0;
     const calendar = addMonths(start, month);
-    if ((Number(scenario.annual) || 0) > 0 && calendar.month === (Number(scenario.annualMonth) || 0)) {
+    if (
+      (Number(scenario.annual) || 0) > 0 &&
+      calendar.month === (Number(scenario.annualMonth) || 0)
+    ) {
       extra += Number(scenario.annual);
     }
     extra += oneTimes.get(month) ?? 0;

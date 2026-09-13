@@ -99,8 +99,8 @@ export function ExpenseMetrics({ year, derived, items, duration }: ExpenseMetric
           detail={
             heaviestItem ? (
               <>
-                <strong>{heaviestItem.name || "Unnamed"}</strong> —{" "}
-                {formatPercent(heaviestShare)} of the year
+                <strong>{heaviestItem.name || "Unnamed"}</strong> — {formatPercent(heaviestShare)}{" "}
+                of the year
               </>
             ) : (
               "nothing scheduled"
@@ -110,10 +110,10 @@ export function ExpenseMetrics({ year, derived, items, duration }: ExpenseMetric
         />
       </MetricGrid>
 
-      <div className="mt-3.5 grid gap-3.5 [grid-template-columns:minmax(0,1.55fr)_minmax(0,1fr)] max-[941px]:grid-cols-1">
+      <div className="mt-3.5 grid [grid-template-columns:minmax(0,1.55fr)_minmax(0,1fr)] gap-3.5 max-[941px]:grid-cols-1">
         <CategoryBreakdown derived={derived} />
 
-        <div className="min-w-0 rounded-panel border border-rule bg-panel p-panel grid content-start gap-4">
+        <div className="grid min-w-0 content-start gap-4 rounded-panel border border-rule bg-panel p-panel">
           <Note
             label="Repeating bills"
             value={formatMoney(derived.recurringAnnual)}
@@ -146,8 +146,10 @@ export function ExpenseMetrics({ year, derived, items, duration }: ExpenseMetric
 function Note({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
     <div>
-      <div className="font-mono text-label uppercase tracking-[0.16em] text-ash">{label}</div>
-      <div className="mt-[5px] font-mono text-amount leading-[1.15] tabular-nums tracking-title">{value}</div>
+      <div className="font-mono text-label tracking-[0.16em] text-ash uppercase">{label}</div>
+      <div className="mt-[5px] font-mono text-amount leading-[1.15] tracking-title tabular-nums">
+        {value}
+      </div>
       <div className="mt-[3px] text-sm text-ash">{hint}</div>
     </div>
   );
@@ -158,15 +160,17 @@ function CategoryBreakdown({ derived }: { derived: ExpenseYear }) {
   if (derived.byCategory.length === 0) {
     return (
       <div className="min-w-0 rounded-panel border border-rule bg-panel p-panel">
-        <div className="font-mono text-label uppercase tracking-[0.16em] text-ash">Where it goes</div>
-        <p className="mx-0 mb-0 mt-3.5 text-base text-ash">Add an expense to see the split.</p>
+        <div className="font-mono text-label tracking-[0.16em] text-ash uppercase">
+          Where it goes
+        </div>
+        <p className="mx-0 mt-3.5 mb-0 text-base text-ash">Add an expense to see the split.</p>
       </div>
     );
   }
 
   return (
     <div className="min-w-0 rounded-panel border border-rule bg-panel p-panel">
-      <div className="font-mono text-label uppercase tracking-[0.16em] text-ash">Where it goes</div>
+      <div className="font-mono text-label tracking-[0.16em] text-ash uppercase">Where it goes</div>
 
       <div className="mt-3.5 flex h-3 overflow-hidden rounded-md bg-panel-2">
         {derived.byCategory.map(({ category, total }, index) => (
@@ -187,17 +191,22 @@ function CategoryBreakdown({ derived }: { derived: ExpenseYear }) {
         ))}
       </div>
 
-      <ul className="m-0 mt-4 grid list-none gap-[7px] p-0 [grid-template-columns:repeat(auto-fit,minmax(210px,1fr))]">
+      <ul className="m-0 mt-4 grid list-none [grid-template-columns:repeat(auto-fit,minmax(210px,1fr))] gap-[7px] p-0">
         {derived.byCategory.map(({ category, total }) => (
-          <li key={category} className="grid grid-cols-[9px_minmax(0,1fr)_auto_auto] items-center gap-[9px] text-base">
+          <li
+            key={category}
+            className="grid grid-cols-[9px_minmax(0,1fr)_auto_auto] items-center gap-[9px] text-base"
+          >
             <span
               className="size-[9px] rounded-full"
               style={{ background: categoryAccent(category) }}
               aria-hidden="true"
             />
             <span className="truncate text-bone">{CATEGORY_LABELS[category]}</span>
-            <span className="font-mono tabular-nums text-bone">{formatMoney(total)}</span>
-            <span className="min-w-[4ch] text-right font-mono tabular-nums text-ash">{formatPercent(total / derived.total)}</span>
+            <span className="font-mono text-bone tabular-nums">{formatMoney(total)}</span>
+            <span className="min-w-[4ch] text-right font-mono text-ash tabular-nums">
+              {formatPercent(total / derived.total)}
+            </span>
           </li>
         ))}
       </ul>

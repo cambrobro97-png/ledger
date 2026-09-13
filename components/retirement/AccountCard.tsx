@@ -29,7 +29,10 @@ export function AccountCard({
   const over = overDeferralLimit(account, currentAge);
 
   return (
-    <div className="rounded-xl border border-rule bg-panel-2 p-[18px]" style={{ ["--accent" as string]: accentFor(account.accent) }}>
+    <div
+      className="rounded-xl border border-rule bg-panel-2 p-[18px]"
+      style={{ ["--accent" as string]: accentFor(account.accent) }}
+    >
       <div className="mb-3.5 flex items-center gap-2.5">
         <i className="size-2.5 flex-none rounded-full bg-(--accent)" />
         <input
@@ -126,14 +129,16 @@ export function AccountCard({
       ) : null}
 
       {over !== null ? (
-        <p className="mx-0 mb-0 mt-3.5 rounded-lg border border-[rgba(232,177,76,0.4)] bg-[rgba(232,177,76,0.12)] px-3 py-2.5 text-sm leading-[1.5] text-[#f4d79a]">
+        <p className="mx-0 mt-3.5 mb-0 rounded-lg border border-[rgba(232,177,76,0.4)] bg-[rgba(232,177,76,0.12)] px-3 py-2.5 text-sm leading-[1.5] text-[#f4d79a]">
           {formatMoney((Number(account.monthlyContribution) || 0) * 12)} a year is{" "}
           {formatMoney(over)} over the {formatMoney(deferralLimitAt(currentAge))} employee limit.
           The projection still counts it in full &mdash; tax rules come later.
         </p>
       ) : null}
 
-      <div className="mt-3 font-mono text-sm leading-[1.5] text-ash">{describeAccount(account)}</div>
+      <div className="mt-3 font-mono text-sm leading-[1.5] text-ash">
+        {describeAccount(account)}
+      </div>
     </div>
   );
 }

@@ -40,7 +40,13 @@ export function OneTimeRow({ payment, disabled, onChange, onRemove }: OneTimeRow
         />
       </InputShell>
 
-      <Button variant="danger" icon aria-label="Remove one-time payment" disabled={disabled} onClick={onRemove}>
+      <Button
+        variant="danger"
+        icon
+        aria-label="Remove one-time payment"
+        disabled={disabled}
+        onClick={onRemove}
+      >
         &times;
       </Button>
     </div>

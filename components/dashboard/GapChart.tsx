@@ -38,14 +38,7 @@ export interface GapChartProps {
  * portfolio out-earns what it costs to live. Both series share one scale, which
  * is what makes the distance between them mean anything.
  */
-export function GapChart({
-  upper,
-  lower,
-  fillFrom,
-  fillColor,
-  marker,
-  label,
-}: GapChartProps) {
+export function GapChart({ upper, lower, fillFrom, fillColor, marker, label }: GapChartProps) {
   // Two series of different lengths would pair up month 40 with month 60 and
   // shade a gap that does not exist, so the longer one is simply cut short.
   const length = Math.min(upper.values.length, lower.values.length);
@@ -80,7 +73,8 @@ export function GapChart({
   if (fillColor && start >= 0 && start < steps) {
     gapPath = `M${at(topPoints, start)}`;
     for (let index = start + 1; index < length; index += 1) gapPath += `L${at(topPoints, index)}`;
-    for (let index = length - 1; index >= start; index -= 1) gapPath += `L${at(bottomPoints, index)}`;
+    for (let index = length - 1; index >= start; index -= 1)
+      gapPath += `L${at(bottomPoints, index)}`;
     gapPath += "Z";
   }
 

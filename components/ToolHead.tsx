@@ -24,7 +24,7 @@ export function ToolHeading({
   return (
     <div className={className}>
       <div className="eyebrow">{eyebrow}</div>
-      <h1 className="mx-0 mb-0 mt-[0.15em] font-display text-display font-bold leading-[1.05] tracking-title">
+      <h1 className="mx-0 mt-[0.15em] mb-0 font-display text-display leading-[1.05] font-bold tracking-title">
         {title}
       </h1>
     </div>
@@ -46,14 +46,21 @@ export function ToolHead({
 }) {
   return (
     <header
-      className={cn("flex flex-wrap items-end justify-between gap-6 border-b border-rule pb-5", className)}
+      className={cn(
+        "flex flex-wrap items-end justify-between gap-6 border-b border-rule pb-5",
+        className,
+      )}
     >
       <ToolHeading eyebrow={eyebrow} title={title} />
 
       {/* The Edit / Present toggle is hidden while presentation mode is being
           reworked; Esc still leaves a session started from the keyboard. */}
       {presenting && onExitPresenting ? (
-        <Button variant="ghost" className="inline-flex items-center gap-2" onClick={onExitPresenting}>
+        <Button
+          variant="ghost"
+          className="inline-flex items-center gap-2"
+          onClick={onExitPresenting}
+        >
           Exit presentation <kbd>Esc</kbd>
         </Button>
       ) : null}

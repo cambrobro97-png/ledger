@@ -122,8 +122,8 @@ export default function Page() {
 
       <ToolFootnote>
         Figures are gross &mdash; taxes, deductions, and withholding aren&rsquo;t modelled here.
-        Recurring income repeats from its first payment, so pay that lands every two weeks
-        produces the occasional three-payday month
+        Recurring income repeats from its first payment, so pay that lands every two weeks produces
+        the occasional three-payday month
         {model.derived.peakMonth === -1 ? "" : `, like ${MONTH_NAMES[model.derived.peakMonth]}`}.
         Press <kbd>Esc</kbd> to close an open month.
       </ToolFootnote>
@@ -140,7 +140,9 @@ function IncomeMonthStats({
   derived: ReturnType<typeof useIncomeModel>["derived"];
 }) {
   const total = derived.byMonth[month];
-  const payments = derived.occurrences.filter((occurrence) => occurrence.day.month === month).length;
+  const payments = derived.occurrences.filter(
+    (occurrence) => occurrence.day.month === month,
+  ).length;
 
   // Measured against months that actually pay, so a half-filled year doesn't
   // make every month look above average.
@@ -154,7 +156,10 @@ function IncomeMonthStats({
         <strong>{payments}</strong> {payments === 1 ? "payday" : "paydays"}
       </span>
       <span
-        className={cn("inline-figures", delta >= 0 ? "[&_strong]:text-jade" : "[&_strong]:text-crimson")}
+        className={cn(
+          "inline-figures",
+          delta >= 0 ? "[&_strong]:text-jade" : "[&_strong]:text-crimson",
+        )}
         title="Against the average month that has income in it"
       >
         <strong>

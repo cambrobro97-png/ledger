@@ -212,7 +212,13 @@ export function VerticalTimeline({
         </g>
 
         {/* Baseline down the left edge of the plot. */}
-        <line x1={RAIL} y1={plot.top} x2={RAIL} y2={plot.top + PLOT_HEIGHT} className={styles.axis} />
+        <line
+          x1={RAIL}
+          y1={plot.top}
+          x2={RAIL}
+          y2={plot.top + PLOT_HEIGHT}
+          className={styles.axis}
+        />
 
         {/* Day ticks, once a month is open enough to read them. */}
         {visibleDays && dayProgress > 0 ? (

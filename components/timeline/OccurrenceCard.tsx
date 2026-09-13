@@ -61,12 +61,12 @@ export function OccurrenceCard({
         "border-l-[3px] border-l-[var(--accent,var(--ash))] bg-panel-2 px-3.5 py-2.5",
         "shadow-[0_14px_34px_rgba(0,0,0,0.45)]",
         anchored
-          // Anchored beside the tapped mark: the caller clamps `left` against
-          // the plot's own edges, which is exact where a percentage centre is
-          // not, so the centring translate is dropped. Tappable, because
-          // tapping the card is one of the ways to dismiss the selection.
-          ? cn(
-              "pointer-events-auto min-w-0 max-w-[min(280px,calc(100%-24px))]",
+          ? // Anchored beside the tapped mark: the caller clamps `left` against
+            // the plot's own edges, which is exact where a percentage centre is
+            // not, so the centring translate is dropped. Tappable, because
+            // tapping the card is one of the ways to dismiss the selection.
+            cn(
+              "pointer-events-auto max-w-[min(280px,calc(100%-24px))] min-w-0",
               // Flipped above the mark when the card would run past the bottom
               // of the plot. `top` still names the mark's edge; the shift is
               // what moves the card, so the renderer never needs its height.
@@ -76,14 +76,16 @@ export function OccurrenceCard({
       )}
       style={style}
     >
-      <div className="font-mono text-micro uppercase tracking-[0.16em] text-ash">{name}</div>
-      <div className="mt-1 font-mono text-amount tabular-nums text-[var(--accent,var(--bone))]">{formatMoney(occurrence.amount)}</div>
+      <div className="font-mono text-micro tracking-[0.16em] text-ash uppercase">{name}</div>
+      <div className="mt-1 font-mono text-amount text-[var(--accent,var(--bone))] tabular-nums">
+        {formatMoney(occurrence.amount)}
+      </div>
       <div className="mt-[3px] text-sm text-ash">{formatDayLong(occurrence.day)}</div>
       {meta ? <div className="mt-[3px] text-sm text-ash">{meta}</div> : null}
       {/* One band of a column reads as the wrong number without the column
           behind it, so a shared day names its own total. */}
       {shared ? (
-        <div className="mt-[7px] border-t border-rule pt-1.5 font-mono text-label tabular-nums text-ash">
+        <div className="mt-[7px] border-t border-rule pt-1.5 font-mono text-label text-ash tabular-nums">
           {formatMoney(stack.total)} that day, across {stack.count}{" "}
           {stack.count === 1 ? peerNoun.one : peerNoun.many}
         </div>

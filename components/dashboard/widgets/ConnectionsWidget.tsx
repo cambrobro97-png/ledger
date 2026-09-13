@@ -56,7 +56,10 @@ export function ConnectionsWidget({ size }: WidgetProps) {
     connections.push({ from: "Income → Retirement", what: "the salary the match is sized on" });
   }
   if (profile.redirect?.enabled) {
-    connections.push({ from: "Payoff → Savings", what: `${profile.redirect.share}% of the payment` });
+    connections.push({
+      from: "Payoff → Savings",
+      what: `${profile.redirect.share}% of the payment`,
+    });
   }
 
   const linkedOutlooks = retirement.scenariosWithSpendLink;
@@ -102,11 +105,13 @@ export function ConnectionsWidget({ size }: WidgetProps) {
             <div
               key={connection.from}
               className={cn(
-            "flex items-baseline gap-2 text-sm",
-            connection.caution ? "text-brass" : "text-ash",
-          )}
+                "flex items-baseline gap-2 text-sm",
+                connection.caution ? "text-brass" : "text-ash",
+              )}
             >
-              <span className="whitespace-nowrap font-mono text-micro uppercase tracking-[0.06em] text-bone">{connection.from}</span>
+              <span className="font-mono text-micro tracking-[0.06em] whitespace-nowrap text-bone uppercase">
+                {connection.from}
+              </span>
               <span className="min-w-0 truncate">{connection.what}</span>
             </div>
           ))}

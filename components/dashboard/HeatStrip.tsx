@@ -44,9 +44,9 @@ export function HeatStrip({ values, color, highlight = [], label }: HeatStripPro
           <div
             key={index}
             className={cn(
-            "relative h-[30px] min-w-0 flex-1 overflow-hidden rounded-[3px] bg-panel-2",
-            marked.has(index) && "shadow-[inset_0_0_0_1.5px_var(--bone)]",
-          )}
+              "relative h-[30px] min-w-0 flex-1 overflow-hidden rounded-[3px] bg-panel-2",
+              marked.has(index) && "shadow-[inset_0_0_0_1.5px_var(--bone)]",
+            )}
           >
             <span
               className="absolute inset-0"
@@ -56,11 +56,7 @@ export function HeatStrip({ values, color, highlight = [], label }: HeatStripPro
                 // starts at the floor, so the leanest month is still visibly a
                 // month that spent something.
                 opacity:
-                  value <= 0
-                    ? 0
-                    : range <= 0
-                      ? 1
-                      : FLOOR + (1 - FLOOR) * ((value - lean) / range),
+                  value <= 0 ? 0 : range <= 0 ? 1 : FLOOR + (1 - FLOOR) * ((value - lean) / range),
               }}
             />
           </div>

@@ -80,7 +80,7 @@ export function RedirectPanel({
 
       {redirect.enabled ? (
         <>
-          <div className="mt-3.5 grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))]">
+          <div className="mt-3.5 grid [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))] gap-3.5">
             <NumericField
               id="redirect-share"
               label="How much of it"
@@ -103,15 +103,15 @@ export function RedirectPanel({
           </div>
 
           {payoff === null ? (
-            <p className="mx-0 mb-0 mt-3.5 text-sm leading-[1.5] text-brass">
+            <p className="mx-0 mt-3.5 mb-0 text-sm leading-[1.5] text-brass">
               The mortgage has no payoff month, so there is nothing for this to start from.
             </p>
           ) : monthly <= 0 ? (
-            <p className="mx-0 mb-0 mt-3.5 text-sm leading-[1.5] text-brass">
+            <p className="mx-0 mt-3.5 mb-0 text-sm leading-[1.5] text-brass">
               The mortgage payment is zero, so there is nothing to redirect.
             </p>
           ) : (
-            <p className="inline-figures mx-0 mb-0 mt-4 border-t border-rule pt-3.5 text-body leading-[1.6] text-ash [&_strong]:font-normal">
+            <p className="mx-0 mt-4 mb-0 border-t border-rule pt-3.5 inline-figures text-body leading-[1.6] text-ash [&_strong]:font-normal">
               <strong>{formatMoney(freed)}</strong> a month frees up in {payoff}
               {withoutRedirect === null ? (
                 "."

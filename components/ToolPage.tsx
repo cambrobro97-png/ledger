@@ -9,13 +9,7 @@ import { cn } from "@/lib/cn";
  * the mortgage and retirement modules were byte-identical to each other across
  * all 44 lines.
  */
-export function ToolPage({
-  children,
-  presenting,
-}: {
-  children: ReactNode;
-  presenting?: boolean;
-}) {
+export function ToolPage({ children, presenting }: { children: ReactNode; presenting?: boolean }) {
   return (
     <main
       className={cn(

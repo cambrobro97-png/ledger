@@ -35,7 +35,7 @@ const TYPED = "";
 function Chip({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="font-mono text-label uppercase tracking-[0.14em] text-ash">{label}</span>
+      <span className="font-mono text-label tracking-[0.14em] text-ash uppercase">{label}</span>
       <span className="font-mono text-title font-medium tabular-nums">{value}</span>
     </div>
   );
@@ -117,7 +117,7 @@ export function ProfilePanel({
         </div>
       </div>
 
-      <div className="mt-3.5 grid gap-x-7 gap-y-3.5 [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
+      <div className="mt-3.5 grid [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))] gap-x-7 gap-y-3.5">
         <NumericField
           id="profile-age"
           label="Your age today"
@@ -137,9 +137,7 @@ export function ProfilePanel({
           <TextSelectField
             id="profile-salary-source"
             label="Salary from"
-            value={
-              profile.salaryLink ? profile.salaryLink.itemId || EVERY_SOURCE : TYPED
-            }
+            value={profile.salaryLink ? profile.salaryLink.itemId || EVERY_SOURCE : TYPED}
             options={salaryOptions}
             onChange={(value) =>
               onLinkSalary(value === TYPED ? null : value === EVERY_SOURCE ? "" : value)
@@ -196,7 +194,7 @@ export function ProfilePanel({
       {salaryResolution && salaryResolution.status !== "pending" ? (
         <p
           className={cn(
-            "mx-0 mb-0 mt-3 text-sm leading-[1.5]",
+            "mx-0 mt-3 mb-0 text-sm leading-[1.5]",
             salaryResolution.status === "live" ? "text-ash" : "text-brass",
           )}
         >
@@ -209,7 +207,7 @@ export function ProfilePanel({
       {resolution && resolution.status !== "pending" ? (
         <p
           className={cn(
-            "mx-0 mb-0 mt-3 text-sm leading-[1.5]",
+            "mx-0 mt-3 mb-0 text-sm leading-[1.5]",
             resolution.status === "live" ? "text-ash" : "text-brass",
           )}
         >

@@ -34,10 +34,7 @@ export function MortgageLinkPicker({ mortgage, items, onAdd, onClose }: Mortgage
   );
   const [chosen, setChosen] = useState<Set<string>>(() => new Set(["payment"]));
 
-  const options = useMemo(
-    () => mortgagePartOptions(mortgage, scenarioId),
-    [mortgage, scenarioId],
-  );
+  const options = useMemo(() => mortgagePartOptions(mortgage, scenarioId), [mortgage, scenarioId]);
 
   // What this scenario already has on the list, so the same piece can't be
   // added twice without anyone noticing.
@@ -65,9 +62,7 @@ export function MortgageLinkPicker({ mortgage, items, onAdd, onClose }: Mortgage
       return next;
     });
 
-  const selectable = options.filter(
-    (option) => option.available && !alreadyLinked.has(option.key),
-  );
+  const selectable = options.filter((option) => option.available && !alreadyLinked.has(option.key));
   const selected = selectable.filter((option) => chosen.has(option.key));
 
   const add = () => {
@@ -78,14 +73,18 @@ export function MortgageLinkPicker({ mortgage, items, onAdd, onClose }: Mortgage
   return (
     <div className="mt-4 rounded-xl border border-rule bg-panel-2 p-4">
       <div className="mb-3.5 flex flex-wrap items-baseline justify-between gap-3">
-        <h3 className="m-0 font-mono text-label font-normal uppercase tracking-[0.18em] text-ash">Take a line from the mortgage</h3>
+        <h3 className="m-0 font-mono text-label font-normal tracking-[0.18em] text-ash uppercase">
+          Take a line from the mortgage
+        </h3>
         <span className="text-sm text-ash">
           Its money and dates stay in step with the mortgage tool
         </span>
       </div>
 
       {mortgage.scenarios.length === 0 ? (
-        <p className="mb-3.5 mt-0 text-body text-ash">The mortgage tool has no scenarios to link to yet.</p>
+        <p className="mt-0 mb-3.5 text-body text-ash">
+          The mortgage tool has no scenarios to link to yet.
+        </p>
       ) : (
         <>
           <div className="max-w-[320px]">
@@ -107,13 +106,13 @@ export function MortgageLinkPicker({ mortgage, items, onAdd, onClose }: Mortgage
                 <label
                   key={option.key}
                   className={cn(
-                "grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-2.5 rounded-control",
-                "border border-rule px-2.5 py-2 transition-[border-color,background-color] duration-150",
-                // Nothing to link, or it is on the list already. Kept on screen
-                // rather than filtered out: which pieces a scenario has is
-                // worth seeing either way.
-                disabled ? "cursor-default opacity-50" : "cursor-pointer hover:border-brass",
-              )}
+                    "grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-2.5 rounded-control",
+                    "border border-rule px-2.5 py-2 transition-[border-color,background-color] duration-150",
+                    // Nothing to link, or it is on the list already. Kept on screen
+                    // rather than filtered out: which pieces a scenario has is
+                    // worth seeing either way.
+                    disabled ? "cursor-default opacity-50" : "cursor-pointer hover:border-brass",
+                  )}
                 >
                   <input
                     type="checkbox"

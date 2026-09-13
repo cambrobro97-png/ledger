@@ -137,8 +137,8 @@ export default function Page() {
                 current-value estimate is your own projection rather than a promise.{" "}
               </>
             ) : null}
-            Every scenario is compared against making no extra payments at all. Press{" "}
-            <kbd>P</kbd> to present, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> to move between scenarios.
+            Every scenario is compared against making no extra payments at all. Press <kbd>P</kbd>{" "}
+            to present, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> to move between scenarios.
           </ToolFootnote>
         </>
       ) : null}

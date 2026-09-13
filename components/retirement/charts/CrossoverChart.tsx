@@ -8,13 +8,7 @@ import type { Projection } from "@/lib/types";
 import { ChartCard } from "../../charts/ChartCard";
 import { ChartFrame, PayoffMarker } from "../../charts/ChartFrame";
 import { useChartHover } from "../../charts/useChartHover";
-import {
-  LINE_PLOT,
-  innerHeight,
-  innerWidth,
-  linePath,
-  niceMax,
-} from "../../charts/geometry";
+import { LINE_PLOT, innerHeight, innerWidth, linePath, niceMax } from "../../charts/geometry";
 
 interface CrossoverChartProps {
   current: Projection;

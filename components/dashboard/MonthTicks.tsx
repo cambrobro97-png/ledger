@@ -13,7 +13,10 @@ export function MonthTicks() {
   return (
     <div className="mt-[5px] flex gap-[3px]" aria-hidden="true">
       {MONTH_NAMES.map((name, index) => (
-        <span key={index} className="min-w-0 flex-1 text-center font-mono text-micro tracking-[0.04em] text-ash opacity-70">
+        <span
+          key={index}
+          className="min-w-0 flex-1 text-center font-mono text-micro tracking-[0.04em] text-ash opacity-70"
+        >
           {name.slice(0, 1)}
         </span>
       ))}

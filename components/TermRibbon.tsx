@@ -31,8 +31,10 @@ export function TermRibbon({ startMonth, baseline, current, monthsSaved }: TermR
             <i key={index} />
           ))}
         </div>
-        <div className="absolute inset-y-0 flex items-center px-3.5 font-mono text-base text-bone">{formatMonth(current.payoffDate)}</div>
-        <div className="absolute inset-y-0 flex items-center px-3.5 font-mono text-base text-bone right-0 justify-end text-brass">
+        <div className="absolute inset-y-0 flex items-center px-3.5 font-mono text-base text-bone">
+          {formatMonth(current.payoffDate)}
+        </div>
+        <div className="absolute inset-y-0 right-0 flex items-center justify-end px-3.5 font-mono text-base text-brass">
           {monthsSaved > 0 ? `${formatDuration(monthsSaved)} back` : ""}
         </div>
       </div>

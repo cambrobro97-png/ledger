@@ -29,13 +29,13 @@ export function RetirementHero({
     return (
       <section className="mt-[clamp(24px,3vw,44px)]">
         <div className="eyebrow">{scenario.name}</div>
-        <p className="mx-0 mb-0 mt-2 font-display text-hero font-bold leading-[1.02] tracking-[-0.02em]">
+        <p className="mx-0 mt-2 mb-0 font-display text-hero leading-[1.02] font-bold tracking-[-0.02em]">
           This outlook doesn&rsquo;t <span className="text-crimson">reach retirement</span>.
         </p>
         <p className="mt-3.5 max-w-[60ch] text-lg text-ash">
           Working all the way to {profile.endAge} still leaves the money short of{" "}
-          {describeScenario(scenario, annualSpend)}. Saving more, spending less, or a kinder market would
-          change it &mdash; the charts below show the path as it stands.
+          {describeScenario(scenario, annualSpend)}. Saving more, spending less, or a kinder market
+          would change it &mdash; the charts below show the path as it stands.
         </p>
       </section>
     );
@@ -45,15 +45,14 @@ export function RetirementHero({
     <section className="mt-[clamp(24px,3vw,44px)]">
       <div className="eyebrow">{scenario.name}</div>
 
-      <p className="mx-0 mb-0 mt-2 font-display text-hero font-bold leading-[1.02] tracking-[-0.02em]">
+      <p className="mx-0 mt-2 mb-0 font-display text-hero leading-[1.02] font-bold tracking-[-0.02em]">
         You can retire at <span className="text-brass">{current.retirementAge}</span>.
       </p>
 
       <p className="mt-3.5 max-w-[60ch] text-lg text-ash">
         That&rsquo;s {yearsAway === 0 ? "today" : `${yearsAway} years from now`}, in{" "}
-        {formatMonth(current.retirementDate)}, with{" "}
-        {formatMoney(current.peakBalance)} at its peak and{" "}
-        {formatMoney(current.endingBalance)} still there at {profile.endAge}
+        {formatMonth(current.retirementDate)}, with {formatMoney(current.peakBalance)} at its peak
+        and {formatMoney(current.endingBalance)} still there at {profile.endAge}
         {yearsEarlier > 0
           ? ` — ${yearsEarlier} ${yearsEarlier === 1 ? "year" : "years"} sooner than the market as it stands.`
           : yearsEarlier < 0

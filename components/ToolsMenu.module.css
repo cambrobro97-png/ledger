@@ -18,7 +18,10 @@
   border-radius: 8px;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .trigger:hover,
@@ -83,7 +86,9 @@
   border-radius: 9px;
   text-decoration: none;
   color: var(--ash);
-  transition: color 0.18s ease, background 0.18s ease;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
 }
 
 .item:hover {

@@ -43,15 +43,23 @@ export function WidgetShell({
       className="relative flex w-full min-w-0 flex-col overflow-hidden rounded-panel border border-rule bg-panel p-[clamp(14px,1.2vw,22px)] text-inherit no-underline transition-[border-color,background-color] duration-[180ms] ease-tween after:absolute after:inset-y-0 after:left-0 after:w-[3px] after:bg-[var(--accent,var(--ash))] after:opacity-80 after:content-['']"
       style={{ ["--accent" as string]: accent }}
     >
-      <div className="truncate font-mono text-label uppercase tracking-[0.16em] text-ash">{eyebrow}</div>
-      <h2 className="mx-0 mb-0 mt-0.5 font-display text-lg font-medium leading-[1.15] tracking-title">{title}</h2>
+      <div className="truncate font-mono text-label tracking-[0.16em] text-ash uppercase">
+        {eyebrow}
+      </div>
+      <h2 className="mx-0 mt-0.5 mb-0 font-display text-lg leading-[1.15] font-medium tracking-title">
+        {title}
+      </h2>
 
       <div className="mt-auto pt-3.5">
         {hydrated ? (
           <>
-            <div className="font-mono text-figure font-medium leading-[1.1] tabular-nums tracking-[-0.02em] text-[var(--accent,var(--bone))]">{value}</div>
+            <div className="font-mono text-figure leading-[1.1] font-medium tracking-[-0.02em] text-[var(--accent,var(--bone))] tabular-nums">
+              {value}
+            </div>
             <div className="mt-1.5 text-base text-ash">{detail}</div>
-            {note ? <div className="mt-2 font-mono text-label tracking-[0.04em] text-brass">{note}</div> : null}
+            {note ? (
+              <div className="mt-2 font-mono text-label tracking-[0.04em] text-brass">{note}</div>
+            ) : null}
           </>
         ) : (
           // The stored figures arrive after mount, so for one frame there is
@@ -60,7 +68,10 @@ export function WidgetShell({
           // identical before and after, so the real figure lands without
           // shifting anything.
           <>
-            <div className="font-mono text-figure font-medium leading-[1.1] tabular-nums tracking-[-0.02em] text-rule" aria-hidden="true">
+            <div
+              className="font-mono text-figure leading-[1.1] font-medium tracking-[-0.02em] text-rule tabular-nums"
+              aria-hidden="true"
+            >
               —
             </div>
             <div className="mt-1.5 text-base text-ash">Reading your figures…</div>

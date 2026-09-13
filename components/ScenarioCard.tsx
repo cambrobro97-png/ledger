@@ -44,7 +44,8 @@ export function ScenarioCard({
    * than to nearest, so the suggestion is never more than there is.
    */
   const spareMonthly = Math.max(0, Math.floor(spare.spare));
-  const overspending = spare.known && spareMonthly > 0 && (Number(scenario.monthly) || 0) > spareMonthly;
+  const overspending =
+    spare.known && spareMonthly > 0 && (Number(scenario.monthly) || 0) > spareMonthly;
   const useSpare = () => onChange({ monthly: spareMonthly });
 
   return (
@@ -127,16 +128,22 @@ export function ScenarioCard({
       {spare.known ? (
         <div className={cn("mt-3 font-mono text-sm", overspending ? "text-brass" : "text-ash")}>
           {spareMonthly <= 0 ? (
-            <>The bills already run past the income, so there is nothing spare for extra principal.</>
+            <>
+              The bills already run past the income, so there is nothing spare for extra principal.
+            </>
           ) : overspending ? (
             <>
-              This asks for {formatMoney(scenario.monthly)} a month;{" "}
-              {formatMoney(spareMonthly)} is spare once the bills are paid.
+              This asks for {formatMoney(scenario.monthly)} a month; {formatMoney(spareMonthly)} is
+              spare once the bills are paid.
             </>
           ) : (
             <>
               {formatMoney(spareMonthly)} a month is spare once the bills are paid.{" "}
-              <button type="button" className="cursor-pointer appearance-none border-none bg-transparent p-0 [font:inherit] text-jade underline underline-offset-2 hover:text-bone" onClick={useSpare}>
+              <button
+                type="button"
+                className="cursor-pointer appearance-none border-none bg-transparent p-0 text-jade underline underline-offset-2 [font:inherit] hover:text-bone"
+                onClick={useSpare}
+              >
                 Use it
               </button>
             </>

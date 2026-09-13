@@ -71,9 +71,11 @@ export function ExpenseEditor({ model, hoveredItemId, onHoverItem }: ExpenseEdit
 
       {recurring.length > 0 ? (
         <section>
-          <div className="mb-2.5 mt-3.5 flex flex-wrap items-baseline justify-between gap-3">
-            <h3 className="m-0 font-mono text-label font-normal uppercase tracking-[0.18em] text-ash">Recurring</h3>
-            <span className="font-mono text-label tabular-nums text-ash">
+          <div className="mt-3.5 mb-2.5 flex flex-wrap items-baseline justify-between gap-3">
+            <h3 className="m-0 font-mono text-label font-normal tracking-[0.18em] text-ash uppercase">
+              Recurring
+            </h3>
+            <span className="font-mono text-label text-ash tabular-nums">
               {recurring.length} {recurring.length === 1 ? "bill" : "bills"} ·{" "}
               {formatMoney(model.derived.recurringAnnual)} a year
             </span>
@@ -84,9 +86,11 @@ export function ExpenseEditor({ model, hoveredItemId, onHoverItem }: ExpenseEdit
 
       {oneTime.length > 0 ? (
         <section className={cn(recurring.length > 0 && "mt-[clamp(18px,2vw,28px)]")}>
-          <div className="mb-2.5 mt-3.5 flex flex-wrap items-baseline justify-between gap-3">
-            <h3 className="m-0 font-mono text-label font-normal uppercase tracking-[0.18em] text-ash">One time</h3>
-            <span className="font-mono text-label tabular-nums text-ash">
+          <div className="mt-3.5 mb-2.5 flex flex-wrap items-baseline justify-between gap-3">
+            <h3 className="m-0 font-mono text-label font-normal tracking-[0.18em] text-ash uppercase">
+              One time
+            </h3>
+            <span className="font-mono text-label text-ash tabular-nums">
               {oneTime.length} {oneTime.length === 1 ? "cost" : "costs"} ·{" "}
               {formatMoney(oneTimeTotal)} in {model.year}
             </span>

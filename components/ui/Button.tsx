@@ -18,7 +18,7 @@ export function Button({ variant = "solid", icon, className, ...props }: ButtonP
       // for the same property never both ship and leave the cascade to settle it.
       className={cn(
         "cursor-pointer rounded-control border border-rule text-bone",
-        "text-body font-medium leading-none transition-colors duration-150",
+        "text-body leading-none font-medium transition-colors duration-150",
         "enabled:hover:border-ash disabled:cursor-default disabled:opacity-45",
         icon ? "px-3 py-[9px] font-mono" : "px-3.5 py-2.5 font-sans",
         variant === "solid" ? "bg-ink" : "bg-transparent",

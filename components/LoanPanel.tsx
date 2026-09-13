@@ -22,7 +22,7 @@ interface LoanPanelProps {
 function Chip({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="font-mono text-label uppercase tracking-[0.14em] text-ash">{label}</span>
+      <span className="font-mono text-label tracking-[0.14em] text-ash uppercase">{label}</span>
       <span className="font-mono text-title font-medium tabular-nums">{value}</span>
     </div>
   );
@@ -39,7 +39,7 @@ export function LoanPanel({
   onPmiChange,
 }: LoanPanelProps) {
   const termLeft = baselineMonths === null ? null : formatDuration(baselineMonths);
-  const dropOff = pmi.enabled ? current?.pmi?.dropOffDate ?? null : null;
+  const dropOff = pmi.enabled ? (current?.pmi?.dropOffDate ?? null) : null;
 
   if (presenting) {
     return (
@@ -64,7 +64,7 @@ export function LoanPanel({
         </div>
       </div>
 
-      <div className="mt-3.5 grid gap-x-7 gap-y-3.5 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
+      <div className="mt-3.5 grid [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))] gap-x-7 gap-y-3.5">
         <NumericField
           id="loan-balance"
           label="Current balance"

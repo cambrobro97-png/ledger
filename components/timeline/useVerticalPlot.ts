@@ -66,7 +66,9 @@ export function useVerticalPlot(enabled: boolean): VerticalPlotBox {
       const avail = viewportHeight() - bounds.top - BOTTOM_GUTTER;
       const height = Math.round(Math.max(MIN_HEIGHT, Math.min(avail, MAX_HEIGHT)));
       lastViewportRef.current = viewportHeight();
-      setBox((prev) => (prev && prev.width === width && prev.height === height ? prev : { width, height }));
+      setBox((prev) =>
+        prev && prev.width === width && prev.height === height ? prev : { width, height },
+      );
     };
 
     measure();

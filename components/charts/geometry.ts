@@ -10,10 +10,31 @@ export interface Plot {
   bottom: number;
 }
 
-export const LINE_PLOT: Plot = { width: 1000, height: 430, left: 78, right: 22, top: 18, bottom: 44 };
-export const BAR_PLOT: Plot = { width: 1000, height: 340, left: 78, right: 22, top: 18, bottom: 40 };
+export const LINE_PLOT: Plot = {
+  width: 1000,
+  height: 430,
+  left: 78,
+  right: 22,
+  top: 18,
+  bottom: 44,
+};
+export const BAR_PLOT: Plot = {
+  width: 1000,
+  height: 340,
+  left: 78,
+  right: 22,
+  top: 18,
+  bottom: 40,
+};
 /** Room at the top for the month band, and at the bottom for the date axis. */
-export const TIMELINE_PLOT: Plot = { width: 1000, height: 360, left: 20, right: 20, top: 54, bottom: 46 };
+export const TIMELINE_PLOT: Plot = {
+  width: 1000,
+  height: 360,
+  left: 20,
+  right: 20,
+  top: 54,
+  bottom: 46,
+};
 
 export const innerWidth = (plot: Plot) => plot.width - plot.left - plot.right;
 export const innerHeight = (plot: Plot) => plot.height - plot.top - plot.bottom;

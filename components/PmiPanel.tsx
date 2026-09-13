@@ -37,7 +37,7 @@ export function PmiPanel({ pmi, balance, current, onChange }: PmiPanelProps) {
 
       {pmi.enabled ? (
         <>
-          <div className="grid gap-x-7 gap-y-3.5 [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))]">
+          <div className="grid [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))] gap-x-7 gap-y-3.5">
             <NumericField
               id="pmi-monthly"
               label="PMI premium"
@@ -99,12 +99,16 @@ function PmiReadout({
   outcome: Amortization["pmi"];
 }) {
   if (ltv === null) {
-    return <p className="inline-figures m-0 text-body leading-[1.55] text-ash [&_strong]:mx-px">Enter what the home is worth to see when PMI ends.</p>;
+    return (
+      <p className="m-0 inline-figures text-body leading-[1.55] text-ash [&_strong]:mx-px">
+        Enter what the home is worth to see when PMI ends.
+      </p>
+    );
   }
 
   if (alreadyBelow) {
     return (
-      <p className="inline-figures m-0 text-body leading-[1.55] text-ash [&_strong]:mx-px">
+      <p className="m-0 inline-figures text-body leading-[1.55] text-ash [&_strong]:mx-px">
         At <strong>{ltv.toFixed(1)}%</strong> LTV you&rsquo;re already past the threshold &mdash; no
         premium is being charged, so there&rsquo;s nothing to drop.
       </p>
@@ -115,7 +119,7 @@ function PmiReadout({
   // or it only gets there on the final payment, which is too late to matter.
   if (!outcome || outcome.dropOffMonth === null || !outcome.dropOffDate) {
     return (
-      <p className="inline-figures m-0 text-body leading-[1.55] text-ash [&_strong]:mx-px">
+      <p className="m-0 inline-figures text-body leading-[1.55] text-ash [&_strong]:mx-px">
         At <strong>{ltv.toFixed(1)}%</strong> LTV the loan is paid off before the premium has a
         chance to come off, so there&rsquo;s nothing to redirect &mdash;{" "}
         <strong>{formatMoney(outcome?.totalPaid ?? 0)}</strong> of premium along the way.
@@ -124,7 +128,7 @@ function PmiReadout({
   }
 
   return (
-    <p className="inline-figures m-0 text-body leading-[1.55] text-ash [&_strong]:mx-px">
+    <p className="m-0 inline-figures text-body leading-[1.55] text-ash [&_strong]:mx-px">
       At <strong>{ltv.toFixed(1)}%</strong> LTV the premium stops in{" "}
       <strong>{formatMonth(outcome.dropOffDate)}</strong> &mdash;{" "}
       {formatDuration(outcome.dropOffMonth - 1)} of payments, {formatMoney(outcome.totalPaid)} of

@@ -14,7 +14,7 @@ export function ScenarioEditor({ model }: { model: MortgageModel }) {
         hint="Edits are saved automatically and stay put between visits"
       />
 
-      <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+      <div className="grid [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-3.5">
         {model.scenarios.map((scenario) => (
           <ScenarioCard
             key={scenario.id}

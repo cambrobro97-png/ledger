@@ -30,7 +30,7 @@ export function Tabs({
 }) {
   return (
     <nav
-      className="scrollbar-none mt-[22px] flex gap-2.5 overflow-x-auto pb-1.5"
+      className="mt-[22px] scrollbar-none flex gap-2.5 overflow-x-auto pb-1.5"
       role="tablist"
       aria-label={label}
     >
@@ -40,8 +40,8 @@ export function Tabs({
           type="button"
           role="tab"
           className={cn(
-            "flex-none cursor-pointer whitespace-nowrap rounded-full border border-rule bg-panel text-ash",
-            "font-sans text-body font-medium leading-none transition duration-200",
+            "flex-none cursor-pointer rounded-full border border-rule bg-panel whitespace-nowrap text-ash",
+            "font-sans text-body leading-none font-medium transition duration-200",
             "hover:-translate-y-px hover:text-bone",
             "aria-selected:border-bone aria-selected:bg-bone aria-selected:text-ink",
             // Picked, not layered: two padding utilities on one element would

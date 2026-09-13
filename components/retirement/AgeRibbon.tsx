@@ -55,7 +55,10 @@ export function AgeRibbon({ profile, current }: AgeRibbonProps) {
             title={`Mortgage paid off at ${payoffAge}`}
           >
             <span
-              className={cn("absolute bottom-1 whitespace-nowrap rounded bg-ink px-[5px] py-px font-mono text-micro tracking-[0.04em] text-ash", payoffShare > 70 ? "right-[5px]" : "left-[5px]")}
+              className={cn(
+                "absolute bottom-1 rounded bg-ink px-[5px] py-px font-mono text-micro tracking-[0.04em] whitespace-nowrap text-ash",
+                payoffShare > 70 ? "right-[5px]" : "left-[5px]",
+              )}
             >
               mortgage ends {payoffAge}
             </span>
@@ -65,17 +68,17 @@ export function AgeRibbon({ profile, current }: AgeRibbonProps) {
         <div className="absolute inset-y-0 flex items-center px-3.5 font-mono text-base text-bone">
           {current.retirementYearIndex > 0 ? `${current.retirementYearIndex} more working` : ""}
         </div>
-        <div className="absolute inset-y-0 flex items-center px-3.5 font-mono text-base text-bone right-0 justify-end text-brass">
-          {current.shortfall
-            ? ""
-            : `${profile.endAge - current.retirementAge} retired`}
+        <div className="absolute inset-y-0 right-0 flex items-center justify-end px-3.5 font-mono text-base text-brass">
+          {current.shortfall ? "" : `${profile.endAge - current.retirementAge} retired`}
         </div>
       </div>
 
       <div className="mt-2.5 flex justify-between gap-3 font-mono text-base text-ash">
         <span>{profile.currentAge} today</span>
         <span className="text-center text-brass">
-          {current.shortfall ? "never retires on this outlook" : `retire at ${current.retirementAge}`}
+          {current.shortfall
+            ? "never retires on this outlook"
+            : `retire at ${current.retirementAge}`}
         </span>
         <span>
           {current.depletionAge !== null

@@ -17,7 +17,9 @@ export function YearSwitcher({ year, zoomMonth, onStepYear, onZoomOut }: YearSwi
         <Button variant="ghost" icon aria-label="Previous year" onClick={() => onStepYear(-1)}>
           &larr;
         </Button>
-        <span className="min-w-[4ch] text-center font-mono text-figure tabular-nums tracking-title">{year}</span>
+        <span className="min-w-[4ch] text-center font-mono text-figure tracking-title tabular-nums">
+          {year}
+        </span>
         <Button variant="ghost" icon aria-label="Next year" onClick={() => onStepYear(1)}>
           &rarr;
         </Button>

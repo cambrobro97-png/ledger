@@ -36,7 +36,10 @@ export default function Page() {
   const appearance = useCallback<(id: string) => TimelineAppearance>(
     (id) => {
       const item = itemsById.get(id);
-      return { accent: categoryAccent(item?.category ?? "other"), muted: item?.kind === "variable" };
+      return {
+        accent: categoryAccent(item?.category ?? "other"),
+        muted: item?.kind === "variable",
+      };
     },
     [itemsById],
   );
@@ -196,7 +199,10 @@ function ExpenseMonthStats({
         <strong>{formatMoney(total - fixed)}</strong> variable
       </span>
       <span
-        className={cn("inline-figures", delta > 0 ? "[&_strong]:text-crimson" : "[&_strong]:text-jade")}
+        className={cn(
+          "inline-figures",
+          delta > 0 ? "[&_strong]:text-crimson" : "[&_strong]:text-jade",
+        )}
         title="Against the average month that has spending in it"
       >
         <strong>

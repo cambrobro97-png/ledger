@@ -1,19 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-import {
-  WITHDRAWAL_NOTES,
-  WITHDRAWAL_OPTIONS,
-  describeScenario,
-} from "@/lib/describeRetirement";
+import { WITHDRAWAL_NOTES, WITHDRAWAL_OPTIONS, describeScenario } from "@/lib/describeRetirement";
 import { createSpendLink } from "@/lib/defaults";
 import type { RetirementSpend } from "@/lib/links";
-import type {
-  RetirementScenario,
-  SpendBasis,
-  SpendLink,
-  WithdrawalStrategy,
-} from "@/lib/types";
+import type { RetirementScenario, SpendBasis, SpendLink, WithdrawalStrategy } from "@/lib/types";
 import { Button } from "../ui/Button";
 import { NumericField, TextSelectField } from "../ui/Field";
 
@@ -60,10 +51,12 @@ export function OutlookCard({
   const resolution = spend.resolution;
 
   return (
-    <div className={cn(
+    <div
+      className={cn(
         "rounded-xl border bg-panel-2 p-[18px]",
         active ? "border-jade ring-1 ring-jade/25" : "border-rule",
-      )}>
+      )}
+    >
       <div className="mb-3.5 flex items-center gap-2.5">
         <input
           className="min-w-0 flex-1 rounded-lg border border-rule bg-ink px-2.5 py-[9px] font-sans text-lg text-bone"
@@ -170,13 +163,22 @@ export function OutlookCard({
       ) : null}
 
       {resolution && resolution.status !== "pending" ? (
-        <div className={cn("mt-3 font-mono text-sm leading-[1.5]", resolution.status === "live" ? "text-ash" : "text-brass")}>
+        <div
+          className={cn(
+            "mt-3 font-mono text-sm leading-[1.5]",
+            resolution.status === "live" ? "text-ash" : "text-brass",
+          )}
+        >
           {resolution.note}
         </div>
       ) : null}
 
-      <div className="mt-3 font-mono text-sm leading-[1.5] text-ash">{WITHDRAWAL_NOTES[scenario.withdrawal]}</div>
-      <div className="mt-3 font-mono text-sm leading-[1.5] text-ash">{describeScenario(scenario, spend.annual)}</div>
+      <div className="mt-3 font-mono text-sm leading-[1.5] text-ash">
+        {WITHDRAWAL_NOTES[scenario.withdrawal]}
+      </div>
+      <div className="mt-3 font-mono text-sm leading-[1.5] text-ash">
+        {describeScenario(scenario, spend.annual)}
+      </div>
     </div>
   );
 }

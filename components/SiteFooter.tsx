@@ -34,15 +34,15 @@ export function SiteFooter() {
       </Link>
 
       <p className="m-0 max-w-[92ch] text-sm leading-[1.55] text-ash">
-        Ledger 1 is an arithmetic tool, not financial advice. Every figure here is an
-        estimate worked out from the numbers you enter, and it makes no assumptions
-        about your circumstances. Talk to a qualified financial, tax, or legal
-        professional before acting on anything you see here.
+        Ledger 1 is an arithmetic tool, not financial advice. Every figure here is an estimate
+        worked out from the numbers you enter, and it makes no assumptions about your circumstances.
+        Talk to a qualified financial, tax, or legal professional before acting on anything you see
+        here.
       </p>
 
       <p className="col-start-2 m-0 max-w-[92ch] text-sm leading-[1.55] text-ash max-xs:col-start-1">
-        Ledger 1 is open source under the MIT License. Read the code, report a bug,
-        or send a pull request on{" "}
+        Ledger 1 is open source under the MIT License. Read the code, report a bug, or send a pull
+        request on{" "}
         <a
           className="text-bone underline decoration-rule underline-offset-[3px] transition-colors duration-[180ms] hover:text-brass hover:decoration-brass"
           href={REPO_URL}
@@ -58,7 +58,7 @@ export function SiteFooter() {
         <p className="col-start-2 m-0 flex flex-wrap items-center gap-2.5 max-xs:col-start-1">
           {KOFI_URL && (
             <a
-              className="flex-none whitespace-nowrap rounded-full border border-brass bg-transparent px-3 py-1.5 text-sm font-medium text-brass no-underline transition-colors duration-[180ms] hover:bg-brass hover:text-ink"
+              className="flex-none rounded-full border border-brass bg-transparent px-3 py-1.5 text-sm font-medium whitespace-nowrap text-brass no-underline transition-colors duration-[180ms] hover:bg-brass hover:text-ink"
               href={KOFI_URL}
               target="_blank"
               rel="noreferrer"
@@ -67,8 +67,7 @@ export function SiteFooter() {
             </a>
           )}
           <span className="max-w-[92ch] text-sm leading-[1.55] text-ash">
-            The tools are free and stay that way. A coffee helps cover the
-            hosting.
+            The tools are free and stay that way. A coffee helps cover the hosting.
             {SPONSORS_URL && (
               <>
                 {" "}

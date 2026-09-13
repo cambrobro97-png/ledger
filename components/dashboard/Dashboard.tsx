@@ -14,14 +14,24 @@ import { WIDGETS, widgetById, type WidgetDefinition } from "@/lib/widgets";
 /** Widgets keep their drag handle only where HTML5 drag actually fires. */
 const POINTER_QUERY = "(min-width: 640px)";
 
+/*
+ * The edit-mode toolbar buttons. One base, and each variant picks its own
+ * cursor and colour rather than layering a second utility over the first —
+ * two utilities for one property leave the cascade to decide which wins, which
+ * is a coin toss that happens to be landing the right way up.
+ */
+const CONTROL =
+  "inline-flex min-h-[34px] min-w-[34px] items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35 cursor-pointer text-bone";
+const HANDLE =
+  "inline-flex min-h-[34px] min-w-[34px] items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35 cursor-grab text-ash active:cursor-grabbing";
+
 function ownerLabel(owner: ToolId | "cross"): string {
   if (owner === "cross") return "Across tools";
   return TOOLS.find((tool) => tool.id === owner)?.name ?? owner;
 }
 
 export function Dashboard() {
-  const { layout, placedIds, move, moveTo, cycleSize, add, remove, reset } =
-    useDashboardLayout();
+  const { layout, placedIds, move, moveTo, cycleSize, add, remove, reset } = useDashboardLayout();
 
   const [editing, setEditing] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -42,9 +52,7 @@ export function Dashboard() {
       const to = from + direction;
       if (from === -1 || to < 0 || to >= layout.widgets.length) return;
       move(definition.id, direction);
-      announce(
-        `${definition.title} moved to position ${to + 1} of ${layout.widgets.length}.`,
-      );
+      announce(`${definition.title} moved to position ${to + 1} of ${layout.widgets.length}.`);
     },
     [announce, layout.widgets, move],
   );
@@ -79,13 +87,9 @@ export function Dashboard() {
   const isEmpty = layout.widgets.length === 0;
 
   return (
-    <main className="mx-auto max-w-[1600px] px-(--pad) pb-[clamp(48px,6vw,96px)] pt-[clamp(20px,3vw,44px)]">
+    <main className="mx-auto max-w-[1600px] px-(--pad) pt-[clamp(20px,3vw,44px)] pb-[clamp(48px,6vw,96px)]">
       <header className="flex flex-wrap items-end justify-between gap-3.5">
-        <ToolHeading
-          eyebrow="Everything at a glance"
-          title="The big picture"
-          className="min-w-0"
-        />
+        <ToolHeading eyebrow="Everything at a glance" title="The big picture" className="min-w-0" />
 
         <div className="flex flex-wrap gap-2">
           {editing ? (
@@ -105,7 +109,7 @@ export function Dashboard() {
         </div>
       </header>
 
-      <p className="mx-0 mb-0 mt-2.5 max-w-[62ch] text-body text-ash">
+      <p className="mx-0 mt-2.5 mb-0 max-w-[62ch] text-body text-ash">
         {editing
           ? "Reorder with the arrows, change a card's width with its size button, or drop one off. Anything you remove is listed below."
           : "Every tool's headline figure in one place. Press Customise to rearrange."}
@@ -120,7 +124,7 @@ export function Dashboard() {
       {isEmpty ? (
         <div className="mt-[clamp(16px,1.8vw,28px)] rounded-panel border border-dashed border-rule bg-panel px-[clamp(18px,2vw,32px)] py-[clamp(28px,4vw,56px)] text-center">
           <h2 className="m-0 font-display text-title font-medium">Nothing on the dashboard</h2>
-          <p className="mx-0 mb-4 mt-2 text-base text-ash">
+          <p className="mx-0 mt-2 mb-4 text-base text-ash">
             You have taken every card off. Add one back below, or start over.
           </p>
           {editing ? null : <Button onClick={() => setEditing(true)}>Customise</Button>}
@@ -152,7 +156,7 @@ export function Dashboard() {
                   draggingId === placed.id && "opacity-40",
                   overId === placed.id &&
                     draggingId !== placed.id &&
-                    "[&>*]:-outline-offset-2 [&>*]:outline-2 [&>*]:outline-dashed [&>*]:outline-brass",
+                    "[&>*]:outline-2 [&>*]:-outline-offset-2 [&>*]:outline-brass [&>*]:outline-dashed",
                 )}
                 onDragOver={
                   editing
@@ -196,7 +200,7 @@ export function Dashboard() {
                     <div className="flex flex-wrap items-center gap-1.5 border-b border-dashed border-rule bg-ink px-2.5 py-2">
                       {roomy ? (
                         <span
-                          className="inline-flex min-h-[34px] min-w-[34px] cursor-pointer items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] text-bone transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35 cursor-grab text-ash active:cursor-grabbing"
+                          className={HANDLE}
                           draggable
                           aria-hidden="true"
                           onDragStart={(event) => {
@@ -215,7 +219,7 @@ export function Dashboard() {
 
                       <button
                         type="button"
-                        className="inline-flex min-h-[34px] min-w-[34px] cursor-pointer items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] text-bone transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35"
+                        className={CONTROL}
                         disabled={index === 0}
                         aria-label={`Move ${definition.title} earlier`}
                         onClick={() => handleMove(definition, -1)}
@@ -224,7 +228,7 @@ export function Dashboard() {
                       </button>
                       <button
                         type="button"
-                        className="inline-flex min-h-[34px] min-w-[34px] cursor-pointer items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] text-bone transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35"
+                        className={CONTROL}
                         disabled={index === layout.widgets.length - 1}
                         aria-label={`Move ${definition.title} later`}
                         onClick={() => handleMove(definition, 1)}
@@ -234,7 +238,7 @@ export function Dashboard() {
 
                       <button
                         type="button"
-                        className="inline-flex min-h-[34px] min-w-[34px] cursor-pointer items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] text-bone transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35 tracking-[0.06em]"
+                        className={cn(CONTROL, "tracking-[0.06em]")}
                         aria-label={`${definition.title} size: ${SIZE_LABELS[placed.size]}. Change size.`}
                         onClick={() => handleCycleSize(definition, placed.size)}
                       >
@@ -245,7 +249,7 @@ export function Dashboard() {
 
                       <button
                         type="button"
-                        className="inline-flex min-h-[34px] min-w-[34px] cursor-pointer items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] text-bone transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35 hover:border-crimson hover:text-crimson"
+                        className={cn(CONTROL, "hover:border-crimson hover:text-crimson")}
                         aria-label={`Remove ${definition.title}`}
                         onClick={() => handleRemove(definition)}
                       >
@@ -270,9 +274,12 @@ export function Dashboard() {
       )}
 
       {editing ? (
-        <section className="mt-[clamp(24px,3vw,44px)] border-t border-rule pt-[clamp(18px,2vw,28px)]" aria-label="Widgets you can add">
+        <section
+          className="mt-[clamp(24px,3vw,44px)] border-t border-rule pt-[clamp(18px,2vw,28px)]"
+          aria-label="Widgets you can add"
+        >
           <h2 className="m-0 font-display text-title font-medium">Add a card</h2>
-          <p className="mx-0 mb-0 mt-1.5 text-base text-ash">
+          <p className="mx-0 mt-1.5 mb-0 text-base text-ash">
             {available.length === 0
               ? "Every card is already on your dashboard."
               : "These are not on your dashboard yet."}
@@ -287,7 +294,9 @@ export function Dashboard() {
                     className="flex w-full min-w-0 cursor-pointer flex-col gap-1 rounded-panel border border-dashed border-rule bg-panel p-3.5 text-left text-inherit transition-[border-color,background-color] duration-[140ms] ease-tween hover:border-jade hover:bg-panel-2"
                     onClick={() => handleAdd(definition)}
                   >
-                    <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-ash">{ownerLabel(definition.owner)}</span>
+                    <span className="font-mono text-[10px] tracking-[0.16em] text-ash uppercase">
+                      {ownerLabel(definition.owner)}
+                    </span>
                     <span className="font-sans text-body font-semibold">{definition.title}</span>
                     <span className="text-sm text-ash">{definition.blurb}</span>
                   </button>

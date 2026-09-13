@@ -79,7 +79,9 @@ async function loadPlaywright() {
   const unwrap = (mod) => (mod?.chromium ? mod : mod?.default);
   for (const root of roots) {
     try {
-      const mod = unwrap(await import(pathToFileURL(require.resolve("playwright", { paths: [root] })).href));
+      const mod = unwrap(
+        await import(pathToFileURL(require.resolve("playwright", { paths: [root] })).href),
+      );
       if (mod?.chromium) return mod;
     } catch {
       // Not under this root; fall through.
@@ -91,7 +93,9 @@ async function loadPlaywright() {
   } catch {
     // Fall through to the message below.
   }
-  console.error("playwright not found. Install it (npm i -D playwright) or globally (npm i -g playwright).");
+  console.error(
+    "playwright not found. Install it (npm i -D playwright) or globally (npm i -g playwright).",
+  );
   process.exit(1);
 }
 
@@ -178,7 +182,9 @@ async function report(label) {
   const sums = await digest(join(SHOTS, label));
   console.log(`\n${label} — ${sums.size} shots`);
   for (const [name, { sum, size }] of sums) {
-    console.log(`  ${name.padEnd(24)} ${(size / 1024).toFixed(0).padStart(5)} KB  ${sum.slice(0, 12)}`);
+    console.log(
+      `  ${name.padEnd(24)} ${(size / 1024).toFixed(0).padStart(5)} KB  ${sum.slice(0, 12)}`,
+    );
   }
 }
 

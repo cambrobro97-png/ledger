@@ -14,7 +14,7 @@ export function AccountEditor({ model }: { model: RetirementModel }) {
         hint="Shared by every outlook — the market is what changes between them"
       />
 
-      <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+      <div className="grid [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-3.5">
         {model.profile.accounts.map((account) => (
           <AccountCard
             key={account.id}

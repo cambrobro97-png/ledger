@@ -29,10 +29,12 @@ export interface DashboardLayoutModel {
 
 /** Owns the dashboard arrangement. The widgets themselves own their data. */
 export function useDashboardLayout(): DashboardLayoutModel {
-  const { value: layout, setValue, reset, hydrated } = usePersistedState<DashboardLayout>(
-    DASHBOARD_STORAGE_KEY,
-    createDefaultLayout,
-  );
+  const {
+    value: layout,
+    setValue,
+    reset,
+    hydrated,
+  } = usePersistedState<DashboardLayout>(DASHBOARD_STORAGE_KEY, createDefaultLayout);
 
   // Reconciliation runs once, after the stored value has landed — the same
   // shape as `useClockDefaults`. It has to *commit*, not just render: if the
@@ -85,9 +87,7 @@ export function useDashboardLayout(): DashboardLayoutModel {
     (id, size) =>
       setValue((prev) => ({
         ...prev,
-        widgets: prev.widgets.map((widget) =>
-          widget.id === id ? { ...widget, size } : widget,
-        ),
+        widgets: prev.widgets.map((widget) => (widget.id === id ? { ...widget, size } : widget)),
       })),
     [setValue],
   );

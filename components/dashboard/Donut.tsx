@@ -1,6 +1,5 @@
 "use client";
 
-
 export interface DonutSegment {
   label: string;
   value: number;
@@ -85,18 +84,23 @@ export function Donut({ segments, legend = 0, format, label }: DonutProps) {
         <ul className="m-0 flex min-w-0 flex-1 list-none flex-col gap-[5px] p-0">
           {named.map((arc) => (
             <li key={arc.label} className="flex min-w-0 items-center gap-2 text-sm text-ash">
-              <span className="size-2 flex-none rounded-sm opacity-[0.92]" style={{ background: arc.color }} />
+              <span
+                className="size-2 flex-none rounded-sm opacity-[0.92]"
+                style={{ background: arc.color }}
+              />
               <span className="min-w-0 truncate">{arc.label}</span>
-              <span className="ml-auto whitespace-nowrap pl-2 font-mono tabular-nums text-bone">{format(arc.value)}</span>
+              <span className="ml-auto pl-2 font-mono whitespace-nowrap text-bone tabular-nums">
+                {format(arc.value)}
+              </span>
             </li>
           ))}
           {rest.length > 0 ? (
             <li className="flex min-w-0 items-center gap-2 text-sm text-ash">
               <span className="size-2 flex-none rounded-sm bg-rule opacity-[0.92]" />
-              <span className="min-w-0 truncate">
-                {rest.length} more
+              <span className="min-w-0 truncate">{rest.length} more</span>
+              <span className="ml-auto pl-2 font-mono whitespace-nowrap text-bone tabular-nums">
+                {format(restTotal)}
               </span>
-              <span className="ml-auto whitespace-nowrap pl-2 font-mono tabular-nums text-bone">{format(restTotal)}</span>
             </li>
           ) : null}
         </ul>

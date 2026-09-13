@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
-  "description": "A small set of tools for thinking about money — mortgage payoff, income, expenses, and retirement, worked out in the browser.",
+  "description": "A small set of tools for thinking about money \u2014 mortgage payoff, income, expenses, and retirement, worked out in the browser.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "shots": "node scripts/shoot.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "next": "^16.3.3",
@@ -23,6 +25,9 @@
     "@types/react-dom": "^19.2.5",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.4",
+    "eslint-plugin-better-tailwindcss": "^4.7.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.3",
     "typescript": "5.7.3"
   }

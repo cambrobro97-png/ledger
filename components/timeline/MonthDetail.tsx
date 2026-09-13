@@ -82,16 +82,25 @@ export function MonthDetail({
   }, [occurrences, month, nameOf]);
 
   return (
-    <div className={cn(styles.wrap, "mt-[clamp(16px,1.8vw,26px)] border-t border-rule pt-[clamp(14px,1.5vw,22px)]")}>
+    <div
+      className={cn(
+        styles.wrap,
+        "mt-[clamp(16px,1.8vw,26px)] border-t border-rule pt-[clamp(14px,1.5vw,22px)]",
+      )}
+    >
       <div className="mb-3.5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className="font-mono text-label uppercase tracking-[0.18em] text-ash">
+          <div className="font-mono text-label tracking-[0.18em] text-ash uppercase">
             {MONTH_NAMES[month]} {year}
           </div>
-          <div className="mt-1.5 font-mono text-figure leading-[1.1] tabular-nums tracking-[-0.02em]">{formatMoney(total)}</div>
+          <div className="mt-1.5 font-mono text-figure leading-[1.1] tracking-[-0.02em] tabular-nums">
+            {formatMoney(total)}
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-ash">{total > 0 ? stats : null}</div>
+        <div className="flex flex-wrap items-center gap-4 text-sm text-ash">
+          {total > 0 ? stats : null}
+        </div>
       </div>
 
       {lines.length > 0 ? (
@@ -120,11 +129,16 @@ export function MonthDetail({
                 onPointerEnter={() => onHoverItem(line.itemId)}
                 onPointerLeave={() => onHoverItem(null)}
               >
-                <span className="size-[9px] rounded-full bg-[var(--accent,var(--ash))]" aria-hidden="true" />
+                <span
+                  className="size-[9px] rounded-full bg-[var(--accent,var(--ash))]"
+                  aria-hidden="true"
+                />
 
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="truncate text-body">{line.name}</span>
-                  <span className="truncate text-label text-ash">{describe(line.itemId, datesSummary)}</span>
+                  <span className="truncate text-label text-ash">
+                    {describe(line.itemId, datesSummary)}
+                  </span>
                 </span>
 
                 {/* The share bar makes the month readable as a composition
@@ -134,12 +148,16 @@ export function MonthDetail({
                   aria-hidden="true"
                 >
                   <span
-                    className="block h-full rounded-[3px] bg-[var(--accent,var(--ash))] transition-[width] duration-(--tween) ease-tween" style={{ width: `${share * 100}%` }} />
+                    className="block h-full rounded-[3px] bg-[var(--accent,var(--ash))] transition-[width] duration-(--tween) ease-tween"
+                    style={{ width: `${share * 100}%` }}
+                  />
                 </span>
 
                 <span className="flex items-baseline gap-2 font-mono text-body tabular-nums">
                   {formatMoney(line.total)}
-                  <span className="min-w-[4ch] text-right text-label text-ash">{formatPercent(share)}</span>
+                  <span className="min-w-[4ch] text-right text-label text-ash">
+                    {formatPercent(share)}
+                  </span>
                 </span>
               </li>
             );
