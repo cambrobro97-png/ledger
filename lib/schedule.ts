@@ -157,8 +157,7 @@ export function occurrencesFor(item: ScheduledItem, year: number): Occurrence[] 
 export function sortOccurrences(occurrences: Occurrence[], items: ScheduledItem[]): void {
   const order = new Map(items.map((item, index) => [item.id, index]));
   occurrences.sort(
-    (a, b) =>
-      a.dayOfYear - b.dayOfYear || (order.get(a.itemId) ?? 0) - (order.get(b.itemId) ?? 0),
+    (a, b) => a.dayOfYear - b.dayOfYear || (order.get(a.itemId) ?? 0) - (order.get(b.itemId) ?? 0),
   );
 }
 
@@ -169,7 +168,7 @@ export function sortOccurrences(occurrences: Occurrence[], items: ScheduledItem[
  */
 export function largestDayTotal(sorted: Occurrence[]): number {
   let largest = 0;
-  for (let index = 0; index < sorted.length; ) {
+  for (let index = 0; index < sorted.length;) {
     const day = sorted[index].dayOfYear;
     let dayTotal = 0;
     while (index < sorted.length && sorted[index].dayOfYear === day) {

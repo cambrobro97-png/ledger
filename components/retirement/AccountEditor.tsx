@@ -4,18 +4,17 @@ import type { RetirementModel } from "@/hooks/useRetirementModel";
 import { Panel, PanelHead } from "../ui/Panel";
 import { Button } from "../ui/Button";
 import { AccountCard } from "./AccountCard";
-import styles from "./Editor.module.css";
 
 /** The account workbench, hidden while presenting. */
 export function AccountEditor({ model }: { model: RetirementModel }) {
   return (
-    <Panel className={styles.editor}>
+    <Panel className="mt-3.5">
       <PanelHead
         title="Your accounts"
         hint="Shared by every outlook — the market is what changes between them"
       />
 
-      <div className={styles.grid}>
+      <div className="grid [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-3.5">
         {model.profile.accounts.map((account) => (
           <AccountCard
             key={account.id}
@@ -28,7 +27,7 @@ export function AccountEditor({ model }: { model: RetirementModel }) {
         ))}
       </div>
 
-      <div className={styles.actions}>
+      <div className="mt-4 flex flex-wrap gap-2.5">
         <Button onClick={model.addAccount}>Add an account</Button>
       </div>
     </Panel>

@@ -111,18 +111,17 @@ export interface RetirementModel {
  * stay presentational and read whatever they need off the returned model.
  */
 export function useRetirementModel(): RetirementModel {
-  const { value: state, setValue, reset, hydrated } = usePersistedState<RetirementState>(
-    RETIREMENT_STORAGE_KEY,
-    createDefaultRetirementState,
-  );
+  const {
+    value: state,
+    setValue,
+    reset,
+    hydrated,
+  } = usePersistedState<RetirementState>(RETIREMENT_STORAGE_KEY, createDefaultRetirementState);
 
   // Seed data still sitting on `SEED_MONTH` is nobody's edit, so it's safe to
   // move onto today's month. A stored profile has some other start and is left
   // alone.
-  const onSeedMonth = useCallback(
-    (prev: RetirementState) => prev.profile.start === SEED_MONTH,
-    [],
-  );
+  const onSeedMonth = useCallback((prev: RetirementState) => prev.profile.start === SEED_MONTH, []);
 
   const applyClock = useCallback((prev: RetirementState) => {
     const start = currentMonthValue();

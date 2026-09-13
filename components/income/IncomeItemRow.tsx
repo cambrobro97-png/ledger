@@ -91,7 +91,12 @@ export function IncomeItemRow({
           />
         </InputShell>
 
-        <Button variant="danger" icon aria-label={`Remove ${item.name || "income"}`} onClick={onRemove}>
+        <Button
+          variant="danger"
+          icon
+          aria-label={`Remove ${item.name || "income"}`}
+          onClick={onRemove}
+        >
           &times;
         </Button>
       </div>
@@ -112,7 +117,9 @@ export function IncomeItemRow({
           ))}
         </button>
         <span className={styles.note}>{describeCadence(item, year)}</span>
-        <span className={styles.total}>{formatMoney(total)} in {year}</span>
+        <span className={styles.total}>
+          {formatMoney(total)} in {year}
+        </span>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { isBaselineOutlook } from "@/lib/describeRetirement";
 import type { RetirementScenario } from "@/lib/types";
-import styles from "../ScenarioTabs.module.css";
+import { Tabs } from "../ui/Tabs";
 
 interface OutlookTabsProps {
   scenarios: RetirementScenario[];
@@ -14,30 +14,16 @@ interface OutlookTabsProps {
 /** The outlook switcher. Selecting one swaps the projection, not the page. */
 export function OutlookTabs({ scenarios, activeId, presenting, onSelect }: OutlookTabsProps) {
   return (
-    <nav className={styles.tabs} role="tablist" aria-label="Outlooks">
-      {scenarios.map((scenario) => {
-        const classes = [
-          styles.tab,
-          isBaselineOutlook(scenario) ? styles.baseline : "",
-          presenting ? styles.presenting : "",
-        ]
-          .filter(Boolean)
-          .join(" ");
-
-        return (
-          <button
-            key={scenario.id}
-            type="button"
-            role="tab"
-            className={classes}
-            aria-selected={scenario.id === activeId}
-            onClick={() => onSelect(scenario.id)}
-          >
-            <i className={styles.dot} />
-            {scenario.name}
-          </button>
-        );
-      })}
-    </nav>
+    <Tabs
+      tabs={scenarios.map((scenario) => ({
+        id: scenario.id,
+        name: scenario.name,
+        muted: isBaselineOutlook(scenario),
+      }))}
+      activeId={activeId}
+      presenting={presenting}
+      label="Outlooks"
+      onSelect={onSelect}
+    />
   );
 }

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/Button";
 import { TextSelectField } from "@/components/ui/Field";
 import { formatMoney } from "@/lib/format";
 import type { RetirementSource } from "@/lib/links";
-import styles from "./MortgageLinkPicker.module.css";
 
 interface RetirementLinkPickerProps {
   retirement: RetirementSource;
@@ -41,18 +40,22 @@ export function RetirementLinkPicker({ retirement, onAdd, onClose }: RetirementL
   ];
 
   return (
-    <div className={styles.picker}>
-      <div className={styles.head}>
-        <h3 className={styles.title}>Take contributions from retirement</h3>
-        <span className={styles.hint}>
+    <div className="mt-4 rounded-xl border border-rule bg-panel-2 p-4">
+      <div className="mb-3.5 flex flex-wrap items-baseline justify-between gap-3">
+        <h3 className="m-0 font-mono text-label font-normal tracking-[0.18em] text-ash uppercase">
+          Take contributions from retirement
+        </h3>
+        <span className="text-sm text-ash">
           What you put away each month, counted as the outgoing it is
         </span>
       </div>
 
       {retirement.accounts.length === 0 ? (
-        <p className={styles.empty}>The retirement tool has no accounts to link to yet.</p>
+        <p className="mt-0 mb-3.5 text-body text-ash">
+          The retirement tool has no accounts to link to yet.
+        </p>
       ) : (
-        <div className={styles.scenario}>
+        <div className="max-w-[320px]">
           <TextSelectField
             id="retirement-link-account"
             label="Contributions to"
@@ -63,7 +66,7 @@ export function RetirementLinkPicker({ retirement, onAdd, onClose }: RetirementL
         </div>
       )}
 
-      <div className={styles.actions}>
+      <div className="flex flex-wrap gap-2.5">
         <Button
           onClick={() => {
             onAdd(accountId);

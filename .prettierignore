@@ -1,0 +1,21 @@
+# Build output and dependencies.
+.next/
+out/
+node_modules/
+next-env.d.ts
+
+# Screenshots from scripts/shoot.mjs.
+shots/
+
+# Generated, and reformatting it only makes the next install noisy.
+package-lock.json
+
+# The infrastructure package is its own npm project with its own toolchain.
+# The root tsconfig and eslint config exclude it for the same reason.
+cdk/
+
+# Prose. Prettier's markdown pass rewrites emphasis markers and table padding,
+# which is churn in hand-written documentation and buys nothing: the reason
+# this project runs Prettier at all is the class-order plugin, and that only
+# touches TSX.
+*.md

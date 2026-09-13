@@ -15,14 +15,7 @@ import { type SpareMoney, spareEachMonth } from "@/lib/links";
 import { useExpenseSummary } from "./summaries/useExpenseSummary";
 import { useIncomeSummary } from "./summaries/useIncomeSummary";
 import { useClockDefaults } from "./useClockDefaults";
-import type {
-  Amortization,
-  AppState,
-  Comparison,
-  Loan,
-  Pmi,
-  Scenario,
-} from "@/lib/types";
+import type { Amortization, AppState, Comparison, Loan, Pmi, Scenario } from "@/lib/types";
 import { usePersistedState } from "./usePersistedState";
 
 export interface MortgageModel {
@@ -51,7 +44,11 @@ export interface MortgageModel {
   addScenario: () => void;
   removeScenario: (id: string) => void;
   addOneTime: (scenarioId: string) => void;
-  updateOneTime: (scenarioId: string, oneTimeId: string, patch: { amount?: number; month?: string }) => void;
+  updateOneTime: (
+    scenarioId: string,
+    oneTimeId: string,
+    patch: { amount?: number; month?: string },
+  ) => void;
   removeOneTime: (scenarioId: string, oneTimeId: string) => void;
   resetAll: () => void;
 }
@@ -61,10 +58,12 @@ export interface MortgageModel {
  * stay presentational and read whatever they need off the returned model.
  */
 export function useMortgageModel(): MortgageModel {
-  const { value: state, setValue, reset, hydrated } = usePersistedState<AppState>(
-    STORAGE_KEY,
-    createDefaultState,
-  );
+  const {
+    value: state,
+    setValue,
+    reset,
+    hydrated,
+  } = usePersistedState<AppState>(STORAGE_KEY, createDefaultState);
 
   // A loan still starting on `SEED_MONTH` is untouched seed data, so it can move
   // onto today's month once the clock is safe to read.

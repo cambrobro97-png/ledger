@@ -110,12 +110,7 @@ export function BalanceChart({
           strokeLinejoin="round"
         />
 
-        <PayoffMarker
-          plot={LINE_PLOT}
-          index={current.months}
-          length={length}
-          color="var(--jade)"
-        />
+        <PayoffMarker plot={LINE_PLOT} index={current.months} length={length} color="var(--jade)" />
       </ChartFrame>
     </ChartCard>
   );

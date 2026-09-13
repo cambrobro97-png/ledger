@@ -1,7 +1,7 @@
 "use client";
 
 import type { ButtonHTMLAttributes } from "react";
-import styles from "./Button.module.css";
+import { cn } from "@/lib/cn";
 
 type Variant = "solid" | "ghost" | "danger";
 
@@ -11,15 +11,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ variant = "solid", icon, className, ...props }: ButtonProps) {
-  const classes = [
-    styles.button,
-    variant === "ghost" ? styles.ghost : "",
-    variant === "danger" ? `${styles.ghost} ${styles.danger}` : "",
-    icon ? styles.icon : "",
-    className ?? "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return <button type="button" className={classes} {...props} />;
+  return (
+    <button
+      type="button"
+      // Padding and background are picked rather than layered, so two utilities
+      // for the same property never both ship and leave the cascade to settle it.
+      className={cn(
+        "cursor-pointer rounded-control border border-rule text-bone",
+        "text-body leading-none font-medium transition-colors duration-150",
+        "enabled:hover:border-ash disabled:cursor-default disabled:opacity-45",
+        icon ? "px-3 py-[9px] font-mono" : "px-3.5 py-2.5 font-sans",
+        variant === "solid" ? "bg-ink" : "bg-transparent",
+        variant === "danger" && "enabled:hover:border-crimson enabled:hover:text-crimson",
+        className,
+      )}
+      {...props}
+    />
+  );
 }

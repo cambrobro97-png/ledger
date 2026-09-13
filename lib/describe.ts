@@ -19,7 +19,9 @@ export function describeExtras(scenario: Scenario): string {
     parts.push(`${formatMoney(scenario.monthly)} a month`);
   }
   if (Number(scenario.annual) > 0) {
-    parts.push(`${formatMoney(scenario.annual)} every ${MONTH_NAMES[Number(scenario.annualMonth) || 0]}`);
+    parts.push(
+      `${formatMoney(scenario.annual)} every ${MONTH_NAMES[Number(scenario.annualMonth) || 0]}`,
+    );
   }
 
   const lumpSums = scenario.oneTimes.filter((payment) => Number(payment.amount) > 0);

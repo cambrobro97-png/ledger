@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSiteChrome } from "@/components/SiteChrome";
-import { TopBar } from "@/components/TopBar";
+import { ToolHead } from "@/components/ToolHead";
+import { ToolPage, ToolFootnote, Warning } from "@/components/ToolPage";
 import { LoanPanel } from "@/components/LoanPanel";
 import { ScenarioTabs } from "@/components/ScenarioTabs";
 import { Hero } from "@/components/Hero";
@@ -16,7 +17,6 @@ import { useMortgageModel } from "@/hooks/useMortgageModel";
 import { useKeyboardControls } from "@/hooks/useKeyboardControls";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { TWEEN_MS } from "@/hooks/useTween";
-import styles from "./page.module.css";
 
 export default function Page() {
   const model = useMortgageModel();
@@ -45,8 +45,13 @@ export default function Page() {
   const ready = baseline !== null && current !== null && comparison !== null;
 
   return (
-    <main className={`${styles.wrap} ${presenting ? styles.wrapPresenting : ""}`}>
-      <TopBar presenting={presenting} onModeChange={setPresenting} />
+    <ToolPage presenting={presenting}>
+      <ToolHead
+        eyebrow="Extra principal &mdash; what it actually buys"
+        title="Paying it down early"
+        presenting={presenting}
+        onExitPresenting={() => setPresenting(false)}
+      />
 
       <LoanPanel
         loan={model.loan}
@@ -58,7 +63,7 @@ export default function Page() {
         onPmiChange={model.setPmiField}
       />
 
-      {model.error ? <p className={styles.warning}>{model.error}</p> : null}
+      {model.error ? <Warning>{model.error}</Warning> : null}
 
       {ready ? (
         <>
@@ -91,7 +96,7 @@ export default function Page() {
             duration={duration}
           />
 
-          <div className={styles.charts}>
+          <div className="mt-3.5 grid grid-cols-1 gap-3.5 lg:grid-cols-2">
             <BalanceChart
               baseline={baseline}
               current={current}
@@ -107,7 +112,7 @@ export default function Page() {
               duration={duration}
             />
             <YearSplitChart
-              className={styles.chartsWide}
+              className="col-span-full"
               current={current}
               length={baseline.months}
               startMonth={model.loan.start}
@@ -120,7 +125,7 @@ export default function Page() {
       {!presenting ? (
         <>
           <ScenarioEditor model={model} />
-          <p className={styles.footnote}>
+          <ToolFootnote>
             Figures cover principal and interest only &mdash; taxes, insurance, and escrow are
             excluded because extra payments don&rsquo;t change them.{" "}
             {model.pmi.enabled ? (
@@ -132,11 +137,11 @@ export default function Page() {
                 current-value estimate is your own projection rather than a promise.{" "}
               </>
             ) : null}
-            Every scenario is compared against making no extra payments at all. Press{" "}
-            <kbd>P</kbd> to present, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> to move between scenarios.
-          </p>
+            Every scenario is compared against making no extra payments at all. Press <kbd>P</kbd>{" "}
+            to present, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> to move between scenarios.
+          </ToolFootnote>
         </>
       ) : null}
-    </main>
+    </ToolPage>
   );
 }

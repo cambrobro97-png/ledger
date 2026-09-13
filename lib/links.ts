@@ -143,7 +143,10 @@ function resolveOne(
 
   const run = source.runs.get(link.scenarioId);
   if (!run) {
-    return { derived: null, resolution: unresolved(scenario.name, "That scenario hasn't been run against the loan.") };
+    return {
+      derived: null,
+      resolution: unresolved(scenario.name, "That scenario hasn't been run against the loan."),
+    };
   }
   if (!run.ok) {
     return { derived: null, resolution: unresolved(scenario.name, run.reason) };
@@ -151,7 +154,10 @@ function resolveOne(
   if (!isMonthValue(source.loan.start)) {
     return {
       derived: null,
-      resolution: unresolved(scenario.name, "The loan needs a month its balance is accurate as of."),
+      resolution: unresolved(
+        scenario.name,
+        "The loan needs a month its balance is accurate as of.",
+      ),
     };
   }
 
@@ -187,12 +193,18 @@ function resolveOne(
   if (link.part === "pmi") {
     const pmi = source.loan.pmi;
     if (!pmi?.enabled) {
-      return { derived: null, resolution: unresolved(scenario.name, "PMI is switched off in the mortgage tool.") };
+      return {
+        derived: null,
+        resolution: unresolved(scenario.name, "PMI is switched off in the mortgage tool."),
+      };
     }
     if (!run.pmi) {
       return {
         derived: null,
-        resolution: unresolved(scenario.name, "PMI needs a premium and a home value before it can be worked out."),
+        resolution: unresolved(
+          scenario.name,
+          "PMI needs a premium and a home value before it can be worked out.",
+        ),
       };
     }
 
@@ -233,7 +245,10 @@ function resolveOne(
   if (link.part === "annual") {
     const annual = Number(scenario.annual) || 0;
     if (annual <= 0) {
-      return { derived: null, resolution: unresolved(scenario.name, "This scenario has no yearly extra payment.") };
+      return {
+        derived: null,
+        resolution: unresolved(scenario.name, "This scenario has no yearly extra payment."),
+      };
     }
 
     // The run adds the yearly extra in whichever payment month matches, so the
@@ -323,7 +338,10 @@ function resolveContributions(
 
   const monthly = named
     ? Number(named.monthlyContribution) || 0
-    : source.accounts.reduce((total, account) => total + (Number(account.monthlyContribution) || 0), 0);
+    : source.accounts.reduce(
+        (total, account) => total + (Number(account.monthlyContribution) || 0),
+        0,
+      );
 
   const sourceName = named ? named.name || "an account" : "every account";
 
@@ -462,7 +480,12 @@ export function mortgageLinkSeed(
   // A mortgage link always decides its own dates, so the nulls `Derived` allows
   // for a contributions line can't arise here.
   const dates = derived
-    ? { amount: derived.amount, cadence: derived.cadence, anchor: derived.anchor ?? "", until: derived.until ?? "" }
+    ? {
+        amount: derived.amount,
+        cadence: derived.cadence,
+        anchor: derived.anchor ?? "",
+        until: derived.until ?? "",
+      }
     : {};
 
   return {
@@ -724,10 +747,22 @@ export function resolveRetirementSpend(
 
   const horizon = (Number(profile.endAge) || 0) - (Number(profile.currentAge) || 0);
   if (horizon <= 0) {
-    return { ...bare, resolution: unresolved("the expense list", "There is no horizon to spread the spending over.") };
+    return {
+      ...bare,
+      resolution: unresolved(
+        "the expense list",
+        "There is no horizon to spread the spending over.",
+      ),
+    };
   }
   if (!isMonthValue(profile.start)) {
-    return { ...bare, resolution: unresolved("the expense list", "The profile needs a month its balances are accurate as of.") };
+    return {
+      ...bare,
+      resolution: unresolved(
+        "the expense list",
+        "The profile needs a month its balances are accurate as of.",
+      ),
+    };
   }
 
   const start = parseMonth(profile.start);
@@ -782,9 +817,7 @@ export function resolveRetirementSpend(
 
   const adjusted = adjust !== 1 ? ` at ${Math.round(adjust * 100)}% of today's` : "";
   const ending =
-    endingCount > 0
-      ? ` ${formatMoney(endingAnnual)} of it stops before ${profile.endAge}.`
-      : "";
+    endingCount > 0 ? ` ${formatMoney(endingAnnual)} of it stops before ${profile.endAge}.` : "";
 
   return {
     base,
@@ -844,7 +877,10 @@ export function resolveSalary(
     if (salary <= 0) {
       return {
         salary: typed,
-        resolution: unresolved(item.name, "That source doesn't repeat, so it has no yearly figure."),
+        resolution: unresolved(
+          item.name,
+          "That source doesn't repeat, so it has no yearly figure.",
+        ),
       };
     }
 

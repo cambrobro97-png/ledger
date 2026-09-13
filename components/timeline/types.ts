@@ -32,9 +32,7 @@ export interface TimelineAppearance {
  * measured from zero the whole year lands in the top of the range and the band
  * reads as twelve identical blocks.
  */
-export type BandScale =
-  | { kind: "share" }
-  | { kind: "range"; low: number; high: number };
+export type BandScale = { kind: "share" } | { kind: "range"; low: number; high: number };
 
 /** Everything a page hands the shared timeline, orientation aside. */
 export interface TimelineProps {

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/Button";
 import { Panel, PanelHead } from "@/components/ui/Panel";
 import type { IncomeModel } from "@/hooks/useIncomeModel";
 import { IncomeItemRow } from "./IncomeItemRow";
-import styles from "./IncomeEditor.module.css";
 
 interface IncomeEditorProps {
   model: IncomeModel;
@@ -21,14 +20,14 @@ export function IncomeEditor({ model, hoveredItemId, onHoverItem }: IncomeEditor
   );
 
   return (
-    <Panel className={styles.editor}>
+    <Panel className="mt-[clamp(24px,2.6vw,40px)]">
       <PanelHead
         title="Where the money comes from"
         hint="Edits are saved automatically and stay put between visits"
       />
 
       {model.items.length > 0 ? (
-        <div className={styles.list}>
+        <div className="grid gap-3">
           {model.items.map((item) => (
             <IncomeItemRow
               key={item.id}
@@ -43,10 +42,10 @@ export function IncomeEditor({ model, hoveredItemId, onHoverItem }: IncomeEditor
           ))}
         </div>
       ) : (
-        <p className={styles.empty}>No income yet. Add a source to fill the timeline.</p>
+        <p className="m-0 text-body text-ash">No income yet. Add a source to fill the timeline.</p>
       )}
 
-      <div className={styles.actions}>
+      <div className="mt-4 flex flex-wrap gap-2.5">
         <Button onClick={model.addItem}>Add income</Button>
         <Button variant="ghost" onClick={model.resetAll}>
           Start over from the defaults

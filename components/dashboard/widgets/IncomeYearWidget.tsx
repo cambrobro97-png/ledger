@@ -12,8 +12,7 @@ export function IncomeYearWidget({ size }: WidgetProps) {
   const { hydrated, year, derived } = useIncomeSummary();
 
   const count = derived.occurrences.length;
-  const peak =
-    derived.peakMonth >= 0 ? ` · biggest ${MONTH_NAMES[derived.peakMonth]}` : "";
+  const peak = derived.peakMonth >= 0 ? ` · biggest ${MONTH_NAMES[derived.peakMonth]}` : "";
 
   return (
     <WidgetShell

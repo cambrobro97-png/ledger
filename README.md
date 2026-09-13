@@ -250,9 +250,20 @@ mount instead.
 ```
 app/
   layout.tsx            Document shell, web fonts, site metadata
-  globals.css           Design tokens: colour, type, spacing
+  globals.css           Tailwind's theme: the design tokens every utility is
+                        generated from, the `eyebrow`, `inline-figures` and
+                        `scrollbar-none` utilities, and the element-level rules,
+                        in `@layer base` so utilities can override them
   (tools)/              The dashboard at "/", one route per tool below it,
                         sharing the header, its tool menu, and the footer
+docs/
+  design-tokens.md      The design system: the type scale and what each step
+                        replaced, the breakpoint convention, the cascade layers,
+                        and why a dozen CSS Modules are still CSS Modules
+scripts/
+  shoot.mjs             Screenshots every route at three widths and compares two
+                        runs by checksum, which is what stands in for tests when
+                        the question is whether anything moved
 lib/
   types.ts              Every shape the tools share, from Loan and Scenario
                         through the income, expense, and retirement models

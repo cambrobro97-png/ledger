@@ -1,12 +1,12 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { formatMoney } from "@/lib/format";
 import { formatMonth, parseMonth } from "@/lib/dates";
 import type { IncomeSource, LinkResolution, MortgageSource } from "@/lib/links";
 import type { RetirementProfile } from "@/lib/types";
 import { Panel } from "../ui/Panel";
 import { MonthField, NumericField, TextSelectField } from "../ui/Field";
-import styles from "./ProfilePanel.module.css";
 
 interface ProfilePanelProps {
   profile: RetirementProfile;
@@ -34,9 +34,9 @@ const TYPED = "";
 
 function Chip({ label, value }: { label: string; value: string }) {
   return (
-    <div className={styles.chip}>
-      <span className={styles.chipKey}>{label}</span>
-      <span className={styles.chipValue}>{value}</span>
+    <div className="flex flex-col gap-0.5">
+      <span className="font-mono text-label tracking-[0.14em] text-ash uppercase">{label}</span>
+      <span className="font-mono text-title font-medium tabular-nums">{value}</span>
     </div>
   );
 }
@@ -60,8 +60,8 @@ export function ProfilePanel({
 
   if (presenting) {
     return (
-      <Panel bare className={styles.panel}>
-        <div className={styles.chips}>
+      <Panel bare className="mt-5">
+        <div className="flex flex-wrap gap-x-7 gap-y-2.5">
           <Chip label="Age today" value={String(profile.currentAge)} />
           <Chip label="Money lasts to" value={String(profile.endAge)} />
           <Chip label="Salary" value={formatMoney(profile.salary)} />
@@ -107,17 +107,17 @@ export function ProfilePanel({
   ];
 
   return (
-    <Panel className={styles.panel}>
-      <div className={styles.head}>
-        <div className={styles.eyebrow}>You &mdash; applies to every outlook</div>
-        <div className={styles.eyebrow}>
+    <Panel className="mt-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-4">
+        <div className="eyebrow">You &mdash; applies to every outlook</div>
+        <div className="eyebrow">
           {retirementAge !== null
             ? `${Math.max(0, retirementAge - profile.currentAge)} years to go on this outlook`
             : " "}
         </div>
       </div>
 
-      <div className={styles.fields}>
+      <div className="mt-3.5 grid [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))] gap-x-7 gap-y-3.5">
         <NumericField
           id="profile-age"
           label="Your age today"
@@ -137,9 +137,7 @@ export function ProfilePanel({
           <TextSelectField
             id="profile-salary-source"
             label="Salary from"
-            value={
-              profile.salaryLink ? profile.salaryLink.itemId || EVERY_SOURCE : TYPED
-            }
+            value={profile.salaryLink ? profile.salaryLink.itemId || EVERY_SOURCE : TYPED}
             options={salaryOptions}
             onChange={(value) =>
               onLinkSalary(value === TYPED ? null : value === EVERY_SOURCE ? "" : value)
@@ -195,7 +193,10 @@ export function ProfilePanel({
 
       {salaryResolution && salaryResolution.status !== "pending" ? (
         <p
-          className={`${styles.linkNote} ${salaryResolution.status === "live" ? "" : styles.linkWarning}`}
+          className={cn(
+            "mx-0 mt-3 mb-0 text-sm leading-[1.5]",
+            salaryResolution.status === "live" ? "text-ash" : "text-brass",
+          )}
         >
           {salaryResolution.status === "live"
             ? `Salary from the income tool · ${salaryResolution.note}`
@@ -205,7 +206,10 @@ export function ProfilePanel({
 
       {resolution && resolution.status !== "pending" ? (
         <p
-          className={`${styles.linkNote} ${resolution.status === "live" ? "" : styles.linkWarning}`}
+          className={cn(
+            "mx-0 mt-3 mb-0 text-sm leading-[1.5]",
+            resolution.status === "live" ? "text-ash" : "text-brass",
+          )}
         >
           {resolution.status === "live"
             ? `From the mortgage tool · ${resolution.sourceName} · ${resolution.note} The payment includes that scenario's extra principal, because the payoff date assumes you are paying it.`

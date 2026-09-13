@@ -13,8 +13,8 @@ export function Field({
   children: ReactNode;
 }) {
   return (
-    <div className={styles.field}>
-      <label className={styles.label} htmlFor={htmlFor}>
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <label className="text-sm tracking-[0.02em] text-ash" htmlFor={htmlFor}>
         {label}
       </label>
       {children}
@@ -32,10 +32,10 @@ export function InputShell({
   children: ReactNode;
 }) {
   return (
-    <div className={styles.shell}>
-      {prefix ? <span className={styles.affix}>{prefix}</span> : null}
+    <div className="flex items-center rounded-control border border-rule bg-ink px-2.5 transition-colors duration-150 focus-within:border-brass">
+      {prefix ? <span className="font-mono text-body text-ash">{prefix}</span> : null}
       {children}
-      {suffix ? <span className={styles.affix}>{suffix}</span> : null}
+      {suffix ? <span className="font-mono text-body text-ash">{suffix}</span> : null}
     </div>
   );
 }
@@ -232,7 +232,7 @@ export function ToggleField({
   disabled?: boolean;
 }) {
   return (
-    <div className={styles.toggleRow}>
+    <div className="flex min-w-0">
       <input
         id={id}
         type="checkbox"
@@ -245,9 +245,9 @@ export function ToggleField({
         <span className={styles.track} aria-hidden="true">
           <span className={styles.thumb} />
         </span>
-        <span className={styles.toggleText}>
-          <span className={styles.toggleLabel}>{label}</span>
-          {hint ? <span className={styles.toggleHint}>{hint}</span> : null}
+        <span className="flex min-w-0 flex-col gap-0.5">
+          <span className="text-body text-bone">{label}</span>
+          {hint ? <span className="text-sm text-ash">{hint}</span> : null}
         </span>
       </label>
     </div>

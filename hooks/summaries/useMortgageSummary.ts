@@ -44,11 +44,9 @@ export interface MortgageSummary {
  * the tool if both were open. This reads and derives, nothing more.
  */
 export function useMortgageSummary(): MortgageSummary {
-  const { value: state, hydrated } = usePersistedState<AppState>(
-    STORAGE_KEY,
-    createDefaultState,
-    { readOnly: true },
-  );
+  const { value: state, hydrated } = usePersistedState<AppState>(STORAGE_KEY, createDefaultState, {
+    readOnly: true,
+  });
 
   return useMemo(() => {
     const scenario =
