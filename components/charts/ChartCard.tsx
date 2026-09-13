@@ -20,14 +20,7 @@ interface ChartCardProps {
 }
 
 /** Shared shell for the three charts: heading, hover readout, canvas, legend. */
-export function ChartCard({
-  title,
-  hint,
-  readout,
-  legend,
-  children,
-  className,
-}: ChartCardProps) {
+export function ChartCard({ title, hint, readout, legend, children, className }: ChartCardProps) {
   return (
     <Panel className={className}>
       <PanelHead title={title} hint={hint} />

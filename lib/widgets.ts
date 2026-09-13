@@ -211,6 +211,6 @@ export function widgetById(id: string): WidgetDefinition | undefined {
   return BY_ID.get(id);
 }
 
-export const DEFAULT_WIDGET_IDS: string[] = WIDGETS.filter(
-  (widget) => widget.inDefaultLayout,
-).map((widget) => widget.id);
+export const DEFAULT_WIDGET_IDS: string[] = WIDGETS.filter((widget) => widget.inDefaultLayout).map(
+  (widget) => widget.id,
+);

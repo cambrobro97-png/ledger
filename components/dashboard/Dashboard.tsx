@@ -3,16 +3,27 @@
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import headStyles from "@/components/TopBar.module.css";
+import { ToolHeading } from "@/components/ToolHead";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { cn } from "@/lib/cn";
 import { SIZE_LABELS, type WidgetSize } from "@/lib/dashboardLayout";
 import { TOOLS, type ToolId } from "@/lib/tools";
 import { WIDGETS, widgetById, type WidgetDefinition } from "@/lib/widgets";
-import styles from "./Dashboard.module.css";
 
 /** Widgets keep their drag handle only where HTML5 drag actually fires. */
 const POINTER_QUERY = "(min-width: 640px)";
+
+/*
+ * The edit-mode toolbar buttons. One base, and each variant picks its own
+ * cursor and colour rather than layering a second utility over the first —
+ * two utilities for one property leave the cascade to decide which wins, which
+ * is a coin toss that happens to be landing the right way up.
+ */
+const CONTROL =
+  "inline-flex min-h-[34px] min-w-[34px] items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35 cursor-pointer text-bone";
+const HANDLE =
+  "inline-flex min-h-[34px] min-w-[34px] items-center justify-center rounded-chip border border-rule bg-panel-2 px-2 font-mono text-[12px] transition-[border-color,color] duration-[140ms] ease-tween enabled:hover:border-ash disabled:cursor-default disabled:opacity-35 cursor-grab text-ash active:cursor-grabbing";
 
 function ownerLabel(owner: ToolId | "cross"): string {
   if (owner === "cross") return "Across tools";
@@ -20,8 +31,7 @@ function ownerLabel(owner: ToolId | "cross"): string {
 }
 
 export function Dashboard() {
-  const { layout, placedIds, move, moveTo, cycleSize, add, remove, reset } =
-    useDashboardLayout();
+  const { layout, placedIds, move, moveTo, cycleSize, add, remove, reset } = useDashboardLayout();
 
   const [editing, setEditing] = useState(false);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -42,9 +52,7 @@ export function Dashboard() {
       const to = from + direction;
       if (from === -1 || to < 0 || to >= layout.widgets.length) return;
       move(definition.id, direction);
-      announce(
-        `${definition.title} moved to position ${to + 1} of ${layout.widgets.length}.`,
-      );
+      announce(`${definition.title} moved to position ${to + 1} of ${layout.widgets.length}.`);
     },
     [announce, layout.widgets, move],
   );
@@ -79,14 +87,11 @@ export function Dashboard() {
   const isEmpty = layout.widgets.length === 0;
 
   return (
-    <div className={styles.wrap}>
-      <header className={styles.head}>
-        <div className={styles.headText}>
-          <div className={headStyles.eyebrow}>Everything at a glance</div>
-          <h1 className={headStyles.title}>The big picture</h1>
-        </div>
+    <main className="mx-auto max-w-[1600px] px-(--pad) pt-[clamp(20px,3vw,44px)] pb-[clamp(48px,6vw,96px)]">
+      <header className="flex flex-wrap items-end justify-between gap-3.5">
+        <ToolHeading eyebrow="Everything at a glance" title="The big picture" className="min-w-0" />
 
-        <div className={styles.actions}>
+        <div className="flex flex-wrap gap-2">
           {editing ? (
             <Button variant="ghost" onClick={reset}>
               Reset layout
@@ -104,7 +109,7 @@ export function Dashboard() {
         </div>
       </header>
 
-      <p className={styles.hint}>
+      <p className="mx-0 mt-2.5 mb-0 max-w-[62ch] text-body text-ash">
         {editing
           ? "Reorder with the arrows, change a card's width with its size button, or drop one off. Anything you remove is listed below."
           : "Every tool's headline figure in one place. Press Customise to rearrange."}
@@ -112,20 +117,20 @@ export function Dashboard() {
 
       {/* Announces reorder and resize for the button path, which is what makes
           it genuinely usable rather than merely operable. */}
-      <div className={styles.srOnly} role="status" aria-live="polite">
+      <div className="sr-only" role="status" aria-live="polite">
         {announcement}
       </div>
 
       {isEmpty ? (
-        <div className={styles.empty}>
-          <h2 className={styles.emptyTitle}>Nothing on the dashboard</h2>
-          <p className={styles.emptyHint}>
+        <div className="mt-[clamp(16px,1.8vw,28px)] rounded-panel border border-dashed border-rule bg-panel px-[clamp(18px,2vw,32px)] py-[clamp(28px,4vw,56px)] text-center">
+          <h2 className="m-0 font-display text-title font-medium">Nothing on the dashboard</h2>
+          <p className="mx-0 mt-2 mb-4 text-base text-ash">
             You have taken every card off. Add one back below, or start over.
           </p>
           {editing ? null : <Button onClick={() => setEditing(true)}>Customise</Button>}
         </div>
       ) : (
-        <ul className={`${styles.grid} ${editing ? styles.editing : ""}`}>
+        <ul className="mt-[clamp(16px,1.8vw,28px)] grid list-none grid-cols-1 items-stretch gap-[clamp(12px,1.2vw,18px)] p-0 sm:grid-cols-2 xl:grid-cols-4">
           {layout.widgets.map((placed, index) => {
             const definition = widgetById(placed.id);
             if (!definition) return null;
@@ -134,9 +139,9 @@ export function Dashboard() {
             const effectiveSize: WidgetSize = roomy ? placed.size : "small";
             const sizeClass =
               placed.size === "wide"
-                ? styles.wide
+                ? "sm:col-span-2 xl:col-span-4"
                 : placed.size === "medium"
-                  ? styles.medium
+                  ? "sm:col-span-2 xl:col-span-2"
                   : "";
 
             const card = <Component size={effectiveSize} />;
@@ -144,14 +149,15 @@ export function Dashboard() {
             return (
               <li
                 key={placed.id}
-                className={[
-                  styles.cell,
+                className={cn(
+                  "col-span-1 flex min-w-0",
                   sizeClass,
-                  draggingId === placed.id ? styles.dragging : "",
-                  overId === placed.id && draggingId !== placed.id ? styles.dropTarget : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
+                  editing && "relative",
+                  draggingId === placed.id && "opacity-40",
+                  overId === placed.id &&
+                    draggingId !== placed.id &&
+                    "[&>*]:outline-2 [&>*]:-outline-offset-2 [&>*]:outline-brass [&>*]:outline-dashed",
+                )}
                 onDragOver={
                   editing
                     ? (event) => {
@@ -182,11 +188,19 @@ export function Dashboard() {
                 }
               >
                 {editing ? (
-                  <div className={styles.editCard}>
-                    <div className={styles.controls}>
+                  <div
+                    className={cn(
+                      "flex w-full min-w-0 flex-col overflow-hidden rounded-panel border",
+                      "[&>*:last-child]:rounded-none [&>*:last-child]:border-0",
+                      overId === placed.id && draggingId !== placed.id
+                        ? "border-jade"
+                        : "border-brass",
+                    )}
+                  >
+                    <div className="flex flex-wrap items-center gap-1.5 border-b border-dashed border-rule bg-ink px-2.5 py-2">
                       {roomy ? (
                         <span
-                          className={`${styles.control} ${styles.handle}`}
+                          className={HANDLE}
                           draggable
                           aria-hidden="true"
                           onDragStart={(event) => {
@@ -205,7 +219,7 @@ export function Dashboard() {
 
                       <button
                         type="button"
-                        className={styles.control}
+                        className={CONTROL}
                         disabled={index === 0}
                         aria-label={`Move ${definition.title} earlier`}
                         onClick={() => handleMove(definition, -1)}
@@ -214,7 +228,7 @@ export function Dashboard() {
                       </button>
                       <button
                         type="button"
-                        className={styles.control}
+                        className={CONTROL}
                         disabled={index === layout.widgets.length - 1}
                         aria-label={`Move ${definition.title} later`}
                         onClick={() => handleMove(definition, 1)}
@@ -224,18 +238,18 @@ export function Dashboard() {
 
                       <button
                         type="button"
-                        className={`${styles.control} ${styles.sizeControl}`}
+                        className={cn(CONTROL, "tracking-[0.06em]")}
                         aria-label={`${definition.title} size: ${SIZE_LABELS[placed.size]}. Change size.`}
                         onClick={() => handleCycleSize(definition, placed.size)}
                       >
                         {SIZE_LABELS[placed.size]}
                       </button>
 
-                      <span className={styles.spacer} />
+                      <span className="flex-1" />
 
                       <button
                         type="button"
-                        className={`${styles.control} ${styles.removeControl}`}
+                        className={cn(CONTROL, "hover:border-crimson hover:text-crimson")}
                         aria-label={`Remove ${definition.title}`}
                         onClick={() => handleRemove(definition)}
                       >
@@ -246,7 +260,10 @@ export function Dashboard() {
                   </div>
                 ) : (
                   // Only a card that is not being rearranged navigates.
-                  <Link href={definition.href} className={styles.cellLink}>
+                  <Link
+                    href={definition.href}
+                    className="flex w-full min-w-0 rounded-panel text-inherit no-underline [&:hover>*]:border-ash [&:hover>*]:bg-panel-2"
+                  >
                     {card}
                   </Link>
                 )}
@@ -257,26 +274,31 @@ export function Dashboard() {
       )}
 
       {editing ? (
-        <section className={styles.catalog} aria-label="Widgets you can add">
-          <h2 className={styles.catalogTitle}>Add a card</h2>
-          <p className={styles.catalogHint}>
+        <section
+          className="mt-[clamp(24px,3vw,44px)] border-t border-rule pt-[clamp(18px,2vw,28px)]"
+          aria-label="Widgets you can add"
+        >
+          <h2 className="m-0 font-display text-title font-medium">Add a card</h2>
+          <p className="mx-0 mt-1.5 mb-0 text-base text-ash">
             {available.length === 0
               ? "Every card is already on your dashboard."
               : "These are not on your dashboard yet."}
           </p>
 
           {available.length > 0 ? (
-            <ul className={styles.catalogList}>
+            <ul className="m-0 mt-4 grid list-none grid-cols-1 gap-2.5 p-0 sm:grid-cols-2 xl:grid-cols-3">
               {available.map((definition) => (
                 <li key={definition.id}>
                   <button
                     type="button"
-                    className={styles.catalogItem}
+                    className="flex w-full min-w-0 cursor-pointer flex-col gap-1 rounded-panel border border-dashed border-rule bg-panel p-3.5 text-left text-inherit transition-[border-color,background-color] duration-[140ms] ease-tween hover:border-jade hover:bg-panel-2"
                     onClick={() => handleAdd(definition)}
                   >
-                    <span className={styles.catalogOwner}>{ownerLabel(definition.owner)}</span>
-                    <span className={styles.catalogName}>{definition.title}</span>
-                    <span className={styles.catalogBlurb}>{definition.blurb}</span>
+                    <span className="font-mono text-[10px] tracking-[0.16em] text-ash uppercase">
+                      {ownerLabel(definition.owner)}
+                    </span>
+                    <span className="font-sans text-body font-semibold">{definition.title}</span>
+                    <span className="text-sm text-ash">{definition.blurb}</span>
                   </button>
                 </li>
               ))}
@@ -284,6 +306,6 @@ export function Dashboard() {
           ) : null}
         </section>
       ) : null}
-    </div>
+    </main>
   );
 }

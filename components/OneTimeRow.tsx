@@ -3,7 +3,6 @@
 import type { OneTimePayment } from "@/lib/types";
 import { Button } from "./ui/Button";
 import { InputShell, fieldStyles } from "./ui/Field";
-import styles from "./OneTimeRow.module.css";
 
 interface OneTimeRowProps {
   payment: OneTimePayment;
@@ -15,7 +14,7 @@ interface OneTimeRowProps {
 /** One lump sum: how much, and which month it lands in. */
 export function OneTimeRow({ payment, disabled, onChange, onRemove }: OneTimeRowProps) {
   return (
-    <div className={styles.row}>
+    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-2.5">
       <InputShell prefix="$">
         <input
           className={fieldStyles.input}
@@ -41,7 +40,13 @@ export function OneTimeRow({ payment, disabled, onChange, onRemove }: OneTimeRow
         />
       </InputShell>
 
-      <Button variant="danger" icon aria-label="Remove one-time payment" disabled={disabled} onClick={onRemove}>
+      <Button
+        variant="danger"
+        icon
+        aria-label="Remove one-time payment"
+        disabled={disabled}
+        onClick={onRemove}
+      >
         &times;
       </Button>
     </div>

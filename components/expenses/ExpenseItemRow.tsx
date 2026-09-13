@@ -90,7 +90,10 @@ export function ExpenseItemRow({
                 {MORTGAGE_PART_LABELS[link.part]}
               </>
             ) : (
-              <>Retirement &middot; {resolution?.sourceName || "deleted account"} &middot; contributions</>
+              <>
+                Retirement &middot; {resolution?.sourceName || "deleted account"} &middot;
+                contributions
+              </>
             )}
           </Link>
 

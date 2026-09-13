@@ -1,35 +1,13 @@
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.label {
-  font-size: 12px;
-  color: var(--ash);
-  letter-spacing: 0.02em;
-}
-
-.shell {
-  display: flex;
-  align-items: center;
-  background: var(--ink);
-  border: 1px solid var(--rule);
-  border-radius: 9px;
-  padding: 0 10px;
-  transition: border-color 0.15s ease;
-}
-
-.shell:focus-within {
-  border-color: var(--brass);
-}
-
-.affix {
-  color: var(--ash);
-  font-family: var(--mono);
-  font-size: 13px;
-}
+/*
+ * What is left of this module after phase 3, and what is meant to stay.
+ *
+ * The control reset below reaches for vendor pseudo-elements, an attribute
+ * selector and a descendant `option`; the toggle is four elements wired
+ * together through `:checked +` and `:focus-visible +` on a visually hidden
+ * input. Utilities express neither, and spelling them as arbitrary variants
+ * would be less readable than the CSS, not more. Everything in Field that was
+ * plain layout and colour now lives in Field.tsx.
+ */
 
 .input,
 .select {
@@ -42,7 +20,7 @@
   outline: none;
   box-shadow: none;
   color: var(--bone);
-  font-size: clamp(14px, 1vw, 17px);
+  font-size: var(--text-lg);
   padding: 10px 6px;
   width: 100%;
   min-width: 0;
@@ -80,11 +58,6 @@
 }
 
 /* Toggle ------------------------------------------------------------- */
-
-.toggleRow {
-  display: flex;
-  min-width: 0;
-}
 
 /* The real control, kept off-screen but focusable so the switch stays
    keyboard-operable and screen readers still see a checkbox. */
@@ -149,23 +122,6 @@
 .toggleInput:disabled + .toggle {
   cursor: default;
   opacity: 0.5;
-}
-
-.toggleText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.toggleLabel {
-  font-size: 13px;
-  color: var(--bone);
-}
-
-.toggleHint {
-  font-size: 12px;
-  color: var(--ash);
 }
 
 @media (prefers-reduced-motion: reduce) {

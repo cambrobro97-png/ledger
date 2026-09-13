@@ -6,7 +6,6 @@ import type { Amortization, Loan, Pmi } from "@/lib/types";
 import { Panel } from "./ui/Panel";
 import { MonthField, NumericField } from "./ui/Field";
 import { PmiPanel } from "./PmiPanel";
-import styles from "./LoanPanel.module.css";
 
 interface LoanPanelProps {
   loan: Loan;
@@ -22,9 +21,9 @@ interface LoanPanelProps {
 
 function Chip({ label, value }: { label: string; value: string }) {
   return (
-    <div className={styles.chip}>
-      <span className={styles.chipKey}>{label}</span>
-      <span className={styles.chipValue}>{value}</span>
+    <div className="flex flex-col gap-0.5">
+      <span className="font-mono text-label tracking-[0.14em] text-ash uppercase">{label}</span>
+      <span className="font-mono text-title font-medium tabular-nums">{value}</span>
     </div>
   );
 }
@@ -40,12 +39,12 @@ export function LoanPanel({
   onPmiChange,
 }: LoanPanelProps) {
   const termLeft = baselineMonths === null ? null : formatDuration(baselineMonths);
-  const dropOff = pmi.enabled ? current?.pmi?.dropOffDate ?? null : null;
+  const dropOff = pmi.enabled ? (current?.pmi?.dropOffDate ?? null) : null;
 
   if (presenting) {
     return (
-      <Panel bare className={styles.panel}>
-        <div className={styles.chips}>
+      <Panel bare className="mt-5">
+        <div className="flex flex-wrap gap-x-7 gap-y-2.5">
           <Chip label="Balance" value={formatMoney(loan.balance)} />
           <Chip label="Rate" value={formatRate(loan.apr)} />
           <Chip label="Payment" value={`${formatMoney(loan.payment)}/mo`} />
@@ -57,15 +56,15 @@ export function LoanPanel({
   }
 
   return (
-    <Panel className={styles.panel}>
-      <div className={styles.head}>
-        <div className={styles.eyebrow}>The loan &mdash; applies to every scenario</div>
-        <div className={styles.eyebrow}>
+    <Panel className="mt-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-4">
+        <div className="eyebrow">The loan &mdash; applies to every scenario</div>
+        <div className="eyebrow">
           {termLeft ? `${termLeft} left at the current payment` : "\u00a0"}
         </div>
       </div>
 
-      <div className={styles.fields}>
+      <div className="mt-3.5 grid [grid-template-columns:repeat(auto-fit,minmax(150px,1fr))] gap-x-7 gap-y-3.5">
         <NumericField
           id="loan-balance"
           label="Current balance"

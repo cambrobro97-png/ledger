@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useCallback, useMemo, useState } from "react";
 import { ExpenseEditor } from "@/components/expenses/ExpenseEditor";
 import { ExpenseMetrics } from "@/components/expenses/ExpenseMetrics";
@@ -15,9 +16,8 @@ import { MONTH_NAMES } from "@/lib/dates";
 import { parseDay } from "@/lib/days";
 import { CADENCE_LABELS, CATEGORY_LABELS, KIND_LABELS, categoryAccent } from "@/lib/expenses";
 import { formatMoney } from "@/lib/format";
-import monthStyles from "@/components/timeline/MonthDetail.module.css";
-import headStyles from "@/components/TopBar.module.css";
-import styles from "../tool-page.module.css";
+import { ToolHead } from "@/components/ToolHead";
+import { ToolPage, ToolFootnote } from "@/components/ToolPage";
 
 export default function Page() {
   const model = useExpenseModel();
@@ -36,7 +36,10 @@ export default function Page() {
   const appearance = useCallback<(id: string) => TimelineAppearance>(
     (id) => {
       const item = itemsById.get(id);
-      return { accent: categoryAccent(item?.category ?? "other"), muted: item?.kind === "variable" };
+      return {
+        accent: categoryAccent(item?.category ?? "other"),
+        muted: item?.kind === "variable",
+      };
     },
     [itemsById],
   );
@@ -81,13 +84,12 @@ export default function Page() {
   );
 
   return (
-    <main className={styles.wrap}>
-      <header className={`${headStyles.bar} ${styles.head}`}>
-        <div>
-          <div className={headStyles.eyebrow}>Every bill &mdash; what the year really costs</div>
-          <h1 className={headStyles.title}>Where the money goes</h1>
-        </div>
-      </header>
+    <ToolPage>
+      <ToolHead
+        eyebrow="Every bill &mdash; what the year really costs"
+        title="Where the money goes"
+        className="mb-[clamp(16px,1.8vw,26px)]"
+      />
 
       <Panel>
         <YearSwitcher
@@ -149,7 +151,7 @@ export default function Page() {
 
       <ExpenseEditor model={model} hoveredItemId={hoveredItemId} onHoverItem={setHoveredItemId} />
 
-      <p className={styles.footnote}>
+      <ToolFootnote>
         Fixed lines are the ones a lean month can&rsquo;t go below; everything marked variable is
         where there&rsquo;s a decision to make. Recurring expenses repeat from their first payment,
         so a weekly bill produces the occasional five-payment month
@@ -159,8 +161,8 @@ export default function Page() {
             them is which month that is. */}
         {mortgageEnds ? ` The mortgage comes off the timeline after ${mortgageEnds}.` : ""} Press{" "}
         <kbd>Esc</kbd> to close an open month.
-      </p>
-    </main>
+      </ToolFootnote>
+    </ToolPage>
   );
 }
 
@@ -190,14 +192,17 @@ function ExpenseMonthStats({
 
   return (
     <>
-      <span className={monthStyles.stat}>
+      <span className="inline-figures">
         <strong>{formatMoney(fixed)}</strong> fixed
       </span>
-      <span className={monthStyles.stat}>
+      <span className="inline-figures">
         <strong>{formatMoney(total - fixed)}</strong> variable
       </span>
       <span
-        className={`${monthStyles.stat} ${delta > 0 ? monthStyles.over : monthStyles.under}`}
+        className={cn(
+          "inline-figures",
+          delta > 0 ? "[&_strong]:text-crimson" : "[&_strong]:text-jade",
+        )}
         title="Against the average month that has spending in it"
       >
         <strong>

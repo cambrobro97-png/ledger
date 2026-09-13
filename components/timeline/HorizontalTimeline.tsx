@@ -89,10 +89,7 @@ export function HorizontalTimeline({
   );
 
   // The tooltip tracks its column, so its x follows the active mark.
-  const activeX = useMemo(
-    () => (active ? xFor(active.dayOfYear + 0.5) : 0),
-    [active, xFor],
-  );
+  const activeX = useMemo(() => (active ? xFor(active.dayOfYear + 0.5) : 0), [active, xFor]);
 
   return (
     <>
@@ -111,7 +108,13 @@ export function HorizontalTimeline({
           {/* The band is clipped so a zoomed month's segment can run past the
               plot edges without escaping the panel. */}
           <clipPath id={`${gradientId}-band`}>
-            <rect x={PLOT.left} y={BAND_TOP - 2} width={PLOT_WIDTH} height={BAND_HEIGHT + 4} rx={6} />
+            <rect
+              x={PLOT.left}
+              y={BAND_TOP - 2}
+              width={PLOT_WIDTH}
+              height={BAND_HEIGHT + 4}
+              rx={6}
+            />
           </clipPath>
         </defs>
 
@@ -177,7 +180,13 @@ export function HorizontalTimeline({
         </g>
 
         {/* Baseline */}
-        <line x1={PLOT.left} y1={FLOOR} x2={PLOT.left + PLOT_WIDTH} y2={FLOOR} className={styles.axis} />
+        <line
+          x1={PLOT.left}
+          y1={FLOOR}
+          x2={PLOT.left + PLOT_WIDTH}
+          y2={FLOOR}
+          className={styles.axis}
+        />
 
         {/* Day ticks, only once a month is open enough to read them. */}
         {visibleDays && dayProgress > 0 ? (

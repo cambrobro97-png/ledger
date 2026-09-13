@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useCallback, useMemo, useState } from "react";
 import { IncomeEditor } from "@/components/income/IncomeEditor";
 import { IncomeMetrics } from "@/components/income/IncomeMetrics";
@@ -14,9 +15,8 @@ import { TWEEN_MS } from "@/hooks/useTween";
 import { MONTH_NAMES } from "@/lib/dates";
 import { CADENCE_LABELS, accentFor } from "@/lib/income";
 import { formatMoney } from "@/lib/format";
-import monthStyles from "@/components/timeline/MonthDetail.module.css";
-import headStyles from "@/components/TopBar.module.css";
-import styles from "../tool-page.module.css";
+import { ToolHead } from "@/components/ToolHead";
+import { ToolPage, ToolFootnote } from "@/components/ToolPage";
 
 const BAND_SCALE: BandScale = { kind: "share" };
 
@@ -59,13 +59,12 @@ export default function Page() {
   );
 
   return (
-    <main className={styles.wrap}>
-      <header className={`${headStyles.bar} ${styles.head}`}>
-        <div>
-          <div className={headStyles.eyebrow}>Every payday &mdash; where the year lands</div>
-          <h1 className={headStyles.title}>What the year pays</h1>
-        </div>
-      </header>
+    <ToolPage>
+      <ToolHead
+        eyebrow="Every payday &mdash; where the year lands"
+        title="What the year pays"
+        className="mb-[clamp(16px,1.8vw,26px)]"
+      />
 
       <Panel>
         <YearSwitcher
@@ -121,14 +120,14 @@ export default function Page() {
 
       <IncomeEditor model={model} hoveredItemId={hoveredItemId} onHoverItem={setHoveredItemId} />
 
-      <p className={styles.footnote}>
+      <ToolFootnote>
         Figures are gross &mdash; taxes, deductions, and withholding aren&rsquo;t modelled here.
-        Recurring income repeats from its first payment, so pay that lands every two weeks
-        produces the occasional three-payday month
+        Recurring income repeats from its first payment, so pay that lands every two weeks produces
+        the occasional three-payday month
         {model.derived.peakMonth === -1 ? "" : `, like ${MONTH_NAMES[model.derived.peakMonth]}`}.
         Press <kbd>Esc</kbd> to close an open month.
-      </p>
-    </main>
+      </ToolFootnote>
+    </ToolPage>
   );
 }
 
@@ -141,7 +140,9 @@ function IncomeMonthStats({
   derived: ReturnType<typeof useIncomeModel>["derived"];
 }) {
   const total = derived.byMonth[month];
-  const payments = derived.occurrences.filter((occurrence) => occurrence.day.month === month).length;
+  const payments = derived.occurrences.filter(
+    (occurrence) => occurrence.day.month === month,
+  ).length;
 
   // Measured against months that actually pay, so a half-filled year doesn't
   // make every month look above average.
@@ -151,11 +152,14 @@ function IncomeMonthStats({
 
   return (
     <>
-      <span className={monthStyles.stat}>
+      <span className="inline-figures">
         <strong>{payments}</strong> {payments === 1 ? "payday" : "paydays"}
       </span>
       <span
-        className={`${monthStyles.stat} ${delta >= 0 ? monthStyles.under : monthStyles.over}`}
+        className={cn(
+          "inline-figures",
+          delta >= 0 ? "[&_strong]:text-jade" : "[&_strong]:text-crimson",
+        )}
         title="Against the average month that has income in it"
       >
         <strong>

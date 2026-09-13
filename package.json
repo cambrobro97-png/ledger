@@ -8,7 +8,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "shots": "node scripts/shoot.mjs",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "next": "^16.3.3",
@@ -16,11 +19,16 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "22.10.7",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.4",
+    "eslint-plugin-better-tailwindcss": "^4.7.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "tailwindcss": "^4.3.3",
     "typescript": "5.7.3"
   }
 }

@@ -173,10 +173,7 @@ export function createDefaultIncomeState(): IncomeState {
   return { year, items };
 }
 
-export function createExpenseItem(
-  year: number,
-  overrides: Partial<ExpenseItem> = {},
-): ExpenseItem {
+export function createExpenseItem(year: number, overrides: Partial<ExpenseItem> = {}): ExpenseItem {
   return {
     id: createId(),
     name: "New expense",

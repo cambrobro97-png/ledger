@@ -235,7 +235,12 @@ function run(
       // the spending path has already dropped it, which is the same saving seen
       // from the other side.
       redirected = redirect[year] ?? 0;
-      const freed = spreadRedirect(accounts, planned, redirected, profile.redirect?.accountId ?? "");
+      const freed = spreadRedirect(
+        accounts,
+        planned,
+        redirected,
+        profile.redirect?.accountId ?? "",
+      );
 
       for (let index = 0; index < accounts.length; index += 1) {
         const account = accounts[index];
@@ -256,14 +261,7 @@ function run(
         grown += growth;
       }
     } else {
-      withdrawn = withdraw(
-        balances,
-        accounts,
-        rates,
-        spending[year],
-        scenario.withdrawal,
-        age,
-      );
+      withdrawn = withdraw(balances, accounts, rates, spending[year], scenario.withdrawal, age);
 
       for (let index = 0; index < accounts.length; index += 1) {
         // Same mid-year convention, applied to the money drawn out.
@@ -374,14 +372,18 @@ export function project(
     };
   }
   if (years > MAX_YEARS) {
-    return { ok: false, reason: `That's more than ${MAX_YEARS} years to project. Narrow the range.` };
+    return {
+      ok: false,
+      reason: `That's more than ${MAX_YEARS} years to project. Narrow the range.`,
+    };
   }
   if (profile.accounts.length === 0) {
     return { ok: false, reason: "Add an account to see a projection." };
   }
 
   const hasMoney = profile.accounts.some(
-    (account) => (Number(account.balance) || 0) > 0 || (Number(account.monthlyContribution) || 0) > 0,
+    (account) =>
+      (Number(account.balance) || 0) > 0 || (Number(account.monthlyContribution) || 0) > 0,
   );
   if (!hasMoney) {
     return {
@@ -391,7 +393,7 @@ export function project(
   }
   const spendFor = (year: number) =>
     spendingBase && spendingBase.length > 0
-      ? spendingBase[Math.min(year, spendingBase.length - 1)] ?? 0
+      ? (spendingBase[Math.min(year, spendingBase.length - 1)] ?? 0)
       : Number(scenario.annualSpend) || 0;
 
   if (spendFor(0) <= 0) {
@@ -400,8 +402,7 @@ export function project(
 
   // What each year costs, inflating, with the mortgage dropping out at payoff.
   const start = parseMonth(profile.start);
-  const creep =
-    ((Number(scenario.inflation) || 0) + (Number(scenario.colaIncrease) || 0)) / 100;
+  const creep = ((Number(scenario.inflation) || 0) + (Number(scenario.colaIncrease) || 0)) / 100;
   const mortgageYearly = (Number(profile.mortgagePayment) || 0) * 12;
   const mortgageYears = isMonthValue(profile.mortgagePayoff)
     ? Math.max(0, monthsBetween(start, parseMonth(profile.mortgagePayoff)) / 12)
@@ -451,7 +452,7 @@ export function project(
     sustainableDrawByYear.push(
       retireAt <= lastCandidate
         ? affordableSpend(profile, scenario, spending, redirect, retireAt, years)
-        : sustainableDrawByYear[sustainableDrawByYear.length - 1] ?? 0,
+        : (sustainableDrawByYear[sustainableDrawByYear.length - 1] ?? 0),
     );
 
     if (!shortfall || retireAt > lastCandidate) continue;

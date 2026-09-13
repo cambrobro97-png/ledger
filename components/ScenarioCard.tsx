@@ -1,6 +1,7 @@
 "use client";
 
 import { MONTH_NAMES } from "@/lib/dates";
+import { cn } from "@/lib/cn";
 import { describeExtras } from "@/lib/describe";
 import { formatMoney } from "@/lib/format";
 import type { SpareMoney } from "@/lib/links";
@@ -8,7 +9,6 @@ import type { Scenario } from "@/lib/types";
 import { Button } from "./ui/Button";
 import { NumericField, SelectField } from "./ui/Field";
 import { OneTimeRow } from "./OneTimeRow";
-import styles from "./ScenarioCard.module.css";
 
 interface ScenarioCardProps {
   scenario: Scenario;
@@ -44,14 +44,20 @@ export function ScenarioCard({
    * than to nearest, so the suggestion is never more than there is.
    */
   const spareMonthly = Math.max(0, Math.floor(spare.spare));
-  const overspending = spare.known && spareMonthly > 0 && (Number(scenario.monthly) || 0) > spareMonthly;
+  const overspending =
+    spare.known && spareMonthly > 0 && (Number(scenario.monthly) || 0) > spareMonthly;
   const useSpare = () => onChange({ monthly: spareMonthly });
 
   return (
-    <div className={`${styles.card} ${active ? styles.active : ""}`}>
-      <div className={styles.top}>
+    <div
+      className={cn(
+        "rounded-xl border bg-panel-2 p-[18px]",
+        active ? "border-jade ring-1 ring-jade/25" : "border-rule",
+      )}
+    >
+      <div className="mb-3.5 flex items-center gap-2.5">
         <input
-          className={styles.name}
+          className="min-w-0 flex-1 rounded-lg border border-rule bg-ink px-2.5 py-[9px] font-sans text-lg text-bone"
           aria-label="Scenario name"
           value={scenario.name}
           onChange={(event) => onChange({ name: event.target.value })}
@@ -71,7 +77,7 @@ export function ScenarioCard({
         </Button>
       </div>
 
-      <div className={styles.pair}>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <NumericField
           id={`${scenario.id}-monthly`}
           label="Extra each month"
@@ -90,7 +96,7 @@ export function ScenarioCard({
         />
       </div>
 
-      <div className={`${styles.pair} ${styles.spaced}`}>
+      <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
         <SelectField
           id={`${scenario.id}-annual-month`}
           label="Yearly payment lands in"
@@ -98,13 +104,13 @@ export function ScenarioCard({
           options={MONTH_NAMES}
           onChange={(value) => onChange({ annualMonth: value })}
         />
-        <div className={styles.addWrap}>
+        <div className="flex items-end">
           <Button onClick={onAddOneTime}>Add a one-time payment</Button>
         </div>
       </div>
 
       {scenario.oneTimes.length > 0 ? (
-        <div className={styles.oneTimes}>
+        <div className="mt-3.5 flex flex-col gap-2.5">
           {scenario.oneTimes.map((payment) => (
             <OneTimeRow
               key={payment.id}
@@ -120,18 +126,24 @@ export function ScenarioCard({
           have something to say: an empty income list would otherwise report
           every scenario as unaffordable. */}
       {spare.known ? (
-        <div className={`${styles.note} ${overspending ? styles.warning : ""}`}>
+        <div className={cn("mt-3 font-mono text-sm", overspending ? "text-brass" : "text-ash")}>
           {spareMonthly <= 0 ? (
-            <>The bills already run past the income, so there is nothing spare for extra principal.</>
+            <>
+              The bills already run past the income, so there is nothing spare for extra principal.
+            </>
           ) : overspending ? (
             <>
-              This asks for {formatMoney(scenario.monthly)} a month;{" "}
-              {formatMoney(spareMonthly)} is spare once the bills are paid.
+              This asks for {formatMoney(scenario.monthly)} a month; {formatMoney(spareMonthly)} is
+              spare once the bills are paid.
             </>
           ) : (
             <>
               {formatMoney(spareMonthly)} a month is spare once the bills are paid.{" "}
-              <button type="button" className={styles.inlineAction} onClick={useSpare}>
+              <button
+                type="button"
+                className="cursor-pointer appearance-none border-none bg-transparent p-0 text-jade underline underline-offset-2 [font:inherit] hover:text-bone"
+                onClick={useSpare}
+              >
                 Use it
               </button>
             </>
@@ -139,7 +151,7 @@ export function ScenarioCard({
         </div>
       ) : null}
 
-      <div className={styles.note}>{describeExtras(scenario)}</div>
+      <div className="mt-3 font-mono text-sm text-ash">{describeExtras(scenario)}</div>
     </div>
   );
 }

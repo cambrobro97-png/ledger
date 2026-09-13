@@ -59,10 +59,12 @@ export interface ExpenseModel {
  * came from.
  */
 export function useExpenseModel(): ExpenseModel {
-  const { value: state, setValue, reset, hydrated } = usePersistedState<ExpenseState>(
-    EXPENSE_STORAGE_KEY,
-    createDefaultExpenseState,
-  );
+  const {
+    value: state,
+    setValue,
+    reset,
+    hydrated,
+  } = usePersistedState<ExpenseState>(EXPENSE_STORAGE_KEY, createDefaultExpenseState);
 
   const mortgageSummary = useMortgageSummary();
   // Null until the mortgage tool's own stored state has landed. Resolving

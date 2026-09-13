@@ -42,7 +42,10 @@ export function YearSplitChart({
   const principal = useTweenedSeries(principalTarget, duration);
 
   const max = niceMax(
-    interestTarget.reduce((peak, value, index) => Math.max(peak, value + principalTarget[index]), 0),
+    interestTarget.reduce(
+      (peak, value, index) => Math.max(peak, value + principalTarget[index]),
+      0,
+    ),
   );
 
   const plotWidth = innerWidth(BAR_PLOT);

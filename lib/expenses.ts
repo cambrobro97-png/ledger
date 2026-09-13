@@ -1,11 +1,11 @@
-import { CADENCE_PER_YEAR, largestDayTotal, occurrencesFor, peakMonthOf, sortOccurrences } from "./schedule";
-import type {
-  ExpenseCategory,
-  ExpenseItem,
-  ExpenseKind,
-  ExpenseYear,
-  Occurrence,
-} from "./types";
+import {
+  CADENCE_PER_YEAR,
+  largestDayTotal,
+  occurrencesFor,
+  peakMonthOf,
+  sortOccurrences,
+} from "./schedule";
+import type { ExpenseCategory, ExpenseItem, ExpenseKind, ExpenseYear, Occurrence } from "./types";
 
 /**
  * The cadence engine expenses share with income. Re-exported so the expense
@@ -136,9 +136,9 @@ export function buildExpenseYear(items: ExpenseItem[], year: number): ExpenseYea
 
   // Kept in the canonical order rather than sorted by size, so a category
   // doesn't jump around the bar as amounts are edited.
-  const byCategory = CATEGORY_ORDER.filter((category) => (categoryTotals.get(category) ?? 0) > 0).map(
-    (category) => ({ category, total: categoryTotals.get(category) as number }),
-  );
+  const byCategory = CATEGORY_ORDER.filter(
+    (category) => (categoryTotals.get(category) ?? 0) > 0,
+  ).map((category) => ({ category, total: categoryTotals.get(category) as number }));
 
   // The cheapest month only means something among months that spend: a year
   // with nothing scheduled after June would otherwise report July as lean.

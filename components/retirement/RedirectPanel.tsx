@@ -5,7 +5,6 @@ import { formatMoney } from "@/lib/format";
 import type { MortgageRedirect, Projection, RetirementProfile } from "@/lib/types";
 import { Panel, PanelHead } from "../ui/Panel";
 import { NumericField, TextSelectField, ToggleField } from "../ui/Field";
-import styles from "./RedirectPanel.module.css";
 
 interface RedirectPanelProps {
   profile: RetirementProfile;
@@ -61,7 +60,7 @@ export function RedirectPanel({
     current && withoutRedirect ? current.endingBalance - withoutRedirect.endingBalance : 0;
 
   return (
-    <Panel className={styles.panel}>
+    <Panel className="mt-[clamp(12px,1.2vw,18px)]">
       <PanelHead
         title="When the mortgage ends"
         hint="Applies while you are still working — retired, the payment ending already lowers what you draw"
@@ -81,7 +80,7 @@ export function RedirectPanel({
 
       {redirect.enabled ? (
         <>
-          <div className={styles.fields}>
+          <div className="mt-3.5 grid [grid-template-columns:repeat(auto-fit,minmax(190px,1fr))] gap-3.5">
             <NumericField
               id="redirect-share"
               label="How much of it"
@@ -104,15 +103,15 @@ export function RedirectPanel({
           </div>
 
           {payoff === null ? (
-            <p className={styles.warning}>
+            <p className="mx-0 mt-3.5 mb-0 text-sm leading-[1.5] text-brass">
               The mortgage has no payoff month, so there is nothing for this to start from.
             </p>
           ) : monthly <= 0 ? (
-            <p className={styles.warning}>
+            <p className="mx-0 mt-3.5 mb-0 text-sm leading-[1.5] text-brass">
               The mortgage payment is zero, so there is nothing to redirect.
             </p>
           ) : (
-            <p className={styles.verdict}>
+            <p className="mx-0 mt-4 mb-0 border-t border-rule pt-3.5 inline-figures text-body leading-[1.6] text-ash [&_strong]:font-normal">
               <strong>{formatMoney(freed)}</strong> a month frees up in {payoff}
               {withoutRedirect === null ? (
                 "."

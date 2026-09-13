@@ -2,14 +2,7 @@
 
 import type { PointerEventHandler, ReactNode } from "react";
 import { formatMoneyCompact } from "@/lib/format";
-import {
-  innerHeight,
-  innerWidth,
-  xAt,
-  yAt,
-  yearLabelStep,
-  type Plot,
-} from "./geometry";
+import { innerHeight, innerWidth, xAt, yAt, yearLabelStep, type Plot } from "./geometry";
 import styles from "./charts.module.css";
 
 const GRID_LINES = 4;

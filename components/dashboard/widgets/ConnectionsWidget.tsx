@@ -1,11 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useExpenseSummary } from "@/hooks/summaries/useExpenseSummary";
 import { useIncomeSummary } from "@/hooks/summaries/useIncomeSummary";
 import { useRetirementSummary } from "@/hooks/summaries/useRetirementSummary";
 import type { WidgetProps } from "@/lib/widgets";
 import { WidgetShell } from "../WidgetShell";
-import styles from "./ConnectionsWidget.module.css";
 
 interface Connection {
   from: string;
@@ -56,7 +56,10 @@ export function ConnectionsWidget({ size }: WidgetProps) {
     connections.push({ from: "Income → Retirement", what: "the salary the match is sized on" });
   }
   if (profile.redirect?.enabled) {
-    connections.push({ from: "Payoff → Savings", what: `${profile.redirect.share}% of the payment` });
+    connections.push({
+      from: "Payoff → Savings",
+      what: `${profile.redirect.share}% of the payment`,
+    });
   }
 
   const linkedOutlooks = retirement.scenariosWithSpendLink;
@@ -92,19 +95,24 @@ export function ConnectionsWidget({ size }: WidgetProps) {
       hydrated={hydrated}
     >
       {size === "small" ? null : connections.length === 0 ? (
-        <p className={styles.none}>
+        <p className="text-sm leading-[1.5] text-ash">
           Nothing is linked yet. A mortgage scenario can go on the expense timeline, and an
           outlook&rsquo;s spending can come from the expense list.
         </p>
       ) : (
-        <div className={styles.list}>
+        <div className="mt-0.5 grid gap-1.5">
           {connections.map((connection) => (
             <div
               key={connection.from}
-              className={`${styles.row} ${connection.caution ? styles.caution : ""}`}
+              className={cn(
+                "flex items-baseline gap-2 text-sm",
+                connection.caution ? "text-brass" : "text-ash",
+              )}
             >
-              <span className={styles.from}>{connection.from}</span>
-              <span className={styles.what}>{connection.what}</span>
+              <span className="font-mono text-micro tracking-[0.06em] whitespace-nowrap text-bone uppercase">
+                {connection.from}
+              </span>
+              <span className="min-w-0 truncate">{connection.what}</span>
             </div>
           ))}
         </div>

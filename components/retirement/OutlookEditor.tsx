@@ -4,18 +4,17 @@ import type { RetirementModel } from "@/hooks/useRetirementModel";
 import { Panel, PanelHead } from "../ui/Panel";
 import { Button } from "../ui/Button";
 import { OutlookCard } from "./OutlookCard";
-import styles from "./Editor.module.css";
 
 /** The saved-outlook workbench, hidden while presenting. */
 export function OutlookEditor({ model }: { model: RetirementModel }) {
   return (
-    <Panel className={styles.editor}>
+    <Panel className="mt-3.5">
       <PanelHead
         title="Saved outlooks"
         hint="Edits are saved automatically and stay put between visits"
       />
 
-      <div className={styles.grid}>
+      <div className="grid [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-3.5">
         {model.scenarios.map((scenario) => (
           <OutlookCard
             key={scenario.id}
@@ -32,7 +31,7 @@ export function OutlookEditor({ model }: { model: RetirementModel }) {
         ))}
       </div>
 
-      <div className={styles.actions}>
+      <div className="mt-4 flex flex-wrap gap-2.5">
         <Button onClick={model.addScenario}>Add an outlook</Button>
         <Button variant="ghost" onClick={model.resetAll}>
           Start over from the defaults

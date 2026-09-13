@@ -1,12 +1,7 @@
 "use client";
 
 import { addMonths, formatMonth, parseMonth } from "@/lib/dates";
-import {
-  formatDuration,
-  formatMoney,
-  formatMoneyPrecise,
-  formatPercent,
-} from "@/lib/format";
+import { formatDuration, formatMoney, formatMoneyPrecise, formatPercent } from "@/lib/format";
 import { useTweenedNumber } from "@/hooks/useTween";
 import type { Amortization, Comparison } from "@/lib/types";
 import { MetricCard, MetricGrid } from "./MetricCard";

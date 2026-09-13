@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { HorizontalTimeline } from "./HorizontalTimeline";
 import { VerticalTimeline } from "./VerticalTimeline";
 import { useTimelineEngine } from "./useTimelineEngine";
 import { chartPlot, useVerticalPlot } from "./useVerticalPlot";
 import { TIMELINE_VERTICAL_QUERY, type TimelineProps } from "./types";
-import styles from "./Timeline.module.css";
 
 /**
  * The year's payments, drawn across the screen on desktop and down it on
@@ -57,7 +57,7 @@ export function Timeline(props: TimelineProps) {
 
   return (
     <div
-      className={`${styles.wrap} ${vertical ? styles.wrapVertical : ""}`}
+      className={cn("relative mt-[clamp(18px,2vw,30px)]", vertical && "overflow-hidden")}
       ref={ref}
       // Pinned to the measured height so the box can't grow with its own
       // contents — which would feed back into the next measurement — and so the

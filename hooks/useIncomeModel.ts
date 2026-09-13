@@ -31,10 +31,12 @@ export interface IncomeModel {
  * stay presentational and read whatever they need off the returned model.
  */
 export function useIncomeModel(): IncomeModel {
-  const { value: state, setValue, reset, hydrated } = usePersistedState<IncomeState>(
-    INCOME_STORAGE_KEY,
-    createDefaultIncomeState,
-  );
+  const {
+    value: state,
+    setValue,
+    reset,
+    hydrated,
+  } = usePersistedState<IncomeState>(INCOME_STORAGE_KEY, createDefaultIncomeState);
 
   // A list still sitting on the seed year is untouched seed data, so it can move
   // onto the real year once the clock is safe to read.

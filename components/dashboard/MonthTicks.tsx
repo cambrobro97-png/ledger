@@ -1,7 +1,6 @@
 "use client";
 
 import { MONTH_NAMES } from "@/lib/dates";
-import styles from "./MonthTicks.module.css";
 
 /**
  * Twelve initials under a twelve-column chart.
@@ -12,9 +11,12 @@ import styles from "./MonthTicks.module.css";
  */
 export function MonthTicks() {
   return (
-    <div className={styles.ticks} aria-hidden="true">
+    <div className="mt-[5px] flex gap-[3px]" aria-hidden="true">
       {MONTH_NAMES.map((name, index) => (
-        <span key={index} className={styles.tick}>
+        <span
+          key={index}
+          className="min-w-0 flex-1 text-center font-mono text-micro tracking-[0.04em] text-ash opacity-70"
+        >
           {name.slice(0, 1)}
         </span>
       ))}
