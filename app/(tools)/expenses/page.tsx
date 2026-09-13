@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useCallback, useMemo, useState } from "react";
 import { ExpenseEditor } from "@/components/expenses/ExpenseEditor";
 import { ExpenseMetrics } from "@/components/expenses/ExpenseMetrics";
@@ -15,7 +16,6 @@ import { MONTH_NAMES } from "@/lib/dates";
 import { parseDay } from "@/lib/days";
 import { CADENCE_LABELS, CATEGORY_LABELS, KIND_LABELS, categoryAccent } from "@/lib/expenses";
 import { formatMoney } from "@/lib/format";
-import monthStyles from "@/components/timeline/MonthDetail.module.css";
 import { ToolHead } from "@/components/ToolHead";
 import { ToolPage, ToolFootnote } from "@/components/ToolPage";
 
@@ -189,14 +189,14 @@ function ExpenseMonthStats({
 
   return (
     <>
-      <span className={monthStyles.stat}>
+      <span className="inline-figures">
         <strong>{formatMoney(fixed)}</strong> fixed
       </span>
-      <span className={monthStyles.stat}>
+      <span className="inline-figures">
         <strong>{formatMoney(total - fixed)}</strong> variable
       </span>
       <span
-        className={`${monthStyles.stat} ${delta > 0 ? monthStyles.over : monthStyles.under}`}
+        className={cn("inline-figures", delta > 0 ? "[&_strong]:text-crimson" : "[&_strong]:text-jade")}
         title="Against the average month that has spending in it"
       >
         <strong>

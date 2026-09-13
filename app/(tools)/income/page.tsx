@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useCallback, useMemo, useState } from "react";
 import { IncomeEditor } from "@/components/income/IncomeEditor";
 import { IncomeMetrics } from "@/components/income/IncomeMetrics";
@@ -14,7 +15,6 @@ import { TWEEN_MS } from "@/hooks/useTween";
 import { MONTH_NAMES } from "@/lib/dates";
 import { CADENCE_LABELS, accentFor } from "@/lib/income";
 import { formatMoney } from "@/lib/format";
-import monthStyles from "@/components/timeline/MonthDetail.module.css";
 import { ToolHead } from "@/components/ToolHead";
 import { ToolPage, ToolFootnote } from "@/components/ToolPage";
 
@@ -150,11 +150,11 @@ function IncomeMonthStats({
 
   return (
     <>
-      <span className={monthStyles.stat}>
+      <span className="inline-figures">
         <strong>{payments}</strong> {payments === 1 ? "payday" : "paydays"}
       </span>
       <span
-        className={`${monthStyles.stat} ${delta >= 0 ? monthStyles.under : monthStyles.over}`}
+        className={cn("inline-figures", delta >= 0 ? "[&_strong]:text-jade" : "[&_strong]:text-crimson")}
         title="Against the average month that has income in it"
       >
         <strong>

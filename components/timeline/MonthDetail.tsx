@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useMemo, type ReactNode } from "react";
 import { MONTH_NAMES } from "@/lib/dates";
 import { formatDay } from "@/lib/days";
@@ -81,20 +82,20 @@ export function MonthDetail({
   }, [occurrences, month, nameOf]);
 
   return (
-    <div className={styles.wrap}>
-      <div className={styles.head}>
+    <div className={cn(styles.wrap, "mt-[clamp(16px,1.8vw,26px)] border-t border-rule pt-[clamp(14px,1.5vw,22px)]")}>
+      <div className="mb-3.5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <div className={styles.eyebrow}>
+          <div className="font-mono text-label uppercase tracking-[0.18em] text-ash">
             {MONTH_NAMES[month]} {year}
           </div>
-          <div className={styles.total}>{formatMoney(total)}</div>
+          <div className="mt-1.5 font-mono text-figure leading-[1.1] tabular-nums tracking-[-0.02em]">{formatMoney(total)}</div>
         </div>
 
-        <div className={styles.summary}>{total > 0 ? stats : null}</div>
+        <div className="flex flex-wrap items-center gap-4 text-sm text-ash">{total > 0 ? stats : null}</div>
       </div>
 
       {lines.length > 0 ? (
-        <ul className={styles.list}>
+        <ul className="m-0 grid list-none gap-0.5 p-0">
           {lines.map((line) => {
             const share = total > 0 ? line.total / total : 0;
             const dimmed = hoveredItemId !== null && hoveredItemId !== line.itemId;
@@ -106,34 +107,46 @@ export function MonthDetail({
             return (
               <li
                 key={line.itemId}
-                className={`${styles.line} ${dimmed ? styles.lineDim : ""}`}
+                className={cn(
+                  "group grid items-center gap-3 rounded-control px-2.5 py-[9px]",
+                  "[grid-template-columns:10px_minmax(0,1.6fr)_minmax(60px,1fr)_auto]",
+                  // The share bar is the first thing to go on a phone: the
+                  // amount and its percentage already carry the comparison.
+                  "max-md:[grid-template-columns:10px_minmax(0,1fr)_auto]",
+                  "transition-[background-color,opacity] duration-(--tween) ease-tween hover:bg-panel-2",
+                  dimmed && "opacity-35",
+                )}
                 style={{ ["--accent" as string]: appearance(line.itemId).accent }}
                 onPointerEnter={() => onHoverItem(line.itemId)}
                 onPointerLeave={() => onHoverItem(null)}
               >
-                <span className={styles.dot} aria-hidden="true" />
+                <span className="size-[9px] rounded-full bg-[var(--accent,var(--ash))]" aria-hidden="true" />
 
-                <span className={styles.body}>
-                  <span className={styles.name}>{line.name}</span>
-                  <span className={styles.meta}>{describe(line.itemId, datesSummary)}</span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="truncate text-body">{line.name}</span>
+                  <span className="truncate text-label text-ash">{describe(line.itemId, datesSummary)}</span>
                 </span>
 
                 {/* The share bar makes the month readable as a composition
                     rather than a column of numbers to compare by eye. */}
-                <span className={styles.bar} aria-hidden="true">
-                  <span className={styles.fill} style={{ width: `${share * 100}%` }} />
+                <span
+                  className="h-[5px] overflow-hidden rounded-[3px] bg-panel-2 group-hover:bg-[rgba(134,152,174,0.18)] max-md:hidden"
+                  aria-hidden="true"
+                >
+                  <span
+                    className="block h-full rounded-[3px] bg-[var(--accent,var(--ash))] transition-[width] duration-(--tween) ease-tween" style={{ width: `${share * 100}%` }} />
                 </span>
 
-                <span className={styles.amount}>
+                <span className="flex items-baseline gap-2 font-mono text-body tabular-nums">
                   {formatMoney(line.total)}
-                  <span className={styles.share}>{formatPercent(share)}</span>
+                  <span className="min-w-[4ch] text-right text-label text-ash">{formatPercent(share)}</span>
                 </span>
               </li>
             );
           })}
         </ul>
       ) : (
-        <p className={styles.empty}>Nothing lands in {MONTH_NAMES[month]}.</p>
+        <p className="m-0 text-body text-ash">Nothing lands in {MONTH_NAMES[month]}.</p>
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useMemo } from "react";
 import { MetricCard, MetricGrid } from "@/components/MetricCard";
 import { useTweenedNumber } from "@/hooks/useTween";
@@ -7,7 +8,6 @@ import { MONTH_NAMES } from "@/lib/dates";
 import { formatMoney, formatPercent } from "@/lib/format";
 import { CATEGORY_LABELS, categoryAccent } from "@/lib/expenses";
 import type { ExpenseItem, ExpenseYear } from "@/lib/types";
-import styles from "./ExpenseMetrics.module.css";
 
 interface ExpenseMetricsProps {
   year: number;
@@ -110,10 +110,10 @@ export function ExpenseMetrics({ year, derived, items, duration }: ExpenseMetric
         />
       </MetricGrid>
 
-      <div className={styles.strip}>
+      <div className="mt-3.5 grid gap-3.5 [grid-template-columns:minmax(0,1.55fr)_minmax(0,1fr)] max-[941px]:grid-cols-1">
         <CategoryBreakdown derived={derived} />
 
-        <div className={styles.notes}>
+        <div className="min-w-0 rounded-panel border border-rule bg-panel p-panel grid content-start gap-4">
           <Note
             label="Repeating bills"
             value={formatMoney(derived.recurringAnnual)}
@@ -145,10 +145,10 @@ export function ExpenseMetrics({ year, derived, items, duration }: ExpenseMetric
 
 function Note({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className={styles.note}>
-      <div className={styles.noteLabel}>{label}</div>
-      <div className={styles.noteValue}>{value}</div>
-      <div className={styles.noteHint}>{hint}</div>
+    <div>
+      <div className="font-mono text-label uppercase tracking-[0.16em] text-ash">{label}</div>
+      <div className="mt-[5px] font-mono text-amount leading-[1.15] tabular-nums tracking-title">{value}</div>
+      <div className="mt-[3px] text-sm text-ash">{hint}</div>
     </div>
   );
 }
@@ -157,22 +157,27 @@ function Note({ label, value, hint }: { label: string; value: string; hint: stri
 function CategoryBreakdown({ derived }: { derived: ExpenseYear }) {
   if (derived.byCategory.length === 0) {
     return (
-      <div className={styles.categories}>
-        <div className={styles.categoriesHead}>Where it goes</div>
-        <p className={styles.empty}>Add an expense to see the split.</p>
+      <div className="min-w-0 rounded-panel border border-rule bg-panel p-panel">
+        <div className="font-mono text-label uppercase tracking-[0.16em] text-ash">Where it goes</div>
+        <p className="mx-0 mb-0 mt-3.5 text-base text-ash">Add an expense to see the split.</p>
       </div>
     );
   }
 
   return (
-    <div className={styles.categories}>
-      <div className={styles.categoriesHead}>Where it goes</div>
+    <div className="min-w-0 rounded-panel border border-rule bg-panel p-panel">
+      <div className="font-mono text-label uppercase tracking-[0.16em] text-ash">Where it goes</div>
 
-      <div className={styles.bar}>
-        {derived.byCategory.map(({ category, total }) => (
+      <div className="mt-3.5 flex h-3 overflow-hidden rounded-md bg-panel-2">
+        {derived.byCategory.map(({ category, total }, index) => (
           <span
             key={category}
-            className={styles.segment}
+            className={cn(
+              "block h-full transition-[width] duration-(--tween) ease-tween",
+              // A hairline between segments, so two neighbouring categories of
+              // similar colour still read as two.
+              index > 0 && "shadow-[inset_1px_0_0_var(--panel)]",
+            )}
             style={{
               width: `${(total / derived.total) * 100}%`,
               background: categoryAccent(category),
@@ -182,17 +187,17 @@ function CategoryBreakdown({ derived }: { derived: ExpenseYear }) {
         ))}
       </div>
 
-      <ul className={styles.legend}>
+      <ul className="m-0 mt-4 grid list-none gap-[7px] p-0 [grid-template-columns:repeat(auto-fit,minmax(210px,1fr))]">
         {derived.byCategory.map(({ category, total }) => (
-          <li key={category} className={styles.legendItem}>
+          <li key={category} className="grid grid-cols-[9px_minmax(0,1fr)_auto_auto] items-center gap-[9px] text-base">
             <span
-              className={styles.swatch}
+              className="size-[9px] rounded-full"
               style={{ background: categoryAccent(category) }}
               aria-hidden="true"
             />
-            <span className={styles.legendName}>{CATEGORY_LABELS[category]}</span>
-            <span className={styles.legendValue}>{formatMoney(total)}</span>
-            <span className={styles.legendShare}>{formatPercent(total / derived.total)}</span>
+            <span className="truncate text-bone">{CATEGORY_LABELS[category]}</span>
+            <span className="font-mono tabular-nums text-bone">{formatMoney(total)}</span>
+            <span className="min-w-[4ch] text-right font-mono tabular-nums text-ash">{formatPercent(total / derived.total)}</span>
           </li>
         ))}
       </ul>
