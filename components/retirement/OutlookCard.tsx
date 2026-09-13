@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import {
   WITHDRAWAL_NOTES,
   WITHDRAWAL_OPTIONS,
@@ -15,7 +16,6 @@ import type {
 } from "@/lib/types";
 import { Button } from "../ui/Button";
 import { NumericField, TextSelectField } from "../ui/Field";
-import styles from "./OutlookCard.module.css";
 
 interface OutlookCardProps {
   scenario: RetirementScenario;
@@ -60,10 +60,13 @@ export function OutlookCard({
   const resolution = spend.resolution;
 
   return (
-    <div className={`${styles.card} ${active ? styles.active : ""}`}>
-      <div className={styles.top}>
+    <div className={cn(
+        "rounded-xl border bg-panel-2 p-[18px]",
+        active ? "border-jade ring-1 ring-jade/25" : "border-rule",
+      )}>
+      <div className="mb-3.5 flex items-center gap-2.5">
         <input
-          className={styles.name}
+          className="min-w-0 flex-1 rounded-lg border border-rule bg-ink px-2.5 py-[9px] font-sans text-lg text-bone"
           aria-label="Outlook name"
           value={scenario.name}
           onChange={(event) => onChange({ name: event.target.value })}
@@ -83,7 +86,7 @@ export function OutlookCard({
         </Button>
       </div>
 
-      <div className={styles.pair}>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <NumericField
           id={`${scenario.id}-shift`}
           label="Returns move by"
@@ -103,7 +106,7 @@ export function OutlookCard({
         />
       </div>
 
-      <div className={`${styles.pair} ${styles.spaced}`}>
+      <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
         <NumericField
           id={`${scenario.id}-inflation`}
           label="Inflation"
@@ -122,7 +125,7 @@ export function OutlookCard({
         />
       </div>
 
-      <div className={styles.spaced}>
+      <div className="mt-3">
         <TextSelectField<WithdrawalStrategy>
           id={`${scenario.id}-withdrawal`}
           label="Retirement spending comes from"
@@ -135,7 +138,7 @@ export function OutlookCard({
       {/* Only offered once the expense tool's own figures have been read:
           until then there is no list to build a budget from. */}
       {expensesReady ? (
-        <div className={styles.spaced}>
+        <div className="mt-3">
           <TextSelectField
             id={`${scenario.id}-spend-source`}
             label="Spending comes from"
@@ -147,7 +150,7 @@ export function OutlookCard({
       ) : null}
 
       {link ? (
-        <div className={`${styles.pair} ${styles.spaced}`}>
+        <div className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-2">
           <TextSelectField<SpendBasis>
             id={`${scenario.id}-spend-basis`}
             label="Which lines"
@@ -167,13 +170,13 @@ export function OutlookCard({
       ) : null}
 
       {resolution && resolution.status !== "pending" ? (
-        <div className={`${styles.note} ${resolution.status === "live" ? "" : styles.warning}`}>
+        <div className={cn("mt-3 font-mono text-sm leading-[1.5]", resolution.status === "live" ? "text-ash" : "text-brass")}>
           {resolution.note}
         </div>
       ) : null}
 
-      <div className={styles.note}>{WITHDRAWAL_NOTES[scenario.withdrawal]}</div>
-      <div className={styles.note}>{describeScenario(scenario, spend.annual)}</div>
+      <div className="mt-3 font-mono text-sm leading-[1.5] text-ash">{WITHDRAWAL_NOTES[scenario.withdrawal]}</div>
+      <div className="mt-3 font-mono text-sm leading-[1.5] text-ash">{describeScenario(scenario, spend.annual)}</div>
     </div>
   );
 }

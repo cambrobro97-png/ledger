@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { isMonthValue, monthsBetween, parseMonth } from "@/lib/dates";
 import type { Projection, RetirementProfile } from "@/lib/types";
 import styles from "./AgeRibbon.module.css";
@@ -38,8 +39,8 @@ export function AgeRibbon({ profile, current }: AgeRibbonProps) {
   const payoffAge = payoffYears === null ? 0 : Math.round(profile.currentAge + payoffYears);
 
   return (
-    <div className={styles.ribbon}>
-      <div className={styles.track}>
+    <div className="mt-[clamp(26px,3vw,42px)]">
+      <div className="relative h-[clamp(46px,4.2vw,74px)] overflow-hidden rounded-xl border border-rule bg-panel">
         <div className={styles.working} style={{ width: `${workingShare}%` }} />
         <div className={styles.retired} style={{ width: `${100 - workingShare}%` }} />
         <div className={styles.scale}>
@@ -54,26 +55,26 @@ export function AgeRibbon({ profile, current }: AgeRibbonProps) {
             title={`Mortgage paid off at ${payoffAge}`}
           >
             <span
-              className={`${styles.payoffLabel} ${payoffShare > 70 ? styles.payoffLabelLeft : ""}`}
+              className={cn("absolute bottom-1 whitespace-nowrap rounded bg-ink px-[5px] py-px font-mono text-micro tracking-[0.04em] text-ash", payoffShare > 70 ? "right-[5px]" : "left-[5px]")}
             >
               mortgage ends {payoffAge}
             </span>
           </div>
         )}
 
-        <div className={styles.cap}>
+        <div className="absolute inset-y-0 flex items-center px-3.5 font-mono text-base text-bone">
           {current.retirementYearIndex > 0 ? `${current.retirementYearIndex} more working` : ""}
         </div>
-        <div className={`${styles.cap} ${styles.capRight}`}>
+        <div className="absolute inset-y-0 flex items-center px-3.5 font-mono text-base text-bone right-0 justify-end text-brass">
           {current.shortfall
             ? ""
             : `${profile.endAge - current.retirementAge} retired`}
         </div>
       </div>
 
-      <div className={styles.labels}>
+      <div className="mt-2.5 flex justify-between gap-3 font-mono text-base text-ash">
         <span>{profile.currentAge} today</span>
-        <span className={styles.middle}>
+        <span className="text-center text-brass">
           {current.shortfall ? "never retires on this outlook" : `retire at ${current.retirementAge}`}
         </span>
         <span>
