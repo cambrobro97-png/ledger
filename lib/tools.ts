@@ -1,4 +1,4 @@
-/** Every tool the site hosts. The tab bar and the placeholder pages both read this. */
+/** Every tool the site hosts. The tool menu and each tool's metadata read this. */
 export type ToolId = "dashboard" | "mortgage" | "expenses" | "income" | "retirement";
 
 export interface Tool {
@@ -8,7 +8,7 @@ export interface Tool {
   href: string;
   /** Tab label — kept short so the bar stays on one line. */
   name: string;
-  /** Shown on the tool's own page, under its title. */
+  /** The tool's one-line description: its page metadata, and the tool menu. */
   blurb: string;
 }
 
