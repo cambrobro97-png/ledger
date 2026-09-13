@@ -1,7 +1,7 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { MonthTicks } from "./MonthTicks";
-import styles from "./HeatStrip.module.css";
 
 export interface HeatStripProps {
   values: number[];
@@ -39,14 +39,17 @@ export function HeatStrip({ values, color, highlight = [], label }: HeatStripPro
 
   return (
     <div>
-      <div className={styles.strip} role="img" aria-label={label}>
+      <div className="flex gap-[3px]" role="img" aria-label={label}>
         {values.map((value, index) => (
           <div
             key={index}
-            className={`${styles.cell} ${marked.has(index) ? styles.marked : ""}`}
+            className={cn(
+            "relative h-[30px] min-w-0 flex-1 overflow-hidden rounded-[3px] bg-panel-2",
+            marked.has(index) && "shadow-[inset_0_0_0_1.5px_var(--bone)]",
+          )}
           >
             <span
-              className={styles.fill}
+              className="absolute inset-0"
               style={{
                 background: color,
                 // A month with nothing in it stays empty; everything else

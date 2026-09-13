@@ -1,6 +1,5 @@
 "use client";
 
-import styles from "./Donut.module.css";
 
 export interface DonutSegment {
   label: string;
@@ -56,9 +55,9 @@ export function Donut({ segments, legend = 0, format, label }: DonutProps) {
   const restTotal = rest.reduce((sum, arc) => sum + arc.value, 0);
 
   return (
-    <div className={styles.wrap}>
+    <div className="flex min-w-0 items-center gap-[clamp(10px,1vw,18px)]">
       <svg
-        className={styles.svg}
+        className="block size-[78px] flex-none"
         viewBox="0 0 100 100"
         role="img"
         aria-label={label}
@@ -83,21 +82,21 @@ export function Donut({ segments, legend = 0, format, label }: DonutProps) {
       </svg>
 
       {legend > 0 ? (
-        <ul className={styles.legend}>
+        <ul className="m-0 flex min-w-0 flex-1 list-none flex-col gap-[5px] p-0">
           {named.map((arc) => (
-            <li key={arc.label} className={styles.row}>
-              <span className={styles.swatch} style={{ background: arc.color }} />
-              <span className={styles.name}>{arc.label}</span>
-              <span className={styles.amount}>{format(arc.value)}</span>
+            <li key={arc.label} className="flex min-w-0 items-center gap-2 text-sm text-ash">
+              <span className="size-2 flex-none rounded-sm opacity-[0.92]" style={{ background: arc.color }} />
+              <span className="min-w-0 truncate">{arc.label}</span>
+              <span className="ml-auto whitespace-nowrap pl-2 font-mono tabular-nums text-bone">{format(arc.value)}</span>
             </li>
           ))}
           {rest.length > 0 ? (
-            <li className={styles.row}>
-              <span className={`${styles.swatch} ${styles.restSwatch}`} />
-              <span className={styles.name}>
+            <li className="flex min-w-0 items-center gap-2 text-sm text-ash">
+              <span className="size-2 flex-none rounded-sm bg-rule opacity-[0.92]" />
+              <span className="min-w-0 truncate">
                 {rest.length} more
               </span>
-              <span className={styles.amount}>{format(restTotal)}</span>
+              <span className="ml-auto whitespace-nowrap pl-2 font-mono tabular-nums text-bone">{format(restTotal)}</span>
             </li>
           ) : null}
         </ul>
