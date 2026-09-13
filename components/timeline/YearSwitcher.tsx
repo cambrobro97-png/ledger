@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/Button";
 import { MONTH_NAMES } from "@/lib/dates";
-import styles from "./YearSwitcher.module.css";
 
 interface YearSwitcherProps {
   year: number;
@@ -13,20 +12,20 @@ interface YearSwitcherProps {
 
 export function YearSwitcher({ year, zoomMonth, onStepYear, onZoomOut }: YearSwitcherProps) {
   return (
-    <div className={styles.bar}>
-      <div className={styles.years}>
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex items-center gap-2.5">
         <Button variant="ghost" icon aria-label="Previous year" onClick={() => onStepYear(-1)}>
           &larr;
         </Button>
-        <span className={styles.year}>{year}</span>
+        <span className="min-w-[4ch] text-center font-mono text-figure tabular-nums tracking-title">{year}</span>
         <Button variant="ghost" icon aria-label="Next year" onClick={() => onStepYear(1)}>
           &rarr;
         </Button>
       </div>
 
-      <div className={styles.zoom}>
+      <div className="flex min-h-[34px] items-center">
         {zoomMonth === null ? (
-          <span className={styles.hint}>Click a month to open it</span>
+          <span className="text-base text-ash">Click a month to open it</span>
         ) : (
           <Button variant="ghost" onClick={onZoomOut}>
             {MONTH_NAMES[zoomMonth]} &mdash; back to the year

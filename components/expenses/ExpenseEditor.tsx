@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/cn";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Panel, PanelHead } from "@/components/ui/Panel";
@@ -9,7 +10,6 @@ import type { ExpenseItem } from "@/lib/types";
 import { ExpenseItemRow } from "./ExpenseItemRow";
 import { MortgageLinkPicker } from "./MortgageLinkPicker";
 import { RetirementLinkPicker } from "./RetirementLinkPicker";
-import styles from "./ExpenseEditor.module.css";
 
 interface ExpenseEditorProps {
   model: ExpenseModel;
@@ -59,39 +59,39 @@ export function ExpenseEditor({ model, hoveredItemId, onHoverItem }: ExpenseEdit
   const oneTimeTotal = oneTime.reduce((sum, item) => sum + (totals.get(item.id) ?? 0), 0);
 
   return (
-    <Panel className={styles.editor}>
+    <Panel className="mt-[clamp(24px,2.6vw,40px)]">
       <PanelHead
         title="Where the money goes"
         hint="Edits are saved automatically and stay put between visits"
       />
 
       {model.items.length === 0 ? (
-        <p className={styles.empty}>No expenses yet. Add one to fill the timeline.</p>
+        <p className="m-0 text-body text-ash">No expenses yet. Add one to fill the timeline.</p>
       ) : null}
 
       {recurring.length > 0 ? (
-        <section className={styles.group}>
-          <div className={styles.groupHead}>
-            <h3 className={styles.groupTitle}>Recurring</h3>
-            <span className={styles.groupMeta}>
+        <section>
+          <div className="mb-2.5 mt-3.5 flex flex-wrap items-baseline justify-between gap-3">
+            <h3 className="m-0 font-mono text-label font-normal uppercase tracking-[0.18em] text-ash">Recurring</h3>
+            <span className="font-mono text-label tabular-nums text-ash">
               {recurring.length} {recurring.length === 1 ? "bill" : "bills"} ·{" "}
               {formatMoney(model.derived.recurringAnnual)} a year
             </span>
           </div>
-          <div className={styles.list}>{recurring.map(renderRow)}</div>
+          <div className="grid gap-3">{recurring.map(renderRow)}</div>
         </section>
       ) : null}
 
       {oneTime.length > 0 ? (
-        <section className={styles.group}>
-          <div className={styles.groupHead}>
-            <h3 className={styles.groupTitle}>One time</h3>
-            <span className={styles.groupMeta}>
+        <section className={cn(recurring.length > 0 && "mt-[clamp(18px,2vw,28px)]")}>
+          <div className="mb-2.5 mt-3.5 flex flex-wrap items-baseline justify-between gap-3">
+            <h3 className="m-0 font-mono text-label font-normal uppercase tracking-[0.18em] text-ash">One time</h3>
+            <span className="font-mono text-label tabular-nums text-ash">
               {oneTime.length} {oneTime.length === 1 ? "cost" : "costs"} ·{" "}
               {formatMoney(oneTimeTotal)} in {model.year}
             </span>
           </div>
-          <div className={styles.list}>{oneTime.map(renderRow)}</div>
+          <div className="grid gap-3">{oneTime.map(renderRow)}</div>
         </section>
       ) : null}
 
@@ -112,7 +112,7 @@ export function ExpenseEditor({ model, hoveredItemId, onHoverItem }: ExpenseEdit
         />
       ) : null}
 
-      <div className={styles.actions}>
+      <div className="mt-4 flex flex-wrap gap-2.5">
         <Button onClick={() => model.addItem({ cadence: "monthly" })}>Add recurring expense</Button>
         <Button
           variant="ghost"
